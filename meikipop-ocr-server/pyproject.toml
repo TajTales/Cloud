@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "meikipop-ocr-server"
+version = "0.1.0"
+description = "Standalone OCR server extracted from meikipop"
+requires-python = ">=3.10"
+dependencies = [
+    "aiohttp>=3.9",
+    "Pillow>=11.2.1",
+    "requests>=2.32.4",
+    "betterproto>=2.0.0b7",
+    "protobuf>=6.33.1",
+    "meikiocr>=0.3.5",
+    "websockets>=15.0.1",
+    "numpy",
+    "lxml",
+]
+
+[project.scripts]
+meikipop-ocr-server = "meikipop_ocr_server.server:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["meikipop_ocr_server*"]
