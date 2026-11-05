@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meikipop OCR</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --card-border: #334155;
+      --accent: #38bdf8;
+      --accent-hover: #0ea5e9;
+      --accent-light: rgba(56, 189, 248, 0.15);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --box-border: #38bdf8;
+      --box-bg: rgba(56, 189, 248, 0.2);
+      --box-active-border: #f43f5e;
+      --box-active-bg: rgba(244, 63, 94, 0.3);
+      --radius: 10px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Sans", "Noto Sans CJK JP", sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background-color: var(--card-bg);
+      border-bottom: 1px solid var(--card-border);
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .brand h1 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #38bdf8, #818cf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .badge {
+      font-size: 0.75rem;
+      padding: 0.2rem 0.6rem;
+      border-radius: 9999px;
+      background-color: var(--accent-light);
+      color: var(--accent);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      font-weight: 600;
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      font-size: 0.875rem;
+    }
+
+    .mode-toggle {
+      display: flex;
+      background: var(--bg);
+      border-radius: 8px;
+      padding: 2px;
+      border: 1px solid var(--card-border);
+    }
+
+    .mode-toggle button {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 0.35rem 0.75rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .mode-toggle button.active {
+      background: var(--accent);
+      color: #0f172a;
+    }
+
+    .container {
+      max-width: 1500px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 1.5rem 2rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    /* Dropzone */
+    .dropzone {
+      border: 2px dashed var(--card-border);
+      background-color: rgba(30, 41, 59, 0.5);
+      border-radius: var(--radius);
+      padding: 2.5rem 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .dropzone:hover, .dropzone.dragover {
+      border-color: var(--accent);
+      background-color: var(--accent-light);
+    }
+
+    .dropzone input[type="file"] {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .dropzone-icon {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .dropzone-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .dropzone-hint {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    .shortcut {
+      display: inline-block;
+      padding: 0.1rem 0.4rem;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 0.8rem;
+    }
+
+    /* Main Workspace Split */
+    .workspace {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      flex: 1;
+      min-height: 500px;
+    }
+
+    @media (max-width: 1024px) {
+      .workspace {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panel {
+      background-color: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 0.875rem 1.25rem;
+      border-bottom: 1px solid var(--card-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    .panel-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn {
+      background: var(--card-border);
+      color: var(--text);
+      border: none;
+      padding: 0.35rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.15s ease;
+    }
+
+    .btn:hover {
+      background: #475569;
+    }
+
+    .btn-accent {
+      background: var(--accent);
+      color: #0f172a;
+      font-weight: 600;
+    }
+
+    .btn-accent:hover {
+      background: var(--accent-hover);
+    }
+
+    /* Image Preview Container */
+    .image-container {
+      padding: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+      overflow: auto;
+      background: #090d16;
+      position: relative;
+    }
+
+    .image-wrapper {
+      position: relative;
+      display: inline-block;
+      max-width: 100%;
+      user-select: none;
+    }
+
+    .image-wrapper img {
+      display: block;
+      max-width: 100%;
+      height: auto;
+      border-radius: 4px;
+    }
+
+    .overlay-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    .bbox {
+      position: absolute;
+      border: 2px solid var(--box-border);
+      background-color: var(--box-bg);
+      cursor: pointer;
+      pointer-events: auto;
+      transition: all 0.15s ease;
+      border-radius: 2px;
+    }
+
+    .bbox:hover, .bbox.active {
+      border-color: var(--box-active-border);
+      background-color: var(--box-active-bg);
+      z-index: 10;
+    }
+
+    /* Results List */
+    .results-container {
+      padding: 1rem;
+      overflow-y: auto;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+      color: var(--text-muted);
+      text-align: center;
+      padding: 2rem;
+    }
+
+    .paragraph-card {
+      background: #151e2e;
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 0.85rem 1rem;
+      transition: all 0.15s ease;
+      cursor: pointer;
+    }
+
+    .paragraph-card:hover, .paragraph-card.active {
+      border-color: var(--accent);
+      background: #1c273b;
+    }
+
+    .card-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.4rem;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .card-index {
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .card-direction {
+      padding: 0.1rem 0.4rem;
+      border-radius: 4px;
+      background: #0f172a;
+      font-size: 0.7rem;
+    }
+
+    .card-text {
+      font-size: 1.05rem;
+      line-height: 1.6;
+      word-break: break-word;
+      font-family: "Hiragino Sans", "Noto Sans JP", sans-serif;
+    }
+
+    .words-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      margin-top: 0.5rem;
+      padding-top: 0.4rem;
+      border-top: 1px dashed var(--card-border);
+    }
+
+    .word-pill {
+      background: #0f172a;
+      border: 1px solid var(--card-border);
+      border-radius: 4px;
+      padding: 0.15rem 0.4rem;
+      font-size: 0.75rem;
+      color: #cbd5e1;
+    }
+
+    /* Status Bar */
+    .status-bar {
+      padding: 0.5rem 2rem;
+      background-color: var(--card-bg);
+      border-top: 1px solid var(--card-border);
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .status-indicator {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #10b981;
+      margin-right: 0.4rem;
+    }
+
+    .status-indicator.busy {
+      background: #f59e0b;
+      animation: pulse 1s infinite;
+    }
+
+    .status-indicator.error {
+      background: #ef4444;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: #38bdf8;
+      color: #0f172a;
+      padding: 0.6rem 1.2rem;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.875rem;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.2s ease;
+      pointer-events: none;
+      z-index: 1000;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">
+      <h1>Meikipop OCR</h1>
+      <span class="badge" id="providerBadge">Connecting...</span>
+    </div>
+    <div class="controls">
+      <span>Mode:</span>
+      <div class="mode-toggle">
+        <button id="modeHttp" class="active" onclick="setMode('http')">HTTP</button>
+        <button id="modeWs" onclick="setMode('ws')">WebSocket</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- Upload Dropzone -->
+    <div class="dropzone" id="dropzone">
+      <input type="file" id="fileInput" accept="image/*">
+      <div class="dropzone-icon">📷</div>
+      <div class="dropzone-title">Drop an image here or click to browse</div>
+      <div class="dropzone-hint">
+        or paste directly with <span class="shortcut">Ctrl+V</span> (PNG, JPG, WebP)
+      </div>
+    </div>
+
+    <!-- Workspace -->
+    <div class="workspace">
+      <!-- Image Panel -->
+      <div class="panel">
+        <div class="panel-header">
+          <span>Image Preview</span>
+          <div class="panel-actions">
+            <button class="btn" id="toggleBoxesBtn" onclick="toggleBoundingBoxes()">Hide Boxes</button>
+          </div>
+        </div>
+        <div class="image-container" id="imageContainer">
+          <div class="empty-state" id="imageEmptyState">
+            No image loaded yet
+          </div>
+          <div class="image-wrapper" id="imageWrapper" style="display: none;">
+            <img id="previewImg" alt="Preview">
+            <div class="overlay-container" id="overlayContainer"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Results Panel -->
+      <div class="panel">
+        <div class="panel-header">
+          <span id="resultsCount">Results</span>
+          <div class="panel-actions">
+            <button class="btn" id="copyAllBtn" onclick="copyAllText()" style="display:none;">Copy All</button>
+            <button class="btn" id="downloadJsonBtn" onclick="downloadJson()" style="display:none;">JSON</button>
+          </div>
+        </div>
+        <div class="results-container" id="resultsContainer">
+          <div class="empty-state" id="resultsEmptyState">
+            Upload or paste an image to see recognized text
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="status-bar">
+    <div>
+      <span class="status-indicator" id="statusIndicator"></span>
+      <span id="statusText">Ready</span>
+    </div>
+    <div id="statsText">0 paragraphs | 0 ms</div>
+  </div>
+
+  <div class="toast" id="toast">Copied to clipboard!</div>
+
+  <script>
+    let currentMode = 'http'; // 'http' or 'ws'
+    let ws = null;
+    let wsReady = false;
+    let showBoxes = true;
+    let lastResults = null;
+    let currentImageFile = null;
+
+    // Elements
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('fileInput');
+    const imageContainer = document.getElementById('imageContainer');
+    const imageWrapper = document.getElementById('imageWrapper');
+    const previewImg = document.getElementById('previewImg');
+    const overlayContainer = document.getElementById('overlayContainer');
+    const imageEmptyState = document.getElementById('imageEmptyState');
+    const resultsContainer = document.getElementById('resultsContainer');
+    const resultsEmptyState = document.getElementById('resultsEmptyState');
+    const resultsCount = document.getElementById('resultsCount');
+    const statsText = document.getElementById('statsText');
+    const statusText = document.getElementById('statusText');
+    const statusIndicator = document.getElementById('statusIndicator');
+    const providerBadge = document.getElementById('providerBadge');
+    const copyAllBtn = document.getElementById('copyAllBtn');
+    const downloadJsonBtn = document.getElementById('downloadJsonBtn');
+    const toast = document.getElementById('toast');
+
+    // Health check on load
+    async function checkHealth() {
+      try {
+        const res = await fetch('/health');
+        if (res.ok) {
+          const data = await res.json();
+          providerBadge.textContent = data.provider || 'Ready';
+        }
+      } catch (e) {
+        providerBadge.textContent = 'Server Offline';
+        setStatus('error', 'Cannot reach server');
+      }
+    }
+    checkHealth();
+
+    // Mode handling
+    function setMode(mode) {
+      currentMode = mode;
+      document.getElementById('modeHttp').classList.toggle('active', mode === 'http');
+      document.getElementById('modeWs').classList.toggle('active', mode === 'ws');
+
+      if (mode === 'ws') {
+        initWebSocket();
+      } else {
+        if (ws) {
+          ws.close();
+          ws = null;
+        }
+        setStatus('ready', 'HTTP Mode Ready');
+      }
+    }
+
+    function initWebSocket() {
+      if (ws && ws.readyState === WebSocket.OPEN) return;
+
+      const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const wsUrl = `${protocol}//${location.host}/ws`;
+
+      setStatus('busy', 'Connecting WebSocket...');
+      ws = new WebSocket(wsUrl);
+
+      ws.onopen = () => {
+        wsReady = true;
+        setStatus('ready', 'WebSocket Connected');
+      };
+
+      ws.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          handleOcrResult(data);
+        } catch (e) {
+          console.error('Failed to parse WebSocket message', e);
+        }
+      };
+
+      ws.onerror = (err) => {
+        console.error('WebSocket error:', err);
+        setStatus('error', 'WebSocket Error');
+      };
+
+      ws.onclose = () => {
+        wsReady = false;
+        if (currentMode === 'ws') {
+          setStatus('busy', 'WebSocket disconnected, reconnecting in 2s...');
+          setTimeout(initWebSocket, 2000);
+        }
+      };
+    }
+
+    function setStatus(state, msg) {
+      statusIndicator.className = 'status-indicator ' + (state === 'busy' ? 'busy' : (state === 'error' ? 'error' : ''));
+      statusText.textContent = msg;
+    }
+
+    function showToast(msg) {
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2000);
+    }
+
+    // Drag and Drop & Paste
+    ['dragenter', 'dragover'].forEach(name => {
+      dropzone.addEventListener(name, (e) => {
+        e.preventDefault();
+        dropzone.classList.add('dragover');
+      });
+    });
+
+    ['dragleave', 'drop'].forEach(name => {
+      dropzone.addEventListener(name, (e) => {
+        e.preventDefault();
+        dropzone.classList.remove('dragover');
+      });
+    });
+
+    dropzone.addEventListener('drop', (e) => {
+      const files = e.dataTransfer.files;
+      if (files.length > 0 && files[0].type.startsWith('image/')) {
+        processImage(files[0]);
+      }
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      if (fileInput.files.length > 0) {
+        processImage(fileInput.files[0]);
+      }
+    });
+
+    window.addEventListener('paste', (e) => {
+      const items = e.clipboardData?.items;
+      if (!items) return;
+      for (let item of items) {
+        if (item.type.startsWith('image/')) {
+          const file = item.getAsFile();
+          if (file) {
+            processImage(file);
+            break;
+          }
+        }
+      }
+    });
+
+    // Process image
+    async function processImage(file) {
+      currentImageFile = file;
+
+      // Show local preview immediately
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        previewImg.src = e.target.result;
+        imageEmptyState.style.display = 'none';
+        imageWrapper.style.display = 'inline-block';
+        clearOverlays();
+      };
+      reader.readAsDataURL(file);
+
+      setStatus('busy', 'Processing OCR...');
+
+      if (currentMode === 'ws') {
+        if (!ws || ws.readyState !== WebSocket.OPEN) {
+          initWebSocket();
+          await new Promise(r => setTimeout(r, 500));
+        }
+        const buffer = await file.arrayBuffer();
+        ws.send(buffer);
+      } else {
+        // HTTP POST
+        try {
+          const formData = new FormData();
+          formData.append('image', file);
+
+          const res = await fetch('/ocr', {
+            method: 'POST',
+            body: formData,
+          });
+
+          if (!res.ok) {
+            const err = await res.json();
+            throw new Error(err.error || 'OCR request failed');
+          }
+
+          const data = await res.json();
+          handleOcrResult(data);
+        } catch (err) {
+          setStatus('error', 'Error: ' + err.message);
+          console.error(err);
+        }
+      }
+    }
+
+    function handleOcrResult(data) {
+      lastResults = data;
+      setStatus('ready', 'Ready');
+
+      if (data.error) {
+        setStatus('error', data.error);
+        return;
+      }
+
+      const paragraphs = data.paragraphs || [];
+      const elapsed = data.elapsed_ms || 0;
+
+      statsText.textContent = `${paragraphs.length} paragraphs | ${elapsed} ms`;
+      resultsCount.textContent = `Results (${paragraphs.length})`;
+
+      renderResults(paragraphs);
+      renderBoundingBoxes(paragraphs);
+
+      copyAllBtn.style.display = paragraphs.length > 0 ? 'inline-block' : 'none';
+      downloadJsonBtn.style.display = 'inline-block';
+    }
+
+    function clearOverlays() {
+      overlayContainer.innerHTML = '';
+    }
+
+    function toggleBoundingBoxes() {
+      showBoxes = !showBoxes;
+      overlayContainer.style.display = showBoxes ? 'block' : 'none';
+      document.getElementById('toggleBoxesBtn').textContent = showBoxes ? 'Hide Boxes' : 'Show Boxes';
+    }
+
+    function renderBoundingBoxes(paragraphs) {
+      clearOverlays();
+
+      paragraphs.forEach((p, index) => {
+        const box = p.bounding_box;
+        if (!box) return;
+
+        const left = (box.center_x - box.width / 2) * 100;
+        const top = (box.center_y - box.height / 2) * 100;
+        const width = box.width * 100;
+        const height = box.height * 100;
+
+        const div = document.createElement('div');
+        div.className = 'bbox';
+        div.id = `bbox-${index}`;
+        div.style.left = `${left}%`;
+        div.style.top = `${top}%`;
+        div.style.width = `${width}%`;
+        div.style.height = `${height}%`;
+        div.title = p.text;
+
+        div.addEventListener('mouseenter', () => highlightItem(index));
+        div.addEventListener('mouseleave', () => unhighlightItem(index));
+        div.addEventListener('click', () => {
+          highlightItem(index);
+          const card = document.getElementById(`card-${index}`);
+          if (card) card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        });
+
+        overlayContainer.appendChild(div);
+      });
+    }
+
+    function renderResults(paragraphs) {
+      resultsContainer.innerHTML = '';
+      if (paragraphs.length === 0) {
+        resultsContainer.innerHTML = '<div class="empty-state">No text detected in this image.</div>';
+        return;
+      }
+
+      paragraphs.forEach((p, index) => {
+        const card = document.createElement('div');
+        card.className = 'paragraph-card';
+        card.id = `card-${index}`;
+
+        const meta = document.createElement('div');
+        meta.className = 'card-meta';
+        meta.innerHTML = `
+          <span class="card-index">#${index + 1}</span>
+          <span class="card-direction">${p.direction || 'Horizontal'}</span>
+        `;
+
+        const text = document.createElement('div');
+        text.className = 'card-text';
+        text.textContent = p.text;
+
+        card.appendChild(meta);
+        card.appendChild(text);
+
+        if (p.words && p.words.length > 0) {
+          const pills = document.createElement('div');
+          pills.className = 'words-pills';
+          p.words.forEach(w => {
+            const pill = document.createElement('span');
+            pill.className = 'word-pill';
+            pill.textContent = w.text;
+            pills.appendChild(pill);
+          });
+          card.appendChild(pills);
+        }
+
+        card.addEventListener('mouseenter', () => highlightItem(index));
+        card.addEventListener('mouseleave', () => unhighlightItem(index));
+        card.addEventListener('click', () => {
+          navigator.clipboard.writeText(p.text);
+          showToast(`Copied #${index + 1}!`);
+        });
+
+        resultsContainer.appendChild(card);
+      });
+    }
+
+    function highlightItem(index) {
+      document.getElementById(`bbox-${index}`)?.classList.add('active');
+      document.getElementById(`card-${index}`)?.classList.add('active');
+    }
+
+    function unhighlightItem(index) {
+      document.getElementById(`bbox-${index}`)?.classList.remove('active');
+      document.getElementById(`card-${index}`)?.classList.remove('active');
+    }
+
+    function copyAllText() {
+      if (!lastResults || !lastResults.paragraphs) return;
+      const allText = lastResults.paragraphs.map(p => p.text).join('\n');
+      navigator.clipboard.writeText(allText);
+      showToast('All text copied to clipboard!');
+    }
+
+    function downloadJson() {
+      if (!lastResults) return;
+      const blob = new Blob([JSON.stringify(lastResults, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `ocr_result_${Date.now()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  </script>
+</body>
+</html>
+

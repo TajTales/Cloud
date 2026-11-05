@@ -1,0 +1,16 @@
+[Unit]
+Description=Meikipop OCR Web & API Server
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/meikipop-ocr-server
+ExecStart=/home/ubuntu/meikipop-ocr-server/venv/bin/meikipop-ocr-server --host 0.0.0.0 --port 8080 --provider glensv2
+Restart=always
+RestartSec=5
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=multi-user.target
+
