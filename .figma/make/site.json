@@ -1,0 +1,10 @@
+{
+  "description": "Stream videos with integrated OCR to enhance language learning by extracting and displaying text for improved comprehension and study.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
