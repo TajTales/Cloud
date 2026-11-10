@@ -1,0 +1,228 @@
+/*
+ * Yomitan display.css excerpts adapted for LinguaLive, 2026-11-11.
+ * Copyright (C) 2023-2026 Yomitan Authors; Copyright (C) 2016-2022 Yomichan Authors.
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Changes: prefix selectors; use the host app palette; omit extension-only controls.
+ * Upstream source and full notices: third_party/yomitan/.
+ */
+.yomitan-entry-root .tag {
+    --tag-color: var(--tag-default-background-color);
+
+    display: inline-flex;
+    flex-flow: row nowrap;
+    align-items: stretch;
+    border: none;
+    border-right: none;
+    font-size: 1em;
+    min-height: var(--tag-height);
+    margin: calc(1em / var(--font-size-no-units)) 0.375em calc(1em / var(--font-size-no-units)) 0;
+}
+
+.yomitan-entry-root .tag-label {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    background-color: var(--tag-color);
+    border-radius: var(--tag-border-radius);
+    padding: calc(2.5em / var(--font-size-no-units)) 0.375em calc(2.5em / var(--font-size-no-units)) 0.375em;
+    color: var(--tag-text-color);
+    cursor: pointer;
+}
+
+.yomitan-entry-root .tag-label-content {
+    display: block;
+    font-size: var(--tag-font-size);
+    font-weight: var(--tag-font-weight);
+}
+
+.yomitan-entry-root .tag-body {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    position: relative;
+    padding: 0 0.375em 0 0.375em;
+    border-radius: var(--tag-border-radius);
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.yomitan-entry-root .tag:not(.tag-has-body)>.tag-body {
+    display: none;
+}
+
+.yomitan-entry-root .headword-list {
+    display: inline;
+    margin-right: var(--headword-list-end-space);
+}
+
+.yomitan-entry-root .headword-details {
+    display: inline;
+}
+
+.yomitan-entry-root .headword-list-details {
+    display: inline;
+}
+
+.yomitan-entry-root .headword-list-tag-list {
+    display: inline;
+}
+
+.yomitan-entry-root .headword-text-container {
+    display: inline-block;
+    margin-left: calc(-1 * var(--headword-reading-space));
+}
+
+.yomitan-entry-root .headword-term-outer {
+    display: inline-block;
+    position: relative;
+    margin-left: var(--headword-reading-space);
+}
+
+.yomitan-entry-root .headword-reading-outer {
+    display: none;
+    position: relative;
+    margin-left: var(--headword-reading-space);
+}
+
+.yomitan-entry-root .headword-term {
+    color: var(--headword-current-text-color);
+    font-size: var(--headword-font-size);
+}
+
+.yomitan-entry-root .headword-reading {
+    color: var(--headword-current-reading-text-color);
+    font-size: var(--headword-reading-font-size);
+}
+
+.yomitan-entry-root .headword-term>ruby>rt {
+    color: var(--headword-current-furigana-text-color);
+}
+
+.yomitan-entry-root .gloss-list {
+    margin: 0;
+    padding: 0 0 0 var(--list-padding2);
+    list-style-type: circle;
+}
+
+.yomitan-entry-root .gloss-list[data-count='0'],
+.yomitan-entry-root .gloss-list[data-count='1'] {
+    padding-left: 0;
+    list-style-type: none;
+}
+
+.yomitan-entry-root .gloss-content {
+    display: block;
+    white-space: pre-line;
+}
+
+.yomitan-entry-root .definition-disambiguation-list {
+    color: var(--text-color-light3);
+    padding-right: var(--disambiguation-space);
+}
+
+.yomitan-entry-root .definition-disambiguation-list[data-count='0'] {
+    display: none;
+}
+
+.yomitan-entry-root .gloss-separator,
+.yomitan-entry-root .inflection-separator {
+    display: inline;
+    font-size: 0;
+    opacity: 0;
+    white-space: pre-wrap;
+}
+
+.yomitan-entry-root .gloss-separator {
+    display: none;
+}
+
+.yomitan-entry-root .definition-item {
+    display: list-item;
+    position: relative;
+}
+
+.yomitan-entry-root .definition-item-inner {
+    display: flex;
+    flex-flow: row nowrap;
+}
+
+.yomitan-entry-root .definition-item-content {
+    width: 100%;
+    flex: 1 1 auto;
+    background-color: transparent;
+    transition: background-color var(--animation-duration) ease-in-out;
+}
+
+/* Web adapter layout; template and ruby/definition generation remain upstream. */
+.yomitan-entry-root {
+  --headword-list-end-space: 0;
+  --headword-reading-space: 0;
+  --headword-font-size: 29px;
+  --headword-reading-font-size: 13px;
+  --headword-current-text-color: var(--ink);
+  --headword-current-reading-text-color: var(--muted);
+  --headword-current-furigana-text-color: var(--muted);
+  --text-color-light3: var(--muted);
+  --list-padding2: 1.2em;
+  color: var(--ink);
+  line-height: 1.65;
+}
+.yomitan-entry-root .entry { padding: 0; margin: 0; }
+.yomitan-entry-root .entry-header { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 10px; }
+.yomitan-entry-root .actions { grid-column: 2; grid-row: 1; display: flex; align-items: flex-start; gap: 4px; padding-top: 8px; }
+.yomitan-entry-root .note-actions-container, .yomitan-entry-root .action-button-container { display: flex; gap: 4px; }
+.yomitan-entry-root .action-button { width: 31px; height: 31px; display: grid; place-items: center; padding: 0; border: 1px solid var(--line); border-radius: 5px; background: transparent; color: var(--forest); cursor: pointer; }
+.yomitan-entry-root .action-button:hover { background: var(--surface-elevated); border-color: var(--forest); }
+.yomitan-entry-root .action-button:focus-visible { outline: 2px solid var(--coral); outline-offset: 2px; }
+.yomitan-entry-root .action-button:disabled { opacity: .45; cursor: default; }
+.yomitan-entry-root .action-button[aria-disabled="true"] { opacity: .65; cursor: default; }
+.yomitan-entry-root .action-button[aria-disabled="true"]:hover { background: transparent; border-color: var(--line); }
+.yomitan-entry-root .slow-audio { font-size: 10px; font-weight: 600; }
+.yomitan-entry-root .yomitan-save { color: #fff; background: #426c58; border-color: #426c58; }
+.yomitan-entry-root .yomitan-save:hover { background: #315d49; }
+.yomitan-entry-root .yomitan-save[aria-disabled="true"] { color: var(--forest); background: var(--surface-elevated); border-color: var(--line); }
+.yomitan-entry-root .headword-list { grid-column: 1; grid-row: 1; min-width: 0; }
+.yomitan-entry-root .headword { display: inline-block; padding-top: 10px; }
+.yomitan-entry-root .headword-term { font-family: "Hiragino Sans", "Yu Gothic", sans-serif; font-weight: 400; line-height: 1.8; overflow-wrap: anywhere; }
+.yomitan-entry-root ruby { ruby-align: center; }
+.yomitan-entry-root rt { font-size: 11px; font-weight: 400; }
+.yomitan-entry-root .headword-list-details { grid-column: 1 / -1; }
+.yomitan-entry-root .headword-list-tag-list:empty { display: none; }
+.yomitan-entry-root .inflection-rule-chains { list-style: none; margin: 6px 0 0; padding: 0; }
+.yomitan-entry-root .inflection-rule-chain { font-size: 11px; color: var(--muted); }
+.yomitan-entry-root .entry-body { margin-top: 12px; }
+.yomitan-entry-root .definition-list { margin: 0; padding: 0 0 0 20px; font-size: 13px; }
+.yomitan-entry-root .definition-item { margin: 0; padding: 0; list-style: decimal; }
+.yomitan-entry-root .definition-item::marker { color: var(--muted); }
+.yomitan-entry-root .definition-item-content { min-width: 0; }
+.yomitan-entry-root .definition-tag-list { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 8px; }
+.yomitan-entry-root .tag { display: inline-flex; align-items: center; font-size: 10px; border-radius: 3px; padding: 2px 6px; border: 0; background: var(--surface-elevated); color: var(--muted); line-height: 1.6; max-width: none; }
+.yomitan-entry-root .tag[data-category="partOfSpeech"] { background: color-mix(in srgb, #4782bb 14%, var(--surface-solid)); color: #416e97; }
+[data-theme="dark"] .yomitan-entry-root .tag[data-category="partOfSpeech"] { color: #a6ceef; }
+.yomitan-entry-root .tag-label, .yomitan-entry-root .tag-label-content { padding: 0; }
+.yomitan-entry-root .gloss-list { margin: 0; padding: 0; list-style: none; }
+.yomitan-entry-root .gloss-content { font-size: 14px; line-height: 1.75; font-weight: 500; }
+.yomitan-entry-root .definition-disambiguation-list[data-count="0"] { display: none; }
+.yomitan-entry-root .tag-body, .yomitan-entry-root .entry-current-indicator, .yomitan-entry-root .entry-current-indicator-icon { display: none; }
+.yomitan-render-state { font-size: 13px; color: var(--muted); padding: 18px 0; }
+.yomitan-popover { padding: 0 18px 14px; border-radius: 9px; width: min(405px, calc(100vw - 24px)); }
+.yomitan-popover .vocabulary-popover-top { border-bottom: 1px solid var(--line); margin: 0 -18px 12px; padding: 8px 12px 8px 18px; background: var(--surface-elevated); }
+.yomitan-popover .vocabulary-popover-top > .yomitan-title { font-size: 12px; letter-spacing: 0; color: var(--forest); font-weight: 700; }
+.yomitan-title > span { color: var(--muted); font-size: 10px; font-weight: 400; }
+.yomitan-reading-line { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 12px 0 0; font-size: 11px; color: var(--muted); padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+.yomitan-reading-line > span:last-child { color: var(--forest); }
+.yomitan-context { margin: 10px 0 0; font-size: 11px; color: var(--muted); }
+.yomitan-context strong { color: var(--ink); font-weight: 500; }
+.yomitan-usage { margin-top: 15px; }
+.yomitan-usage > h3 { margin: 0 0 6px; font-size: 9px; letter-spacing: 1px; color: var(--muted); }
+.yomitan-popover .vocabulary-example { margin: 13px 0; padding: 9px 12px; }
+.yomitan-source { margin: 8px 0; font-size: 10px; color: var(--muted); }
+.yomitan-attribution { display: flex; justify-content: space-between; gap: 12px; border-top: 1px solid var(--line); padding-top: 10px; margin-top: 12px; }
+.yomitan-attribution a { color: var(--forest); font-size: 10px; text-decoration: none; }
+.yomitan-attribution a:hover { text-decoration: underline; }
+.yomitan-popover .vocabulary-footnote { font-size: 9px; margin-top: 8px; }
+@media (max-width: 560px) {
+  .yomitan-popover { padding: 0 16px 12px; }
+  .yomitan-popover .vocabulary-popover-top { margin: 0 -16px 10px; padding-left: 16px; }
+  .yomitan-entry-root { --headword-font-size: 27px; }
+}

@@ -1,0 +1,93 @@
+.transcript-lookup-hint {
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 0 20px 12px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.6;
+}
+.transcript-list .transcript-token {
+  display: inline;
+  padding: 2px 1px;
+  margin: 0;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  line-height: inherit;
+  text-align: inherit;
+  vertical-align: baseline;
+  cursor: help;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 4px;
+  transition: background-color 150ms, text-decoration-color 150ms;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+.transcript-list .transcript-token:hover,
+.transcript-list .transcript-token.is-active {
+  background: color-mix(in srgb, var(--coral) 15%, transparent);
+  text-decoration-color: var(--coral);
+}
+.transcript-list .transcript-token:focus-visible {
+  outline: 2px solid var(--coral);
+  outline-offset: 2px;
+  background: color-mix(in srgb, var(--coral) 12%, transparent);
+}
+.transcript-list .transcript-token:active { transform: none; }
+.vocabulary-popover {
+  position: fixed;
+  z-index: 200;
+  width: min(360px, calc(100vw - 24px));
+  max-height: calc(100dvh - 24px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 18px;
+  color: var(--ink);
+  background: var(--surface-solid);
+  border: 1px solid color-mix(in srgb, var(--forest) 30%, var(--line));
+  border-radius: 16px;
+  box-shadow: 0 18px 60px rgba(8, 28, 32, .22), 0 3px 10px rgba(8, 28, 32, .08);
+  font-family: "DM Sans", sans-serif;
+  text-align: left;
+}
+[data-theme="dark"] .vocabulary-popover {
+  box-shadow: 0 18px 60px #0007, 0 0 0 1px #ffffff04;
+}
+.vocabulary-popover-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.vocabulary-popover-top > span { color: var(--coral); font-size: 9px; letter-spacing: 1.2px; font-weight: 700; }
+.vocabulary-popover-top > button { display: grid; place-items: center; padding: 0; width: 28px; height: 28px; flex-shrink: 0; background: transparent; border: 0; border-radius: 6px; color: var(--muted); }
+.vocabulary-popover-top > button:hover { background: var(--surface-elevated); color: var(--ink); }
+.vocabulary-popover-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.vocabulary-popover-heading h2 { font-size: 27px; line-height: 1.3; margin: 0 0 8px; letter-spacing: 0; color: var(--ink); overflow-wrap: anywhere; }
+.vocabulary-popover-heading p { display: flex; flex-wrap: wrap; gap: 4px 10px; font-size: 12px; line-height: 1.6; color: var(--muted); margin: 0; }
+.vocabulary-romaji { color: var(--forest); }
+.vocabulary-pos { flex-shrink: 0; max-width: 130px; border: 1px solid var(--line); border-radius: 6px; padding: 5px 8px; color: var(--forest); background: color-mix(in srgb, var(--forest) 7%, transparent); font-size: 10px; font-weight: 600; line-height: 1.5; }
+.vocabulary-base { display: flex; flex-wrap: wrap; align-items: center; gap: 5px 9px; padding: 9px 11px; margin: 12px 0 0; background: var(--surface-elevated); border-radius: 7px; font-size: 11px; line-height: 1.5; color: var(--muted); }
+.vocabulary-base strong { color: var(--ink); font-size: 13px; }
+.vocabulary-meaning { font-size: 15px; font-weight: 600; line-height: 1.65; margin: 16px 0 9px; color: var(--ink); }
+.vocabulary-usage { font-size: 12px; line-height: 1.8; margin: 0; color: var(--muted); }
+.vocabulary-example { border-left: 2px solid var(--coral); padding: 11px 12px; margin: 16px 0; background: var(--surface-elevated); border-radius: 0 8px 8px 0; }
+.vocabulary-example > span { font-size: 9px; font-weight: 700; letter-spacing: 1px; color: var(--muted); }
+.vocabulary-example > p { margin: 7px 0 5px; color: var(--ink); font-size: 13px; line-height: 1.7; }
+.vocabulary-example > small { display: block; color: var(--muted); font-size: 11px; line-height: 1.7; }
+.vocabulary-actions { display: flex; align-items: center; gap: 7px; }
+.vocabulary-actions > button { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 12px; background: transparent; border: 1px solid var(--line); border-radius: 8px; color: var(--forest); font-size: 12px; min-height: 38px; font-weight: 600; transition: background-color 150ms; white-space: nowrap; }
+.vocabulary-actions > button:hover { background: var(--surface-elevated); }
+.vocabulary-actions > .vocabulary-save { flex: 1; background: #315f53; color: #fff; border-color: #315f53; }
+.vocabulary-actions > .vocabulary-save:hover { background: #3c7364; }
+.vocabulary-actions > button:disabled { opacity: .65; cursor: default; }
+.vocabulary-actions > .vocabulary-save[aria-disabled="true"] { color: var(--forest); background: var(--surface-elevated); border-color: var(--line); }
+.vocabulary-popover .vocabulary-footnote { margin: 12px 0 0; color: var(--muted); font-size: 10px; line-height: 1.6; }
+@media (max-width: 560px) {
+  .vocabulary-popover { padding: 16px; border-radius: 14px; }
+  .vocabulary-popover-heading h2 { font-size: 25px; }
+  .vocabulary-pos { max-width: 112px; }
+  .vocabulary-actions > button { min-height: 42px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .transcript-list .transcript-token { transition: none; }
+}

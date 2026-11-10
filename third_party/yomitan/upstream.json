@@ -1,0 +1,107 @@
+{
+  "repository": "https://github.com/yomidevs/yomitan",
+  "commit": "ee81f8dcf13e985bb4d7961009fb49a764b4d924",
+  "license": "GPL-3.0-or-later",
+  "files": [
+    {
+      "path": "data/anki-compact-gloss-style.js",
+      "upstream_sha256": "5b7f14767d878446c6cd4f77402debd8518377b33e024cf3e18f1ddd4094cc76"
+    },
+    {
+      "path": "js/core/event-dispatcher.js",
+      "upstream_sha256": "fb486d2026dbf9da7a05073b86892f485de72e60dbe4a5b0912dc48a6bf44afb"
+    },
+    {
+      "path": "js/core/event-listener-collection.js",
+      "upstream_sha256": "a6f88b4f83de71ce01c8905ab7dd4c121e130a6c9a3f95e3b11d497311867567"
+    },
+    {
+      "path": "js/core/extension-error.js",
+      "upstream_sha256": "89360fb6b5a9dcc12102ee4b080ee79dc15861fce8eea843c1b16b10b89cf8f5"
+    },
+    {
+      "path": "js/core/fetch-utilities.js",
+      "upstream_sha256": "10ef3400f0e1f4a5a4959a28273f54697845ffa0afa47a6e827b8c549b97b178"
+    },
+    {
+      "path": "js/core/json.js",
+      "upstream_sha256": "b06cc571c7640fc18772599dfa20c84955463997bc35bfea2b9878a3ccb3458f"
+    },
+    {
+      "path": "js/core/log.js",
+      "upstream_sha256": "81fd33bdf3441c4cfde702a36338ea2c639ee96724b2487d6883b5aa99e4d930"
+    },
+    {
+      "path": "js/core/safe-performance.js",
+      "upstream_sha256": "ee76a0a31af024a90b9fdb05ae64a8412c0d5f9742bbe3c883b6ba1e7ae93ccb"
+    },
+    {
+      "path": "js/core/to-error.js",
+      "upstream_sha256": "f8444d1939111ef021cf84f2fa4a819ea51247ee818fba9256b77298f1624c48"
+    },
+    {
+      "path": "js/core/utilities.js",
+      "upstream_sha256": "f827b1ebbfd5d567b3dbc97a61c5e4e558862cda3179a98e23fa712b1c95c2ea"
+    },
+    {
+      "path": "js/data/anki-note-data-creator.js",
+      "upstream_sha256": "d6ff3be4bfdc1ff708a660a008ec297a648d84bd8612c282ef5d6174c7454876"
+    },
+    {
+      "path": "js/data/array-buffer-util.js",
+      "upstream_sha256": "f14c544b09f981dc95b3c1e924be662db281174ae4c13cad9776b7970815ba55"
+    },
+    {
+      "path": "js/dictionary/dictionary-data-util.js",
+      "upstream_sha256": "6e2102271c6982b73cb53bfd757da7f0bc7afa16689f6923661b04ebd1957757"
+    },
+    {
+      "path": "js/display/display-content-manager.js",
+      "upstream_sha256": "a2be2f8ccb358d4db51d0dd5bef1bd5f58723d06c01af5d879e34bbb8bbab20e"
+    },
+    {
+      "path": "js/display/display-generator.js",
+      "upstream_sha256": "f7ff2cd62a6a87915ac8ae2f14a043c33050ffa45658490c0611f70202a5c5eb"
+    },
+    {
+      "path": "js/display/pronunciation-generator.js",
+      "upstream_sha256": "1395685d7c5ab3c812fbafc2a12fddb80c3f0c1c89d2bd55cdf311189491e630"
+    },
+    {
+      "path": "js/display/structured-content-generator.js",
+      "upstream_sha256": "0cb3a0d65852ae30241a8da196acff6e2cedeab5ee1e7143d741116d8bee269d"
+    },
+    {
+      "path": "js/dom/html-template-collection.js",
+      "upstream_sha256": "9ce757a62cab3c89f14c129da5b8a62f21dc2a388cfbe56215ec2a4e6f31f042"
+    },
+    {
+      "path": "js/language/CJK-util.js",
+      "upstream_sha256": "d63db8d3e579957ada81b226f442a181b7b4b650d8f810665ed785eb3376aed1"
+    },
+    {
+      "path": "js/language/ja/japanese.js",
+      "upstream_sha256": "73360f4dd47278dc7ca35a2ff8a88b35bab589d4670394ae16f6f5637119410f"
+    },
+    {
+      "path": "js/language/text-utilities.js",
+      "upstream_sha256": "e5e884aa08e9e60c3a9afced8e8bcaa46b6ebcb8d0633798e7f5d9c939522127"
+    },
+    {
+      "path": "js/language/zh/chinese.js",
+      "upstream_sha256": "44d05c84c1442e657df77194f941797d012cb36d38cd7425040b30bba4a097f3"
+    },
+    {
+      "path": "js/templates/anki-template-renderer-content-manager.js",
+      "upstream_sha256": "d1c72eb31a2e381d835519b010c1a60833ca09d1592f7bda9a56ad655199252c"
+    },
+    {
+      "path": "templates-display.html",
+      "upstream_sha256": "003a5c344d8b738017f2a15d2e195b48256b5d7d94228d973c613f7365ad11ff"
+    },
+    {
+      "path": "css/display.css",
+      "upstream_sha256": "ad77f486b29fe89feecccf4c14c31ede8df9c227a238d20e1fd4abbcea8617d5"
+    }
+  ]
+}

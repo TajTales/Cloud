@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
+import TranscriptVocabulary from "./components/TranscriptVocabulary";
 
 type IconName =
   | "book"
@@ -175,12 +176,6 @@ function MotionButton({ magnetic = false, className = "", onPointerMove, onPoint
     const y = event.clientY - rect.top;
     event.currentTarget.style.setProperty("--spot-x", `${x}px`);
     event.currentTarget.style.setProperty("--spot-y", `${y}px`);
-    if (magnetic) {
-      const moveX = ((x / rect.width) - 0.5) * 12;
-      const moveY = ((y / rect.height) - 0.5) * 12;
-      event.currentTarget.style.setProperty("--mag-x", `${moveX}px`);
-      event.currentTarget.style.setProperty("--mag-y", `${moveY}px`);
-    }
     onPointerMove?.(event);
   };
 
@@ -207,61 +202,20 @@ function SplitText({ children, className = "" }: { children: string; className?:
   );
 }
 
-function CustomCursor() {
-  const dotRef = useRef<HTMLDivElement>(null);
-  const ringRef = useRef<HTMLDivElement>(null);
-
+function SpotlightTracking() {
   useEffect(() => {
-    let frame = 0;
-    let ringX = 0;
-    let ringY = 0;
-    let pointerX = 0;
-    let pointerY = 0;
     const move = (event: PointerEvent) => {
-      pointerX = event.clientX;
-      pointerY = event.clientY;
-      dotRef.current?.style.setProperty("transform", `translate3d(${pointerX}px, ${pointerY}px, 0)`);
-      const hoveredElement = event.target as HTMLElement;
-      const spotlight = hoveredElement.closest<HTMLElement>(".spotlight-card");
-      if (spotlight) {
-        const rect = spotlight.getBoundingClientRect();
-        spotlight.style.setProperty("--spot-x", `${event.clientX - rect.left}px`);
-        spotlight.style.setProperty("--spot-y", `${event.clientY - rect.top}px`);
-      }
-      const target = hoveredElement.closest<HTMLElement>("[data-cursor], button");
-      document.documentElement.dataset.cursor = target?.dataset.cursor || (target ? "active" : "");
-      ringRef.current?.setAttribute("data-label", target?.dataset.cursor || "");
-    };
-    const animate = () => {
-      ringX += (pointerX - ringX) * 0.16;
-      ringY += (pointerY - ringY) * 0.16;
-      ringRef.current?.style.setProperty("transform", `translate3d(${ringX}px, ${ringY}px, 0)`);
-      frame = requestAnimationFrame(animate);
+      if (!(event.target instanceof Element)) return;
+      const card = event.target.closest<HTMLElement>(".spotlight-card");
+      if (!card) return;
+      const rect = card.getBoundingClientRect();
+      card.style.setProperty("--spot-x", `${event.clientX - rect.left}px`);
+      card.style.setProperty("--spot-y", `${event.clientY - rect.top}px`);
     };
     window.addEventListener("pointermove", move, { passive: true });
-    frame = requestAnimationFrame(animate);
-    return () => {
-      window.removeEventListener("pointermove", move);
-      cancelAnimationFrame(frame);
-    };
+    return () => window.removeEventListener("pointermove", move);
   }, []);
-
-  return <><div className="cursor-dot" ref={dotRef} /><div className="cursor-ring" ref={ringRef} /></>;
-}
-
-function ClickSparks() {
-  const [sparks, setSparks] = useState<{ id: number; x: number; y: number }[]>([]);
-  useEffect(() => {
-    const click = (event: MouseEvent) => {
-      if (!(event.target as HTMLElement).closest(".spark-action")) return;
-      const spark = { id: Date.now(), x: event.clientX, y: event.clientY };
-      setSparks((current) => [...current.slice(-3), spark]);
-      window.setTimeout(() => setSparks((current) => current.filter((item) => item.id !== spark.id)), 650);
-    };
-    window.addEventListener("click", click);
-    return () => window.removeEventListener("click", click);
-  }, []);
-  return <div className="spark-layer" aria-hidden="true">{sparks.map((spark) => <span className="click-spark" key={spark.id} style={{ left: spark.x, top: spark.y }} />)}</div>;
+  return null;
 }
 
 function ThemeToggle({ darkMode, onToggle, label }: { darkMode: boolean; onToggle: (event: React.MouseEvent<HTMLButtonElement>) => void; label: string }) {
@@ -276,8 +230,8 @@ function tiltCard(event: React.PointerEvent<HTMLButtonElement>) {
   const rect = event.currentTarget.getBoundingClientRect();
   const x = event.clientX - rect.left;
   const y = event.clientY - rect.top;
-  event.currentTarget.style.setProperty("--tilt-y", `${((x / rect.width) - 0.5) * 10}deg`);
-  event.currentTarget.style.setProperty("--tilt-x", `${((0.5 - y / rect.height) * 8)}deg`);
+  event.currentTarget.style.setProperty("--tilt-y", `${((x / rect.width) - 0.5) * 3}deg`);
+  event.currentTarget.style.setProperty("--tilt-x", `${((0.5 - y / rect.height) * 3)}deg`);
 }
 
 const transcript = [
@@ -300,6 +254,20 @@ const words = [
   { word: "おすすめ", reading: "osusume", meaning: "đề xuất", color: "violet" },
   { word: "静か", reading: "しずか", meaning: "yên tĩnh", color: "green" },
 ];
+
+const detectedWords = [
+  { word: "居酒屋", reading: "いざかや · izakaya", meaning: "quán nhậu", color: "coral" },
+  { word: "営業中", reading: "えいぎょうちゅう", meaning: "đang mở cửa", color: "green" },
+];
+
+function pronounce(word: string, rate = 0.85) {
+  if (!("speechSynthesis" in window)) return;
+  window.speechSynthesis.cancel();
+  const speech = new SpeechSynthesisUtterance(word);
+  speech.lang = "ja-JP";
+  speech.rate = rate;
+  window.speechSynthesis.speak(speech);
+}
 
 const previousSessions = [
   { date: "Hôm qua, 20:30", title: "Khám phá Tokyo về đêm", language: "Tiếng Nhật · N4", duration: "38 phút", words: 12 },
@@ -403,6 +371,7 @@ export default function App() {
   const [playing, setPlaying] = useState(false);
   const [panel, setPanel] = useState<"transcript" | "chat">("transcript");
   const [savedWords, setSavedWords] = useState(words);
+  const [selectedWord, setSelectedWord] = useState<string | null>(null);
   const [cameraOn, setCameraOn] = useState(true);
   const [micOn, setMicOn] = useState(true);
   const [copied, setCopied] = useState(false);
@@ -411,6 +380,7 @@ export default function App() {
   const [loginStatus, setLoginStatus] = useState<"idle" | "loading" | "done">("idle");
   const [tipIndex, setTipIndex] = useState(0);
   const text = copy[language];
+  const inspectedWord = [...detectedWords, ...savedWords].find(item => item.word === selectedWord);
 
   useEffect(() => {
     document.documentElement.dataset.theme = darkMode ? "dark" : "light";
@@ -426,6 +396,14 @@ export default function App() {
     const interval = window.setInterval(() => setTipIndex((index) => (index + 1) % 3), 4200);
     return () => window.clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    const escape = (event: KeyboardEvent) => { if (event.key === "Escape") setSelectedWord(null); };
+    window.addEventListener("keydown", escape);
+    return () => window.removeEventListener("keydown", escape);
+  }, []);
+
+  useEffect(() => () => { if ("speechSynthesis" in window) window.speechSynthesis.cancel(); }, [screen]);
 
   const toggleTheme = (event: React.MouseEvent<HTMLButtonElement>) => {
     const next = !darkMode;
@@ -453,6 +431,7 @@ export default function App() {
   };
 
   const enterRoom = (mode: "solo" | "group", title = "Khám phá Tokyo về đêm") => {
+    setSelectedWord(null);
     setRoomMode(mode);
     setRoomTitle(title);
     setDialog(null);
@@ -479,8 +458,8 @@ export default function App() {
   if (!authenticated) {
     return (
       <main className="login-page">
-        <CustomCursor />
-        <ClickSparks />
+        <SpotlightTracking />
+
         <section className="login-visual">
           <img
             src="https://images.unsplash.com/photo-1573455494060-c5595004fb6c?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&q=86&w=1400&h=1600"
@@ -554,8 +533,8 @@ export default function App() {
 
   return (
     <div className="app-shell">
-      <CustomCursor />
-      <ClickSparks />
+      <SpotlightTracking />
+
       <header className="topbar">
         <div className="brand">
           <span className="brand-mark">
@@ -612,7 +591,7 @@ export default function App() {
           <section className="lobby-hero">
             <div>
               <div className="eyebrow"><span className="live-dot" /> {text.ready}</div>
-              <h1><SplitText>{text.heroTitle.replace("\n", " ")}</SplitText></h1>
+              <h1>{text.heroTitle.split("\n").map((line, index) => <span className="hero-title-line" key={index}><SplitText>{line}</SplitText></span>)}</h1>
               <p>{text.heroText}</p>
             </div>
             <div className="weekly-card">
@@ -623,6 +602,7 @@ export default function App() {
 
           <section className="mode-grid">
             <MotionButton data-cursor="PLAY" className="mode-card featured spotlight-card" onPointerMove={tiltCard} onClick={() => enterRoom("solo", "Buổi học cá nhân")}>
+              <span className="card-scene scene-solo" aria-hidden="true"><span className="scene-glyph">あ</span><span className="scene-caption">東京 · TOKYO</span><i /><i /><i /></span>
               <span className="mode-icon"><Icon name="headphones" size={25} /></span>
               <span className="mode-tag">Tập trung</span>
               <h2>{text.solo}</h2>
@@ -631,6 +611,7 @@ export default function App() {
               <span className="card-number">01</span>
             </MotionButton>
             <MotionButton data-cursor="MỞ" className="mode-card spotlight-card" onPointerMove={tiltCard} onClick={() => setDialog("create")}>
+              <span className="card-scene scene-create" aria-hidden="true"><span className="scene-glyph">語</span><span className="scene-caption">LEARN TOGETHER</span><i /><i /><i /></span>
               <span className="mode-icon coral"><Icon name="plus" size={25} /></span>
               <h2>{text.create}</h2>
               <p>Mời bạn bè cùng xem, trò chuyện và xây dựng bộ từ vựng chung trong một phòng riêng.</p>
@@ -638,6 +619,7 @@ export default function App() {
               <span className="card-number">02</span>
             </MotionButton>
             <MotionButton data-cursor="MỞ" className="mode-card spotlight-card" onPointerMove={tiltCard} onClick={() => setDialog("join")}>
+              <span className="card-scene scene-join" aria-hidden="true"><span className="scene-glyph">話</span><span className="scene-caption">A SHARED MOMENT</span><i /><i /><i /></span>
               <span className="mode-icon violet"><Icon name="people" size={25} /></span>
               <h2>{text.join}</h2>
               <p>Nhập mã mời để tham gia ngay vào buổi học đang diễn ra cùng bạn bè.</p>
@@ -645,6 +627,7 @@ export default function App() {
               <span className="card-number">03</span>
             </MotionButton>
             <MotionButton data-cursor="XEM" className="mode-card history-mode spotlight-card" onPointerMove={tiltCard} onClick={() => goTo("history")}>
+              <span className="card-scene scene-history" aria-hidden="true"><span className="scene-glyph">学</span><span className="scene-caption">YOUR LEARNING STORY</span><i /><i /><i /></span>
               <span className="mode-icon amber"><Icon name="history" size={25} /></span>
               <div className="last-session">
                 <small>Buổi gần nhất</small>
@@ -729,14 +712,20 @@ export default function App() {
                 <span className="quality-pill">HD</span>
               </div>
 
-              <button className="ocr-box ocr-box-one">
+              <button className={`ocr-box ocr-box-one ${selectedWord === "居酒屋" ? "selected" : ""}`} onClick={() => setSelectedWord(selectedWord === "居酒屋" ? null : "居酒屋")} aria-expanded={selectedWord === "居酒屋"}>
                 <span>居酒屋</span>
                 <small>izakaya · quán nhậu</small>
               </button>
-              <button className="ocr-box ocr-box-two">
+              <button className={`ocr-box ocr-box-two ${selectedWord === "営業中" ? "selected" : ""}`} onClick={() => setSelectedWord(selectedWord === "営業中" ? null : "営業中")} aria-expanded={selectedWord === "営業中"}>
                 <span>営業中</span>
                 <small>đang mở cửa</small>
               </button>
+
+              {inspectedWord && <div className="word-inspector" role="region" aria-label="Từ đang chọn">
+                <button className="inspector-close" aria-label="Đóng từ đang chọn" onClick={() => setSelectedWord(null)}><Icon name="x" size={16} /></button>
+                <span className="inspector-label">TỪ ĐANG CHỌN</span><strong>{inspectedWord.word}</strong><small>{inspectedWord.reading}</small><p>{inspectedWord.meaning}</p>
+                <div><button disabled={!("speechSynthesis" in window)} onClick={() => pronounce(inspectedWord.word)}><Icon name="volume" size={16} /> Nghe</button><button onClick={() => setSavedWords(current => current.some(item => item.word === inspectedWord.word) ? current : [...current, inspectedWord])} disabled={savedWords.some(item => item.word === inspectedWord.word)}><Icon name="plus" size={16} />{savedWords.some(item => item.word === inspectedWord.word) ? "Đã lưu" : "Lưu từ"}</button></div>
+              </div>}
 
               <div className="subtitle">
                 <span>すみません、この近くにおすすめのカフェはありますか？</span>
@@ -787,18 +776,10 @@ export default function App() {
             {panel === "transcript" ? (
               <div className="transcript-panel">
                 <div className="panel-label"><span>Nội dung trực tiếp</span><button><Icon name="sparkles" size={15} /> Dịch tự động</button></div>
-                <div className="transcript-list">
-                  {transcript.map((line, index) => (
-                    <article className={index === 0 ? "current" : ""} key={line.time}>
-                      <time>{line.time}</time>
-                      <div>
-                        <h3>{line.japanese}</h3>
-                        <p>{line.reading}</p>
-                        <span>{line.translation}</span>
-                      </div>
-                    </article>
-                  ))}
-                </div>
+                <TranscriptVocabulary lines={transcript} savedWords={savedWords.map(item => item.word)} onSpeak={pronounce} onSave={entry => {
+                  const word = entry.lemma || entry.word;
+                  setSavedWords(current => current.some(item => item.word === word) ? current : [...current, { word, reading: entry.lemmaReading || entry.kana, meaning: entry.lemmaMeaning || entry.meaning, color: "coral" }]);
+                }} />
                 <div className="listening-card">
                   <span className="sound-wave"><i /><i /><i /><i /><i /></span>
                   <div><strong>Đang lắng nghe...</strong><small>Lời thoại sẽ xuất hiện tại đây</small></div>
@@ -828,10 +809,11 @@ export default function App() {
               </div>
               <div className="word-list">
                 {savedWords.map((item) => (
-                  <article className="word-card" key={item.word}>
+                  <article className={`word-card ${selectedWord === item.word ? "selected" : ""}`} key={item.word}>
                     <span className={`word-accent ${item.color}`} />
-                    <div className="word-main"><strong>{item.word}</strong><small>{item.reading}</small></div>
+                    <button className="word-main" onClick={() => setSelectedWord(item.word)} aria-label={`Xem từ ${item.word}`}><strong>{item.word}</strong><small>{item.reading}</small></button>
                     <span className="word-meaning">{item.meaning}</span>
+                    <button className="word-audio" disabled={!("speechSynthesis" in window)} onClick={() => pronounce(item.word)} aria-label={`Nghe ${item.word}`}><Icon name="volume" size={15} /></button>
                     <button onClick={() => setSavedWords(savedWords.filter((word) => word.word !== item.word))} aria-label={`Xóa ${item.word}`}>
                       <Icon name="x" size={15} />
                     </button>

@@ -992,12 +992,6 @@ button {
 }
 
 @media (hover: hover) and (pointer: fine) {
-  body,
-  button,
-  a {
-    cursor: none;
-  }
-
   .video-frame:hover {
     transform: translateY(-2px);
     box-shadow:
@@ -3624,7 +3618,7 @@ button {
 @media (hover: hover) and (pointer: fine) {
   .cursor-dot,
   .cursor-ring {
-    display: block;
+    display: none !important;
     position: fixed;
     z-index: 10000;
     top: 0;
