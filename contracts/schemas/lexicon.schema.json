@@ -1,0 +1,480 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Lexicon lookup response data (DRAFT D01/D02/D08/D13)",
+  "description": "DRAFT 0.1.0-draft.1; synthetic examples; not an implemented API.",
+  "definitions": {
+    "Source": {
+      "type": "object",
+      "properties": {
+        "provider": {
+          "type": "string",
+          "minLength": 1
+        },
+        "attribution": {
+          "type": "string",
+          "minLength": 1
+        },
+        "revision": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "provider",
+        "attribution",
+        "revision"
+      ],
+      "additionalProperties": false
+    },
+    "Reading": {
+      "type": "object",
+      "properties": {
+        "kana": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "romaji": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "pinyin": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "kana",
+        "romaji",
+        "pinyin"
+      ],
+      "additionalProperties": false
+    },
+    "Meaning": {
+      "type": "object",
+      "properties": {
+        "language": {
+          "type": "string",
+          "pattern": "^[a-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$",
+          "description": "Language code, not UI label. Accepted languages depend on configured capabilities / D01."
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "origin": {
+          "type": "string",
+          "enum": [
+            "dictionary",
+            "translation",
+            "generated",
+            "fixture"
+          ]
+        }
+      },
+      "required": [
+        "language",
+        "text",
+        "origin"
+      ],
+      "additionalProperties": false
+    },
+    "Example": {
+      "type": "object",
+      "properties": {
+        "text": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "translation": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2000
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "translation_language": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[a-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$",
+              "description": "Language code, not UI label. Accepted languages depend on configured capabilities / D01."
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "origin": {
+          "type": "string",
+          "enum": [
+            "dictionary",
+            "generated",
+            "fixture"
+          ]
+        }
+      },
+      "required": [
+        "text",
+        "translation",
+        "translation_language",
+        "origin"
+      ],
+      "additionalProperties": false
+    },
+    "KnownToken": {
+      "type": "object",
+      "properties": {
+        "surface": {
+          "type": "string",
+          "minLength": 1
+        },
+        "start": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "end": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "lemma": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reading": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Reading"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "lemma_reading": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "pos": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "noun",
+              "verb",
+              "adjective_i",
+              "adjective_na",
+              "adverb",
+              "particle",
+              "pronoun",
+              "determiner",
+              "conjunction",
+              "interjection",
+              "expression",
+              "unknown"
+            ]
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "inflection": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "entry_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sense_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "meanings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Meaning"
+          },
+          "minItems": 1
+        },
+        "usage_note": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "examples": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Example"
+          }
+        },
+        "source": {
+          "$ref": "#/definitions/Source"
+        }
+      },
+      "required": [
+        "surface",
+        "start",
+        "end",
+        "lemma",
+        "reading",
+        "lemma_reading",
+        "pos",
+        "inflection",
+        "entry_id",
+        "sense_id",
+        "meanings",
+        "usage_note",
+        "examples",
+        "source"
+      ],
+      "additionalProperties": false
+    },
+    "UnknownToken": {
+      "type": "object",
+      "properties": {
+        "surface": {
+          "type": "string",
+          "minLength": 1
+        },
+        "start": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "end": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "lemma": {
+          "type": "null"
+        },
+        "reading": {
+          "type": "null"
+        },
+        "lemma_reading": {
+          "type": "null"
+        },
+        "pos": {
+          "const": [
+            "unknown"
+          ]
+        },
+        "inflection": {
+          "type": "null"
+        },
+        "entry_id": {
+          "type": "null"
+        },
+        "sense_id": {
+          "type": "null"
+        },
+        "meanings": {
+          "type": "array",
+          "maxItems": 0
+        },
+        "usage_note": {
+          "type": "null"
+        },
+        "examples": {
+          "type": "array",
+          "maxItems": 0
+        },
+        "source": {
+          "type": "null"
+        }
+      },
+      "required": [
+        "surface",
+        "start",
+        "end",
+        "lemma",
+        "reading",
+        "lemma_reading",
+        "pos",
+        "inflection",
+        "entry_id",
+        "sense_id",
+        "meanings",
+        "usage_note",
+        "examples",
+        "source"
+      ],
+      "additionalProperties": false
+    },
+    "Token": {
+      "oneOf": [
+        {
+          "$ref": "#/definitions/KnownToken"
+        },
+        {
+          "$ref": "#/definitions/UnknownToken"
+        }
+      ]
+    }
+  },
+  "type": "object",
+  "properties": {
+    "status": {
+      "type": "string",
+      "enum": [
+        "found",
+        "partial",
+        "not_found"
+      ]
+    },
+    "language": {
+      "type": "string",
+      "pattern": "^[a-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$",
+      "description": "Language code, not UI label. Accepted languages depend on configured capabilities / D01."
+    },
+    "text": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2000
+    },
+    "offset_unit": {
+      "const": "unicode_code_point"
+    },
+    "normalization": {
+      "const": "none"
+    },
+    "tokens": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Token"
+      },
+      "minItems": 1
+    }
+  },
+  "required": [
+    "status",
+    "language",
+    "text",
+    "offset_unit",
+    "normalization",
+    "tokens"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "found"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "tokens": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/KnownToken"
+            },
+            "minItems": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "not_found"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "tokens": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/UnknownToken"
+            },
+            "minItems": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "partial"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "tokens": {
+            "allOf": [
+              {
+                "contains": {
+                  "$ref": "#/definitions/KnownToken"
+                }
+              },
+              {
+                "contains": {
+                  "$ref": "#/definitions/UnknownToken"
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "x-invariants": [
+    "end > start; surface == Array.from(text).slice(start,end).join(\"\")",
+    "Tokens cover the ORIGINAL text contiguously without trimming/normalization; preserve unknown punctuation/gaps as unknown tokens.",
+    "found: all tokens found; partial: both known and unknown; not_found: all unknown. Service failure is HTTP error, never not_found.",
+    "origin fixture/provider fixture.synthetic only in labeled fixture/mock mode; forbid in real mode."
+  ]
+}

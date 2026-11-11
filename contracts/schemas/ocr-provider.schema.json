@@ -1,0 +1,127 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Existing OCR provider response (shape preserved)",
+  "description": "EVIDENCED raw field shape from interface.py:8-31 and server.py:60-73,123-136,141-197. Not a new provider version. [] is successful no-text. Raw errors are strings, not app envelopes. Existing out-of-bounds dummy boxes remain shape-valid; public result validation is stricter in a separate adapter.",
+  "definitions": {
+    "BoundingBox": {
+      "type": "object",
+      "properties": {
+        "center_x": {
+          "type": "number",
+          "description": "Intended normalized coordinate. Existing provider does not validate bounds."
+        },
+        "center_y": {
+          "type": "number",
+          "description": "Intended normalized coordinate. Existing provider does not validate bounds."
+        },
+        "width": {
+          "type": "number",
+          "description": "Intended normalized coordinate. Existing provider does not validate bounds."
+        },
+        "height": {
+          "type": "number",
+          "description": "Intended normalized coordinate. Existing provider does not validate bounds."
+        }
+      },
+      "required": [
+        "center_x",
+        "center_y",
+        "width",
+        "height"
+      ],
+      "additionalProperties": false
+    },
+    "Word": {
+      "type": "object",
+      "properties": {
+        "text": {
+          "type": "string"
+        },
+        "separator": {
+          "type": "string"
+        },
+        "box": {
+          "$ref": "#/definitions/BoundingBox"
+        }
+      },
+      "required": [
+        "text",
+        "separator",
+        "box"
+      ],
+      "additionalProperties": false
+    },
+    "Paragraph": {
+      "type": "object",
+      "properties": {
+        "full_text": {
+          "type": "string"
+        },
+        "is_vertical": {
+          "type": "boolean"
+        },
+        "box": {
+          "$ref": "#/definitions/BoundingBox"
+        },
+        "words": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Word"
+          }
+        }
+      },
+      "required": [
+        "full_text",
+        "is_vertical",
+        "box",
+        "words"
+      ],
+      "additionalProperties": false
+    },
+    "Success": {
+      "type": "object",
+      "properties": {
+        "paragraphs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Paragraph"
+          }
+        },
+        "elapsed_ms": {
+          "type": "number",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "paragraphs",
+        "elapsed_ms"
+      ],
+      "additionalProperties": false
+    },
+    "Error": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "string",
+          "minLength": 1
+        },
+        "elapsed_ms": {
+          "type": "number",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "error"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "oneOf": [
+    {
+      "$ref": "#/definitions/Success"
+    },
+    {
+      "$ref": "#/definitions/Error"
+    }
+  ]
+}

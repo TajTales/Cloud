@@ -1,0 +1,465 @@
+{
+  "fixture_set_version": "ct04-scenarios-0.1.0-draft.1",
+  "contract_version": "0.1.0-draft.1",
+  "source_bundle_sha256": "bcfd39b6a2fd85d74cd5efd53e7a6bff753f60bf7e286246c27ef696c1c6bfd2",
+  "status": "DRAFT",
+  "approved_by": [],
+  "data_mode": "synthetic",
+  "description": "Separate CT-04 draft supplement; not part of approved fixtures or the immutable CT-02 bundle. No original fixture/schema edited. Must be reviewed and versioned into a new approved package before mock serving.",
+  "files": [
+    {
+      "file": "ocr-vertical.json",
+      "schema": "../../schemas/ocr-provider.schema.json#/definitions/Success",
+      "expect_valid": true,
+      "kind": "supplemental-draft",
+      "data_mode": "synthetic",
+      "status": "DRAFT",
+      "description": "CT-04 review data, not an approved contract or real provider output."
+    },
+    {
+      "file": "image-too-large.json",
+      "schema": "../../schemas/application.schema.json#/definitions/ErrorResponse",
+      "expect_valid": true,
+      "kind": "supplemental-draft",
+      "data_mode": "synthetic",
+      "status": "DRAFT",
+      "description": "CT-04 review data, not an approved contract or real provider output.",
+      "operation_id": "createFrameUpload",
+      "http_status": 413
+    },
+    {
+      "file": "ocr-busy.json",
+      "schema": "../../schemas/application.schema.json#/definitions/ErrorResponse",
+      "expect_valid": true,
+      "kind": "supplemental-draft",
+      "data_mode": "synthetic",
+      "status": "DRAFT",
+      "description": "CT-04 review data, not an approved contract or real provider output.",
+      "operation_id": "createOcrJob",
+      "http_status": 429
+    },
+    {
+      "file": "forbidden-session.json",
+      "schema": "../../schemas/application.schema.json#/definitions/ErrorResponse",
+      "expect_valid": true,
+      "kind": "supplemental-draft",
+      "data_mode": "synthetic",
+      "status": "DRAFT",
+      "description": "CT-04 review data, not an approved contract or real provider output.",
+      "operation_id": "getSession",
+      "http_status": 403
+    },
+    {
+      "file": "forbidden-room.json",
+      "schema": "../../schemas/application.schema.json#/definitions/ErrorResponse",
+      "expect_valid": true,
+      "kind": "supplemental-draft",
+      "data_mode": "synthetic",
+      "status": "DRAFT",
+      "description": "CT-04 review data, not an approved contract or real provider output.",
+      "operation_id": "getRoom",
+      "http_status": 403
+    },
+    {
+      "file": "room-closed.json",
+      "schema": "../../schemas/application.schema.json#/definitions/ErrorResponse",
+      "expect_valid": true,
+      "kind": "supplemental-draft",
+      "data_mode": "synthetic",
+      "status": "DRAFT",
+      "description": "CT-04 review data, not an approved contract or real provider output.",
+      "operation_id": "joinRoom",
+      "http_status": 409
+    },
+    {
+      "file": "forbidden-shared-vocabulary.json",
+      "schema": "../../schemas/application.schema.json#/definitions/ErrorResponse",
+      "expect_valid": true,
+      "kind": "supplemental-draft",
+      "data_mode": "synthetic",
+      "status": "DRAFT",
+      "description": "CT-04 review data, not an approved contract or real provider output.",
+      "operation_id": "saveSharedVocabulary",
+      "http_status": 403
+    },
+    {
+      "file": "out-of-order-frame.json",
+      "schema": "../../schemas/application.schema.json#/definitions/PublicResultResponse",
+      "expect_valid": true,
+      "kind": "supplemental-draft",
+      "data_mode": "synthetic",
+      "status": "DRAFT",
+      "description": "CT-04 review data, not an approved contract or real provider output.",
+      "operation_id": "getOcrResult",
+      "http_status": 200
+    },
+    {
+      "file": "out-of-order-event.json",
+      "schema": "../../schemas/realtime.schema.json#/definitions/Event_ocr_result_available",
+      "expect_valid": true,
+      "kind": "supplemental-draft",
+      "data_mode": "synthetic",
+      "status": "DRAFT",
+      "description": "CT-04 review data, not an approved contract or real provider output."
+    },
+    {
+      "file": "job-processing.json",
+      "schema": "../../schemas/application.schema.json#/definitions/JobResponse",
+      "expect_valid": true,
+      "kind": "supplemental-draft",
+      "data_mode": "synthetic",
+      "status": "DRAFT",
+      "description": "CT-04 review data, not an approved contract or real provider output.",
+      "operation_id": "getOcrJob",
+      "http_status": 200
+    },
+    {
+      "file": "lexicon-inflected.json",
+      "schema": "../../schemas/lexicon.schema.json",
+      "expect_valid": true,
+      "kind": "supplemental-draft",
+      "data_mode": "synthetic",
+      "status": "DRAFT",
+      "description": "CT-04 review data, not an approved contract or real provider output."
+    },
+    {
+      "file": "lexicon-polysemy-a.json",
+      "schema": "../../schemas/lexicon.schema.json",
+      "expect_valid": true,
+      "kind": "supplemental-draft",
+      "data_mode": "synthetic",
+      "status": "DRAFT",
+      "description": "CT-04 review data, not an approved contract or real provider output."
+    },
+    {
+      "file": "lexicon-polysemy-b.json",
+      "schema": "../../schemas/lexicon.schema.json",
+      "expect_valid": true,
+      "kind": "supplemental-draft",
+      "data_mode": "synthetic",
+      "status": "DRAFT",
+      "description": "CT-04 review data, not an approved contract or real provider output."
+    }
+  ],
+  "coverage": [
+    {
+      "case": "ocr.horizontal",
+      "status": "DRAFT",
+      "fixtures": [
+        "contracts/fixtures/ocr/success.json"
+      ],
+      "notes": "Structural review only; behavior conformance PENDING_APPROVAL."
+    },
+    {
+      "case": "ocr.vertical",
+      "status": "DRAFT",
+      "fixtures": [
+        "contracts/fixtures/ct04-draft/ocr-vertical.json"
+      ],
+      "notes": "Structural review only; behavior conformance PENDING_APPROVAL."
+    },
+    {
+      "case": "ocr.empty",
+      "status": "DRAFT",
+      "fixtures": [
+        "contracts/fixtures/ocr/no-text.json",
+        "contracts/fixtures/http/ocr-no-text.json"
+      ],
+      "notes": "Structural review only; behavior conformance PENDING_APPROVAL."
+    },
+    {
+      "case": "ocr.invalid-image",
+      "status": "DRAFT",
+      "fixtures": [
+        "contracts/fixtures/http/invalid-image.json",
+        "contracts/fixtures/ocr/invalid-image-raw.json"
+      ],
+      "notes": "Structural review only; behavior conformance PENDING_APPROVAL."
+    },
+    {
+      "case": "ocr.too-large",
+      "status": "DRAFT",
+      "fixtures": [
+        "contracts/fixtures/ct04-draft/image-too-large.json"
+      ],
+      "notes": "Structural review only; behavior conformance PENDING_APPROVAL."
+    },
+    {
+      "case": "ocr.timeout",
+      "status": "DRAFT",
+      "fixtures": [
+        "contracts/fixtures/http/ocr-timeout-job.json",
+        "contracts/fixtures/ws/ocr-job_failed.json"
+      ],
+      "notes": "Structural review only; behavior conformance PENDING_APPROVAL."
+    },
+    {
+      "case": "ocr.busy",
+      "status": "DRAFT",
+      "fixtures": [
+        "contracts/fixtures/ct04-draft/ocr-busy.json"
+      ],
+      "notes": "Structural review only; behavior conformance PENDING_APPROVAL."
+    },
+    {
+      "case": "session.normal-result",
+      "status": "DRAFT",
+      "fixtures": [
+        "contracts/fixtures/http/getOcrResult-200.json",
+        "contracts/fixtures/ws/ocr-result_available.json"
+      ],
+      "notes": "Structural review only; behavior conformance PENDING_APPROVAL."
+    },
+    {
+      "case": "session.old-source",
+      "status": "DRAFT",
+      "fixtures": [
+        "contracts/fixtures/http/old-source.json",
+        "contracts/fixtures/http/current-source-after-switch.json",
+        "contracts/fixtures/http/late-result-old-source.json"
+      ],
+      "notes": "Structural review only; behavior conformance PENDING_APPROVAL."
+    },
+    {
+      "case": "session.out-of-order",
+      "status": "DRAFT",
+      "fixtures": [
+        "contracts/fixtures/http/getOcrResult-200.json",
+        "contracts/fixtures/ct04-draft/out-of-order-frame.json",
+        "contracts/fixtures/ct04-draft/out-of-order-event.json"
+      ],
+      "notes": "Structural review only; behavior conformance PENDING_APPROVAL."
+    },
+    {
+      "case": "job.duplicate",
+      "status": "DRAFT",
+      "fixtures": [
+        "contracts/fixtures/http/duplicate-job-new.json",
+        "contracts/fixtures/http/duplicate-job-retry.json"
+      ],
+      "notes": "Structural review only; behavior conformance PENDING_APPROVAL."
+    },
+    {
+      "case": "job.retry-idempotency-conflict",
+      "status": "DRAFT",
+      "fixtures": [
+        "contracts/fixtures/ct04-draft/job-processing.json",
+        "contracts/fixtures/http/idempotency-conflict.json"
+      ],
+      "notes": "Structural review only; behavior conformance PENDING_APPROVAL."
+    },
+    {
+      "case": "auth.token-expired",
+      "status": "DRAFT",
+      "fixtures": [
+        "contracts/fixtures/http/token-expired.json"
+      ],
+      "notes": "Structural review only; behavior conformance PENDING_APPROVAL."
+    },
+    {
+      "case": "auth.forbidden-session",
+      "status": "DRAFT",
+      "fixtures": [
+        "contracts/fixtures/ct04-draft/forbidden-session.json"
+      ],
+      "notes": "Structural review only; behavior conformance PENDING_APPROVAL."
+    },
+    {
+      "case": "auth.forbidden-room",
+      "status": "DRAFT",
+      "fixtures": [
+        "contracts/fixtures/ct04-draft/forbidden-room.json"
+      ],
+      "notes": "Structural review only; behavior conformance PENDING_APPROVAL."
+    },
+    {
+      "case": "room.closed",
+      "status": "DRAFT",
+      "fixtures": [
+        "contracts/fixtures/ct04-draft/room-closed.json"
+      ],
+      "notes": "Structural review only; behavior conformance PENDING_APPROVAL."
+    },
+    {
+      "case": "room.member-left",
+      "status": "DRAFT",
+      "fixtures": [
+        "contracts/fixtures/ws/room-member_left.json"
+      ],
+      "notes": "Structural review only; behavior conformance PENDING_APPROVAL."
+    },
+    {
+      "case": "lexicon.inflected",
+      "status": "DRAFT",
+      "fixtures": [
+        "contracts/fixtures/ct04-draft/lexicon-inflected.json"
+      ],
+      "notes": "Structural review only; behavior conformance PENDING_APPROVAL."
+    },
+    {
+      "case": "lexicon.unknown",
+      "status": "DRAFT",
+      "fixtures": [
+        "contracts/fixtures/lexicon/not-found.json"
+      ],
+      "notes": "Structural review only; behavior conformance PENDING_APPROVAL."
+    },
+    {
+      "case": "lexicon.unicode",
+      "status": "DRAFT",
+      "fixtures": [
+        "contracts/fixtures/lexicon/unicode-code-points.json",
+        "contracts/fixtures/negative/lexicon-utf16-offset.json"
+      ],
+      "notes": "Structural review only; behavior conformance PENDING_APPROVAL."
+    },
+    {
+      "case": "lexicon.polysemy",
+      "status": "DRAFT",
+      "fixtures": [
+        "contracts/fixtures/ct04-draft/lexicon-polysemy-a.json",
+        "contracts/fixtures/ct04-draft/lexicon-polysemy-b.json"
+      ],
+      "notes": "Two separate selected-sense results preserve distinct sense_id; simultaneous alternatives in one popup remain a schema/UX question, not represented as fake extra fields."
+    },
+    {
+      "case": "storage.duplicate-vocabulary",
+      "status": "DRAFT",
+      "fixtures": [
+        "contracts/fixtures/http/saveVocabulary-201.json",
+        "contracts/fixtures/http/saveVocabulary-200.json"
+      ],
+      "notes": "Structural review only; behavior conformance PENDING_APPROVAL."
+    },
+    {
+      "case": "storage.forbidden-shared-vocabulary",
+      "status": "DRAFT",
+      "fixtures": [
+        "contracts/fixtures/ct04-draft/forbidden-shared-vocabulary.json"
+      ],
+      "notes": "Structural review only; behavior conformance PENDING_APPROVAL."
+    },
+    {
+      "case": "storage.history-empty",
+      "status": "DRAFT",
+      "fixtures": [
+        "contracts/fixtures/http/listHistory-200.json"
+      ],
+      "notes": "Structural review only; behavior conformance PENDING_APPROVAL."
+    }
+  ],
+  "mock_scenarios": [
+    {
+      "operation_id": "createFrameUpload",
+      "name": "too-large",
+      "fixture": "contracts/fixtures/ct04-draft/image-too-large.json",
+      "http_status": 413,
+      "status": "DRAFT"
+    },
+    {
+      "operation_id": "createOcrJob",
+      "name": "busy",
+      "fixture": "contracts/fixtures/ct04-draft/ocr-busy.json",
+      "http_status": 429,
+      "status": "DRAFT"
+    },
+    {
+      "operation_id": "createOcrJob",
+      "name": "invalid-image",
+      "fixture": "contracts/fixtures/http/invalid-image.json",
+      "http_status": 422,
+      "status": "DRAFT"
+    },
+    {
+      "operation_id": "getOcrJob",
+      "name": "job-timeout",
+      "fixture": "contracts/fixtures/http/ocr-timeout-job.json",
+      "http_status": 200,
+      "status": "DRAFT"
+    },
+    {
+      "operation_id": "getOcrJob",
+      "name": "processing",
+      "fixture": "contracts/fixtures/ct04-draft/job-processing.json",
+      "http_status": 200,
+      "status": "DRAFT"
+    },
+    {
+      "operation_id": "getOcrResult",
+      "name": "no-text",
+      "fixture": "contracts/fixtures/http/ocr-no-text.json",
+      "http_status": 200,
+      "status": "DRAFT"
+    },
+    {
+      "operation_id": "getOcrResult",
+      "name": "out-of-order",
+      "fixture": "contracts/fixtures/ct04-draft/out-of-order-frame.json",
+      "http_status": 200,
+      "status": "DRAFT"
+    },
+    {
+      "operation_id": "lookupLexicon",
+      "name": "provider-timeout",
+      "fixture": "contracts/fixtures/http/request-timeout.json",
+      "http_status": 504,
+      "status": "DRAFT"
+    },
+    {
+      "operation_id": "listHistory",
+      "name": "empty",
+      "fixture": "contracts/fixtures/http/listHistory-200.json",
+      "http_status": 200,
+      "status": "DRAFT"
+    },
+    {
+      "operation_id": "getSession",
+      "name": "forbidden-session",
+      "fixture": "contracts/fixtures/ct04-draft/forbidden-session.json",
+      "http_status": 403,
+      "status": "DRAFT"
+    },
+    {
+      "operation_id": "getRoom",
+      "name": "forbidden-room",
+      "fixture": "contracts/fixtures/ct04-draft/forbidden-room.json",
+      "http_status": 403,
+      "status": "DRAFT"
+    },
+    {
+      "operation_id": "joinRoom",
+      "name": "room-closed",
+      "fixture": "contracts/fixtures/ct04-draft/room-closed.json",
+      "http_status": 409,
+      "status": "DRAFT"
+    },
+    {
+      "operation_id": "saveSharedVocabulary",
+      "name": "forbidden-shared",
+      "fixture": "contracts/fixtures/ct04-draft/forbidden-shared-vocabulary.json",
+      "http_status": 403,
+      "status": "DRAFT"
+    },
+    {
+      "operation_id": "saveVocabulary",
+      "name": "duplicate",
+      "fixture": "contracts/fixtures/http/saveVocabulary-200.json",
+      "http_status": 200,
+      "status": "DRAFT"
+    },
+    {
+      "operation_id": "createOcrJob",
+      "name": "duplicate",
+      "fixture": "contracts/fixtures/http/duplicate-job-retry.json",
+      "http_status": 200,
+      "status": "DRAFT"
+    }
+  ],
+  "pending_cases": [
+    {
+      "case": "lexicon.simultaneous-sense-alternatives",
+      "status": "PENDING_D13",
+      "reason": "Current schema contains one entry_id/sense_id per token. Do not fabricate overlapping tokens or add unsupported alternative_senses to make tests pass."
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0",
+  "type": "session.ended",
+  "event_id": "00000000-0000-4000-8000-000000000107",
+  "request_id": null,
+  "seq": 4,
+  "occurred_at": "2026-11-11T14:30:01.000Z",
+  "session_id": "00000000-0000-4000-8000-000000000001",
+  "room_id": null,
+  "data": {
+    "status": "ended",
+    "ended_at": "2026-11-11T14:30:01.000Z",
+    "session_version": 3
+  }
+}

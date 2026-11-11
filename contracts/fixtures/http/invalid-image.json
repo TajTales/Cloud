@@ -1,0 +1,9 @@
+{
+  "error": {
+    "code": "INVALID_IMAGE",
+    "message": "SYNTHETIC cannot decode image",
+    "details": {},
+    "retryable": false
+  },
+  "request_id": "req-synthetic-001"
+}

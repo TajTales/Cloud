@@ -1,0 +1,11 @@
+{
+  "error": {
+    "code": "FORBIDDEN",
+    "message": "SYNTHETIC session access denied",
+    "details": {
+      "session_id": "00000000-0000-4000-8000-000000000001"
+    },
+    "retryable": false
+  },
+  "request_id": "req-ct04-synthetic"
+}

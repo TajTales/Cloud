@@ -1,0 +1,9 @@
+{
+  "error": {
+    "code": "ROOM_CLOSED",
+    "message": "SYNTHETIC room is closed",
+    "details": {},
+    "retryable": false
+  },
+  "request_id": "req-ct04-synthetic"
+}

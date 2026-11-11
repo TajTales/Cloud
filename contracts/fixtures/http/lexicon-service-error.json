@@ -1,0 +1,9 @@
+{
+  "error": {
+    "code": "PROVIDER_UNAVAILABLE",
+    "message": "SYNTHETIC lexicon unavailable",
+    "details": {},
+    "retryable": true
+  },
+  "request_id": "req-synthetic-001"
+}

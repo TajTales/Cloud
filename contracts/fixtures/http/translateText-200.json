@@ -1,0 +1,15 @@
+{
+  "data": {
+    "text": "喫茶店",
+    "source_language": "ja",
+    "target_language": "vi",
+    "translation": "SYNTHETIC_TRANSLATION_ONLY",
+    "source": {
+      "provider": "fixture.synthetic",
+      "attribution": "SYNTHETIC CONTRACT FIXTURE; not a dictionary lookup or real OCR measurement.",
+      "revision": "fixture-1"
+    },
+    "origin": "fixture"
+  },
+  "request_id": "req-synthetic-001"
+}

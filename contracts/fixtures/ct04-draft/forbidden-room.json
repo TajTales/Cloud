@@ -1,0 +1,11 @@
+{
+  "error": {
+    "code": "FORBIDDEN",
+    "message": "SYNTHETIC room access denied",
+    "details": {
+      "room_id": "00000000-0000-4000-8000-000000000010"
+    },
+    "retryable": false
+  },
+  "request_id": "req-ct04-synthetic"
+}

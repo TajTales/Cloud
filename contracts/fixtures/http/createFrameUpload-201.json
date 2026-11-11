@@ -1,0 +1,17 @@
+{
+  "data": {
+    "upload_id": "00000000-0000-4000-8000-000000000004",
+    "session_id": "00000000-0000-4000-8000-000000000001",
+    "source_id": "00000000-0000-4000-8000-000000000002",
+    "frame_id": "00000000-0000-4000-8000-000000000003",
+    "upload": {
+      "method": "PUT",
+      "url": "https://storage.example.invalid/synthetic-frame",
+      "headers": {
+        "Content-Type": "image/jpeg"
+      },
+      "expires_at": "2026-11-11T14:31:00.000Z"
+    }
+  },
+  "request_id": "req-synthetic-001"
+}

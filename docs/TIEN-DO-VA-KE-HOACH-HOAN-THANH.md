@@ -1,6 +1,6 @@
 # Tiến độ và kế hoạch hoàn thành OCR Learning / LinguaLive
 
-Đối chiếu ngày 11/11/2026 với Báo cáo 2.pdf, đặc biệt trang 9–15, và mã nguồn hiện có trong workspace. Các dịch vụ hoặc repo bên ngoài workspace chưa được xác minh. Lượt cập nhật này chỉ sửa tài liệu, không chỉnh frontend, server, API hay hạ tầng. Các hợp đồng kỹ thuật phía dưới là **đề xuất để cả nhóm chốt trước khi giao AI**, chưa phải API đang tồn tại và chưa phải quyết định đã được ba thành viên xác nhận.
+Đối chiếu ngày 11/11/2026 với Báo cáo 2.pdf, đặc biệt trang 9–15, và mã nguồn hiện có trong workspace. Các dịch vụ hoặc repo bên ngoài workspace chưa được xác minh. Phần tiến độ đã được cập nhật theo giao diện User/Admin mới; backend và hạ tầng vẫn chưa được triển khai thêm trong lượt này. Các hợp đồng kỹ thuật phía dưới là **đề xuất để cả nhóm chốt trước khi giao AI**, chưa phải API đang tồn tại và chưa phải quyết định đã được ba thành viên xác nhận.
 
 ## Cách sử dụng tài liệu
 
@@ -14,6 +14,15 @@ Tài liệu chi tiết để chia task cho AI; không cần đọc lại từ đ
 
 Trình tự ngắn: **chốt contract → từng AI làm module theo contract → test riêng → tích hợp sớm → cả nhóm chạy nghiệm thu → cập nhật trạng thái**.
 
+### Cập nhật sau giao diện User/Admin
+
+Bản cập nhật tài liệu: `draft-2026-11-11-user-admin-2`. Đã có một phần mô tả UI trong lần cập nhật trước; lần này rà lại **trạng thái đầu việc, thứ tự nối API và hợp đồng còn thiếu**, không triển khai thêm tính năng.
+
+- UI User/Admin và hành vi xem trước được giữ để tái sử dụng; không giao AI viết lại từ đầu.
+- Tách hai thước đo: **sẵn sàng frontend** và **hoàn thành chức năng thật**. Có UI không làm nhiệm vụ backend được coi là đạt.
+- API quản trị cấu hình, audit, danh sách thành viên, `/me` và trạng thái ôn tập được cụ thể hóa ở mục 9.6–9.9.
+- Đây vẫn là **bản nháp hợp đồng**, chưa đóng băng v1, chưa tạo các file OpenAPI/AsyncAPI và chưa có API mới đang chạy.
+
 ## 1. Kết luận
 
 Đã có giao diện đủ các màn chính, các tương tác học từ mẫu và khung server OCR độc lập. Chưa có luồng sản phẩm hoàn chỉnh từ chia sẻ màn hình → nhận chữ thật → tra/lưu từ → mở lại lịch sử. Chưa thể coi dự án đã hoàn thành chỉ vì các màn hình có mặt hoặc test dummy đạt.
@@ -25,8 +34,8 @@ Trình tự ngắn: **chốt contract → từng AI làm module theo contract �
 | 1 | Hạ tầng AWS | Có Docker/Nginx/systemd và hướng dẫn deploy OCR. Chưa có bằng chứng tài nguyên AWS đang chạy hoặc cấu hình hạ tầng hoàn chỉnh trong repo. |
 | 2 | Thiết kế UI/UX sáng/tối | Đã có các màn chính, responsive và hover; người dùng đã chấp nhận giao diện hiện tại. |
 | 3 | Đăng nhập, màn chính, Thư viện, Nhật ký | Có UI và điều hướng. Đăng nhập là timer + localStorage; lịch sử, thống kê, bộ sưu tập là dữ liệu mẫu. Chưa nối Cognito và API dữ liệu. |
-| 4 | Phòng học và Chime SDK client | Có UI video, transcript, chat, từ vựng, micro/camera. Video là ảnh; chat và thành viên mẫu; nút thiết bị chỉ đổi state. Chưa tích hợp Chime/WebRTC. |
-| 5 | Chụp/nén/gửi frame và hiển thị OCR | Chưa có getDisplayMedia, video thực, canvas capture hoặc client HTTP/WS OCR trong frontend hiện tại. Overlay dùng vị trí mẫu. |
+| 4 | Phòng học và Chime SDK client | Có UI video, transcript, chat, từ vựng, micro/camera. Đã mở video/chia sẻ màn hình để xem trước cục bộ; chat gửi trong state và thành viên vẫn mẫu; nút gọi chưa nối thiết bị/Chime. Có vai trò solo/host/member trên UI. Chưa tích hợp Chime/WebRTC. |
+| 5 | Chụp/nén/gửi frame và hiển thị OCR | Đã có getDisplayMedia và video cục bộ để xem trước, cleanup khi đổi/rời nguồn. Chưa có canvas capture/nén/gửi frame hoặc client HTTP/WS OCR. Overlay vẫn mẫu và được ẩn khi mở nguồn thật. |
 | 6 | Phát hành qua CloudFront | Chạy Vite cục bộ và build đạt. Chưa xác minh deploy CloudFront. |
 | 7 | Đăng ký/đăng nhập/token | Chưa có xác thực thật trong mã hiện tại. Cờ localStorage không phải phiên xác thực Cognito. |
 | 8 | API Gateway REST/WS và token | Chưa có tích hợp/config xác minh được. WS aiohttp trực tiếp không đồng nghĩa đã hoàn thành luồng API Gateway trong báo cáo. |
@@ -40,11 +49,13 @@ Trình tự ngắn: **chốt contract → từng AI làm module theo contract �
 | 16 | Kiểm thử tích hợp | Có build/TypeScript, kiểm tra Chromium các UI và kiểm tra server dummy riêng. Chưa có kiểm thử hệ thống nhiều người dùng qua dịch vụ thật. |
 | 17 | Báo cáo và demo cuối | Đã có Báo cáo 2 và demo UI, ghi chú kỹ thuật. Cần demo chức năng thật, kết quả kiểm thử và báo cáo phản ánh bản triển khai cuối. |
 
-Ngoài bảng 17 hạng mục, use case trang 9–10 có **Admin quản lý người dùng, hệ thống và theo dõi hoạt động**. Mã hiện tại chưa có chức năng này; bảng phân công cũng chưa tách một đầu việc riêng, cần bổ sung để hoàn thành đúng phạm vi.
+Ngoài bảng 17 hạng mục, use case trang 9–10 có **Admin quản lý người dùng, hệ thống và theo dõi hoạt động**. Đã có khu vực Admin xem trước với quản lý tài khoản/phòng, cấu hình và nhật ký thao tác mẫu; backend phân quyền, quản lý và giám sát thật vẫn chưa có. Bảng phân công chưa tách một đầu việc riêng, cần bổ sung để hoàn thành đúng phạm vi.
 
 ## 3. Những tương tác frontend đã hoạt động
 
 - Chuyển màn hình, mở hộp thoại tạo/nhập mã phòng (chưa tạo phòng trên server).
+- Có bản xem trước Admin trong môi trường phát triển: tìm/lọc và khóa/mở khóa tài khoản mẫu, đóng phòng mẫu, cấu hình, nhật ký; không phải phân quyền thật.
+- User có chọn nguồn video/chia sẻ màn hình cục bộ, phân biệt host/member, danh sách thành viên mẫu, chat local, ôn thẻ từ, chi tiết lịch sử, hồ sơ/thiết lập dùng thử. Xem [ghi chú User/Admin](GIAO-DIEN-USER-VA-ADMIN.md).
 - Sáng/tối, thiết lập ngôn ngữ, hover, responsive và con trỏ mặc định.
 - Chọn ô chữ OCR mẫu; xem thông tin và lưu vào danh sách từ trong state.
 - Rê chuột/chạm từ Nhật hoặc romaji trong hai câu transcript mẫu để xem popup: loại từ, kana/romaji, nghĩa, dạng gốc, cách dùng, ví dụ.
@@ -78,7 +89,30 @@ Mỗi đầu việc dùng một trong các trạng thái: `todo` → `in_progres
 - Chạy qua frontend, backend và OCR thật trong môi trường chung: `integrated`.
 - Người trong nhóm chạy ca nghiệm thu và lưu bằng chứng đạt: `accepted`.
 - Mock/dummy chỉ chứng minh giao diện hoặc đường truyền, không chứng minh OCR/đăng nhập/học nhóm thật.
-- Với các việc còn thiếu bên dưới, trạng thái ban đầu là `todo`; có thể tái sử dụng khung code hiện tại nhưng chưa mặc định hoàn thành việc tích hợp.
+- Backend/hạ tầng còn thiếu vẫn là `todo`. Với frontend đã có, dùng bảng 4.3 để giao **phần nối dữ liệu và regression**; không reset toàn bộ về viết UI từ đầu hoặc đánh dấu chức năng thật đã accepted.
+
+### 4.3. Bảng trạng thái hai lớp sau cập nhật UI
+
+`ready_for_integration` dưới đây chỉ nói về **phần frontend được liệt kê**, không phải cả task xuyên hệ thống. Chưa có thêm hạng mục backend nào được nâng lên accepted vì bản UI mới.
+
+| Task liên quan | Frontend đã có | Trạng thái phần frontend | Việc giao tiếp theo cho AI / người phụ trách |
+| --- | --- | --- | --- |
+| AU-01, AU-02 | Form đăng nhập, đăng ký/quên mật khẩu mẫu; reset logout | `ready_for_integration` cho giao diện, chưa có auth adapter | Hoàng Bảo chốt Cognito/flow/token; Đức nối auth adapter và lỗi/xác nhận/refresh thật |
+| AU-03, AD-01 | Khu vực User/Admin tách riêng, bộ chọn role dev | `ready_for_integration` cho bố cục | Hoàng Bảo làm nguồn role và quyền API; Đức bỏ đường chọn quyền demo khi real mode, nối `/me` |
+| AU-04 | Hồ sơ/cài đặt dùng localStorage, avatar theo profile | `ready_for_integration` | Hoàng Bảo làm `/me` và quy trình email; Đức map tên field, bỏ localStorage làm nguồn chuẩn |
+| OC-01 | `useRoomMedia`: mở video/share preview, đổi/dừng/cleanup, xử lý quyền | `ready_for_integration` | Đức giữ hook, bổ sung ca thử chọn cửa sổ thật trên thiết bị nhóm; không viết lại màn nguồn |
+| OC-02, OC-04, OC-06 | Chưa có capture/job/result thật | `todo` cho đường frame/API | Đức capture/client, Hoàng Bảo job/WS, Bảo Anh worker; thêm source_id/frame_id và bỏ kết quả cũ |
+| LX-04 | Popup và renderer Yomitan, hover/mobile/keyboard, bộ từ mẫu | `ready_for_integration` cho hiển thị | Bảo Anh/Hoàng Bảo cung cấp lexicon thật; Đức nối adapter, loading/not_found/error và ghi nguồn |
+| RM-01, RM-03 | UI solo/host/member, chọn nguồn chỉ cho host/solo, dialog thành viên mẫu | `ready_for_integration` cho UI quyền | Hoàng Bảo cấp membership/capabilities, Đức gắn nguồn/quyền/Chime thật; backend vẫn phải chặn request sai |
+| RM-04 | Chat local, giới hạn rỗng/500 ký tự, render text | `ready_for_integration` cho composer | Đức thay transport theo D06; Hoàng Bảo mapping attendee/quyền. Đo UTF-8 envelope, không chỉ đếm ký tự |
+| ST-03 | Lưu/xóa trong state, ôn flashcard và tổng kết lượt | `ready_for_integration` | Hoàng Bảo API vocabulary/review/collection; Đức map ID/trạng thái và đồng bộ khi mở lại |
+| ST-04, ST-05 | Nhật ký mẫu, dialog chi tiết, thông báo chưa có recording | `ready_for_integration` cho empty/detail states | Hoàng Bảo/Bảo Anh tạo dữ liệu bền vững; Đức nối history/stats/playback thật |
+| AD-01 | Tìm/lọc tài khoản và phòng, chi tiết, khóa/mở/đóng mẫu có lý do | `ready_for_integration` | Hoàng Bảo API Admin và kiểm tra quyền/phiên bản; Đức thay fixtures bằng client adapter |
+| AD-02, AD-04 | Panel sức khỏe chưa kết nối, log mẫu/local và bộ lọc | `ready_for_integration` | Bảo Anh metrics OCR; Hoàng Bảo health/audit thật; Đức map trạng thái unknown/null, phân trang |
+| AD-05 | Form cấu hình OCR và bảo trì mẫu | `ready_for_integration` | Hoàng Bảo config API/version/apply state; Bảo Anh worker áp dụng; Đức theo dõi pending/failed |
+| QA-01 | Đã có các kiểm tra UI/User/Admin và video cục bộ | Đã kiểm tra cục bộ; chưa thay E2E | Cả nhóm bổ sung contract/integration/cloud tests, không dùng UI tests thay bằng chứng backend |
+
+**Tài liệu và code nên đưa cho AI tích hợp:** [ghi chú User/Admin](GIAO-DIEN-USER-VA-ADMIN.md), [Yomitan](TICH-HOP-YOMITAN.md), `src/admin/`, `src/hooks/useRoomMedia.ts`, `AccountPanels.tsx`, `ReviewCards.tsx`, `TranscriptVocabulary.tsx`, `YomitanEntry.tsx` và `src/App.tsx`.
 
 ## 5. Gom các công việc còn thiếu theo tính chất
 
@@ -114,7 +148,7 @@ Mỗi đầu việc dùng một trong các trạng thái: `todo` → `in_progres
 
 | Mã | Công việc | Ai giao AI làm | Điều kiện đạt |
 | --- | --- | --- | --- |
-| OC-01 | Chọn video, chia sẻ màn hình, xem trước, đổi/dừng nguồn | Đức | Có video thật; từ chối quyền không làm treo UI; rời phiên dừng track và thu hồi URL |
+| OC-01 | Nghiệm thu/tái sử dụng chọn video, screen preview và cleanup đã có | Đức | Có video thật; từ chối quyền không làm treo UI; rời phiên dừng track và thu hồi URL |
 | OC-02 | Chụp canvas, nén, quản lý frame/time/nguồn, overlay theo ảnh thực | Đức; Bảo Anh cung cấp ảnh chuẩn | Resize/letterbox không lệch box; không chạy OCR mọi frame; không tích hàng đợi vô hạn |
 | OC-03 | Sửa lỗi provider server, schema trang demo, kiểm tra ảnh/timeout/cleanup/concurrency | Bảo Anh | Các lỗi trong DANH-GIA-OCR.md được xử lý và có test; provider thật chạy được trên môi trường đã chọn |
 | OC-04 | Upload/job API, worker orchestration, trả kết quả và chống trùng | Hoàng Bảo API/job storage; Bảo Anh worker OCR; Đức client | Một frame có thể đối chiếu bằng session_id/source_id/frame_id/job_id từ đầu tới cuối |
@@ -132,7 +166,7 @@ Mỗi đầu việc dùng một trong các trạng thái: `todo` → `in_progres
 | LX-01 | Chọn nguồn từ điển/tách từ, phạm vi ngôn ngữ, cách đọc/loại từ/dạng gốc | Bảo Anh đề xuất; cả nhóm chốt | Có nguồn và điều kiện sử dụng rõ; test từ chưa nằm trong 18 mục mẫu |
 | LX-02 | Tách từ và ánh xạ về vị trí trong câu OCR | Bảo Anh | Offset khớp chuỗi gốc; không mất dấu câu; từ biến hình vẫn tìm được lemma |
 | LX-03 | API tra từ, cache, timeout, not_found và thiếu bản dịch Việt | Hoàng Bảo adapter/API; Bảo Anh dữ liệu | Đầu ra theo một schema; không bịa nghĩa/từ loại khi thiếu dữ liệu |
-| LX-04 | Thay dữ liệu mẫu của popup bằng dịch vụ; loading/error/retry | Đức | Hover/chạm/keyboard vẫn hoạt động; không tự phát âm; hỗ trợ từ không tìm thấy |
+| LX-04 | Giữ popup Yomitan; thay dữ liệu mẫu bằng lexicon thật, thêm loading/error/retry | Đức | Hover/chạm/keyboard vẫn hoạt động; không tự phát âm; hỗ trợ từ không tìm thấy |
 | LX-05 | Dịch câu và cách đọc theo ngữ cảnh nếu giữ UI hiện tại | Bảo Anh xác định dịch vụ; Hoàng Bảo API; Đức hiển thị | Có kết quả thật hoặc thông báo chưa có; không giả vờ là output OCR |
 
 **Phụ thuộc:** hợp đồng từ/câu CT-02; có thể làm với fixtures trong khi G2 đang phát triển. Tích hợp sau khi có chữ OCR thật. Không tự mở rộng sang tiếng Pháp/Anh/Trung chỉ vì UI có lựa chọn; mỗi ngôn ngữ cần nghiệm thu riêng.
@@ -178,9 +212,12 @@ Mỗi đầu việc dùng một trong các trạng thái: `todo` → `in_progres
 | AD-01 | Role Admin, API quản lý user, danh sách/đóng phòng | Hoàng Bảo; Đức UI | User thường bị chặn ở backend; không chỉ ẩn nút |
 | AD-02 | Tình trạng provider, job lỗi, số phiên/độ trễ, nhật ký vận hành | Bảo Anh cung cấp metrics; Hoàng Bảo thu thập/API; Đức hiển thị | Truy được lỗi theo request_id/job_id, không log token hoặc nguyên ảnh nhạy cảm |
 | AD-03 | Liveness/readiness, giới hạn tải, timeout/lease/cleanup | Bảo Anh OCR; Hoàng Bảo app | Health báo đúng model chưa sẵn sàng; quá tải có phản hồi thống nhất |
-| AD-04 | Audit thao tác quản trị và xử lý lỗi dễ kiểm tra | Hoàng Bảo | Ai khóa user/đóng phòng có record; không đưa stack trace ra UI |
+| AD-04 | Audit thao tác quản trị và xử lý lỗi dễ kiểm tra | Hoàng Bảo | Ai khóa user/đóng phòng có record server; không đưa stack trace ra UI |
+| AD-05 | Config/maintenance API có version, trạng thái áp dụng và giới hạn hợp lệ | Hoàng Bảo API/storage; Bảo Anh worker; Đức nối form có sẵn | Không chỉ lưu giá trị trong UI; biết requested/effective/pending/failed và có audit |
 
-**Phụ thuộc:** G1, API/schema các nhóm liên quan. Phạm vi quản trị v1 cần chốt cụ thể: xem user, khóa/mở tài khoản, xem/đóng phòng, xem sức khỏe hệ thống; chưa tự thêm dashboard phức tạp ngoài nhu cầu môn học.
+**UI hiện có:** `AdminWorkspace.tsx` và `adminDemo.ts` đã là bản mẫu để nối API; không giao lại việc dựng dashboard từ đầu. Tích hợp AD-01/AD-02/AD-04/AD-05 theo mục 9.7–9.8.
+
+**Phụ thuộc:** G1, API/schema các nhóm liên quan. Phạm vi quản trị v1 đề xuất theo UI đã có: xem user, khóa/mở tài khoản, xem/đóng phòng, xem sức khỏe/cấu hình hệ thống và audit. Cả nhóm chốt phạm vi; chưa tự thêm dashboard phức tạp ngoài nhu cầu môn học.
 
 ### G7 — Môi trường phát triển, AWS và phát hành
 
@@ -217,13 +254,13 @@ Kiểm thử được viết cùng chức năng; G8 là nghiệm thu chéo, khô
 | Chặng | Tài Đức làm | Hoàng Bảo làm | Bảo Anh làm | Chỉ chuyển chặng khi |
 | --- | --- | --- | --- | --- |
 | **M0 — Thống nhất** | CT-01…04, bảng UI cần dữ liệu gì, tích hợp repo | Draft API/auth/WS, IF-01, schema dữ liệu | Draft OCR/dictionary schema, xác nhận provider | Ba phần cùng dùng một contract version; kiến trúc hình ảnh/WS được chọn |
-| **M1 — Dựng nền song song** | Auth/client adapter, video/share/capture, client gọi mock theo schema | Cognito, app API skeleton, storage local/cloud-dev, job/WS adapter, fixtures | Sửa OCR server được người phụ trách cho phép, real-provider test, dictionary prototype | Local chạy được; auth dev thật hoặc issuer test rõ ràng; provider thật có kết quả |
+| **M1 — Dựng nền song song** | Giữ UI User/Admin và useRoomMedia; làm auth/client adapter, capture và mock đúng schema | Cognito, app API skeleton, storage local/cloud-dev, job/WS adapter, fixtures | Sửa OCR server được người phụ trách cho phép, real-provider test, dictionary prototype | Local chạy được; auth dev thật hoặc issuer test rõ ràng; provider thật có kết quả |
 | **M2 — Solo chạy thật** | Nối video → frame → job → overlay, popup API | Upload/job API, auth, kết quả/poll/WS và trạng thái session | OCR worker và log, chất lượng box; từ điển ngoài dữ liệu mẫu | Một nội dung mới nhận chữ, tra và lưu từ đúng; đổi nguồn không hiện kết quả cũ |
 | **M3 — Học nhóm** | Chime client, mic/camera/share/chat, membership UI | Room/meeting/attendee, presence, routing kết quả và quyền | Gắn session/frame vào kết quả nhóm; tránh xử lý trùng | Hai user cùng phòng chạy được; phòng khác không nhận nhầm |
 | **M4 — Dữ liệu bền vững** | Thư viện/ôn tập/nhật ký/player thật | DynamoDB API/index, stats, quyền playback, recording pipelines | Lưu text OCR S3/index, đồng bộ timeline | Refresh còn dữ liệu; mở đúng phiên/video/log theo quyền |
-| **M5 — Hoàn thiện** | Admin UI, E2E, CloudFront, biên tập PDF | Admin/metrics, AWS/Auto Scaling, hardening/rollback | Benchmark/provider packaging/load test | Demo cloud thật, quyền đúng, số liệu và tài liệu khớp triển khai |
+| **M5 — Hoàn thiện** | Nối Admin UI đã có với API/metrics/audit thật, E2E, CloudFront, biên tập PDF | Admin/metrics, AWS/Auto Scaling, hardening/rollback | Benchmark/provider packaging/load test | Demo cloud thật, quyền đúng, số liệu và tài liệu khớp triển khai |
 
-ST-01/schema, ST-03/lưu từ và Admin skeleton có thể khởi động sớm hơn M4/M5 khi hợp đồng tương ứng ổn định. Mốc trong bảng là lúc nghiệm thu hoàn chỉnh, không phải cấm viết phần đó trước.
+ST-01/schema, ST-03/lưu từ và tích hợp Admin có thể khởi động sớm hơn M4/M5 khi hợp đồng tương ứng ổn định. Admin UI skeleton đã có; auth/role/read API nên nối sớm, cấu hình thay đổi worker chỉ nối khi worker sẵn sàng. Mốc trong bảng là lúc nghiệm thu hoàn chỉnh, không phải cấm viết phần đó trước.
 
 ### 6.2. Các việc không nên làm độc lập rồi ghép ở cuối
 
@@ -255,6 +292,8 @@ ST-01/schema, ST-03/lưu từ và Admin skeleton có thể khởi động sớm 
 | D12 | Mục tiêu tải/latency/retention | Chốt số phòng/user đồng thời, bộ ảnh, ngưỡng đo và thời gian lưu trước benchmark | Cả ba | Chưa xác nhận |
 | D13 | Nguồn từ điển/dịch | Nguồn, license, cách đọc, từ loại, dịch Việt, phí/giới hạn nếu có; không để AI tự chọn khác nhau | Bảo Anh đề xuất; cả nhóm | Chưa xác nhận |
 | D14 | Auth flow và lưu token | Giữ form hiện tại, một client auth adapter cho Cognito; public app client không có secret. Chốt SDK/flow và chính sách refresh/storage | Hoàng Bảo + Đức | Chưa xác nhận |
+| D15 | Vai trò và Admin thật | `/me` cấp roles/capabilities từ danh tính kiểm chứng; User/Admin khác host/member; UI preview không cấp quyền | Hoàng Bảo + Đức | Chưa xác nhận |
+| D16 | Cấu hình/audit vận hành | Config có version và requested/effective state; worker tính theo mỗi instance; thao tác Admin có reason/idempotency/audit | Hoàng Bảo + Bảo Anh + Đức | Chưa xác nhận |
 
 ### 7.1. Điểm cần sửa trong kiến trúc PDF trước khi triển khai D05
 
@@ -270,8 +309,8 @@ Các đường dẫn sau là **đầu ra cần tạo ở CT-02/CT-04**, hiện c
 
 | Tệp đề xuất | Nội dung | Người giữ chính |
 | --- | --- | --- |
-| `contracts/decisions.md` | D01…D14 đã chốt, lý do, ảnh hưởng PDF, version và người xác nhận | Đức |
-| `contracts/openapi.yaml` | HTTP path/method/auth/request/response/errors và examples | Hoàng Bảo; Đức kiểm tra client; Bảo Anh kiểm tra OCR/lexicon |
+| `contracts/decisions.md` | D01…D16 đã chốt, lý do, ảnh hưởng PDF, version và người xác nhận | Đức |
+| `contracts/openapi.yaml` | HTTP path/method/auth/request/response/errors, DTO User/Admin/config/action/audit ở mục 9.6–9.9 và examples | Hoàng Bảo; Đức kiểm tra client; Bảo Anh kiểm tra OCR/lexicon |
 | `contracts/asyncapi.yaml` | WS action/event, subscribe, reconnect, lỗi và version | Hoàng Bảo |
 | `contracts/schemas/ocr-provider.schema.json` | Kết quả raw provider và tọa độ | Bảo Anh |
 | `contracts/schemas/lexicon.schema.json` | Tokens, offset, lemma, senses, examples, reading/pos | Bảo Anh |
@@ -333,7 +372,7 @@ Lỗi app thống nhất; lỗi string của OCR raw phải được adapter đ�
 | 401 | `AUTH_REQUIRED`, `TOKEN_EXPIRED` |
 | 403 | `FORBIDDEN`, không phải thành viên/chủ phòng; thiếu quyền dữ liệu |
 | 404 | `ROOM_NOT_FOUND`, `SESSION_NOT_FOUND`, `WORD_NOT_FOUND` |
-| 409 | `ROOM_CLOSED`, `ROOM_FULL`, `SESSION_ENDED`, `STALE_SOURCE`, `IDEMPOTENCY_CONFLICT` |
+| 409 | `ROOM_CLOSED`, `ROOM_FULL`, `SESSION_ENDED`, `STALE_SOURCE`, `IDEMPOTENCY_CONFLICT`, `VERSION_CONFLICT`, `SELF_SUSPEND_FORBIDDEN`, `LAST_ADMIN_PROTECTED`, `USER_NOT_VERIFIED` |
 | 413 / 415 | `IMAGE_TOO_LARGE` / `UNSUPPORTED_IMAGE_TYPE` |
 | 422 | `INVALID_IMAGE`, nội dung không giải mã được hoặc metadata không khớp |
 | 429 | `RATE_LIMITED`, `OCR_BUSY`; có `Retry-After` |
@@ -347,7 +386,7 @@ Các path dưới đây là bản đề xuất để viết OpenAPI. Quyền ph�
 
 | Method/path sau `/api/v1` | Dùng để làm gì | Ai làm backend / ai dùng |
 | --- | --- | --- |
-| `GET /me`, `PATCH /me` | Profile, role và thiết lập | Hoàng Bảo / Đức |
+| `GET /me`, `PATCH /me` | GET profile/roles; PATCH chỉ các field hồ sơ được phép, không sửa role/email qua đây | Hoàng Bảo / Đức |
 | `POST /sessions` | Tạo phiên solo; tạo group session do backend room thực hiện | Hoàng Bảo / Đức |
 | `GET /sessions/{session_id}` | Snapshot phiên, nguồn hiện tại, trạng thái quyền người xem | Hoàng Bảo / Đức |
 | `POST /sessions/{session_id}/sources` | Đăng ký/đổi nguồn, server ghi source_id/current_source | Hoàng Bảo / Đức |
@@ -360,19 +399,25 @@ Các path dưới đây là bản đề xuất để viết OpenAPI. Quyền ph�
 | `POST /lexicon/lookups` | Phân tích câu và tra từ theo ngữ cảnh | Hoàng Bảo route/cache, Bảo Anh xử lý / Đức |
 | `POST /translations` | Dịch câu nếu D02/phạm vi giữ bản dịch | Hoàng Bảo route, Bảo Anh adapter / Đức |
 | `GET /vocabulary`, `POST /vocabulary`, `DELETE /vocabulary/{word_id}` | Từ cá nhân, lưu và xóa | Hoàng Bảo / Đức |
-| `PATCH /vocabulary/{word_id}/review` | Cập nhật `new`, `learning`, `known` cho ôn tập v1 | Hoàng Bảo / Đức |
+| `PATCH /vocabulary/{word_id}/review` | Cập nhật theo word_id; UI cần ôn → learning, đã nhớ → known; xử lý retry và lỗi lưu | Hoàng Bảo / Đức |
 | `GET /collections`, `POST /collections`, `PATCH /collections/{collection_id}` | Bộ từ để thay các collection mẫu | Hoàng Bảo / Đức |
 | `GET /history`, `GET /stats` | Nhật ký/số liệu thật của user đăng nhập | Hoàng Bảo / Đức |
 | `POST /rooms`, `GET /rooms/{room_id}` | Tạo phòng và snapshot phòng | Hoàng Bảo / Đức |
 | `POST /rooms/join` | Nhập `{ "code": "AB7K9M2Q" }`, trả room/session/membership | Hoàng Bảo / Đức |
 | `POST /rooms/{room_id}/leave`, `POST /rooms/{room_id}/close` | Thành viên rời hoặc host đóng phòng | Hoàng Bảo / Đức |
 | `POST /rooms/{room_id}/meeting-credentials` | Cấp object meeting/attendee cho thành viên đã xác thực | Hoàng Bảo / Đức |
+| `GET /rooms/{room_id}/members` | Danh sách thành viên có phân trang theo quyền, không phải đếm socket | Hoàng Bảo / Đức |
 | `GET /rooms/{room_id}/vocabulary`, `POST /rooms/{room_id}/vocabulary`, `DELETE /rooms/{room_id}/vocabulary/{word_id}` | Từ chung khi phòng cho phép | Hoàng Bảo / Đức |
 | `POST /sessions/{session_id}/recording/start`, `POST /sessions/{session_id}/recording/stop` | Ghi hình theo quyền/chính sách D10 | Hoàng Bảo / Đức |
 | `GET /sessions/{session_id}/playback` | Trạng thái video và URL phát lại có hạn | Hoàng Bảo / Đức |
 | `POST /realtime/tickets` | Vé mở kết nối WS từ token HTTP | Hoàng Bảo / Đức |
-| `GET /admin/users`, `PATCH /admin/users/{user_id}/status` | Quản lý tài khoản | Hoàng Bảo / Đức Admin |
-| `GET /admin/rooms`, `POST /admin/rooms/{room_id}/close`, `GET /admin/health`, `GET /admin/metrics` | Quản trị phòng/vận hành | Hoàng Bảo; Bảo Anh metrics OCR / Đức Admin |
+| `GET /admin/overview` | Counts/số liệu tổng quan có thời điểm đo, giá trị chưa biết là null | Hoàng Bảo / Đức Admin |
+| `GET /admin/users`, `GET /admin/users/{user_id}`, `PATCH /admin/users/{user_id}/status` | Tìm/lọc/chi tiết/khóa hoặc mở khóa tài khoản theo policy | Hoàng Bảo / Đức Admin |
+| `GET /admin/rooms`, `GET /admin/rooms/{room_id}`, `POST /admin/rooms/{room_id}/close` | Tìm/lọc/chi tiết/đóng phòng có lý do | Hoàng Bảo / Đức Admin |
+| `GET /admin/config`, `PATCH /admin/config` | Đọc/cập nhật cấu hình và bảo trì, version/apply status | Hoàng Bảo; Bảo Anh worker / Đức Admin |
+| `GET /admin/health`, `GET /admin/metrics` | Trạng thái và số đo thật, không suy từ fixtures | Hoàng Bảo; Bảo Anh metrics OCR / Đức Admin |
+| `GET /admin/audit-events`, `GET /admin/audit-events/{event_id}` | Tìm/lọc/phân trang/chi tiết audit bất biến | Hoàng Bảo / Đức Admin |
+| `GET /admin/actions/{action_id}` | Theo dõi lệnh quản trị bất đồng bộ sau response 202 | Hoàng Bảo / Đức Admin |
 
 Không tự tạo `/login` trả token giả trong app backend khi đã chọn Cognito. Auth adapter dùng flow Cognito đã chốt ở D14. Resource chỉ cho admin không nằm lẫn trong API user mà bỏ kiểm tra role.
 
@@ -381,8 +426,8 @@ Không tự tạo `/login` trả token giả trong app backend khi đã chọn C
 Chốt các schema này trong OpenAPI, không chỉ ghi tên endpoint:
 
 - `POST /sessions` trả 201: `session_id`, `mode: "solo"`, `status: "active"`, `current_source_id: null`, `started_at`.
-- `POST /rooms` trả 201: `room` (room_id, code, status, host_user_id, shared_session_id, shared_vocabulary_enabled), `membership` (user_id, role), không tự đưa attendee JoinToken vào response danh sách phòng.
-- `POST /rooms/join` trả 200: cùng cấu trúc room/membership cho người tham gia, role do backend quyết định. Tạo lại cùng membership đang hoạt động là idempotent, không tăng member_count hai lần.
+- `POST /rooms` trả 201: `room` (room_id, code, status, host_user_id, shared_session_id, shared_vocabulary_enabled), `membership` (membership_id, user_id, room_role, capabilities), không tự đưa attendee JoinToken vào response danh sách phòng.
+- `POST /rooms/join` trả 200: cùng cấu trúc room/membership cho người tham gia, room_role do backend quyết định. Tạo lại cùng membership đang hoạt động là idempotent, không tăng member_count hai lần.
 - `POST /sessions/{id}/sources` trả 201: source_id, kind (`local_video` hoặc `screen_share`), source_index, started_at, timeline_origin_ms. Backend lưu thứ tự nguồn; client không lấy source_id ngẫu nhiên để suy ra thứ tự.
 - `POST /sessions/{id}/ocr-jobs` trả 202: job_id, frame_id, source_id, `status: "queued"`, poll_after_ms. Nếu cùng key/body đã có job thì trả 200 với cùng job_id và trạng thái hiện tại theo schema đã chốt, không tạo job mới. Cùng key nhưng body khác trả 409 IDEMPOTENCY_CONFLICT; backend cần unique constraint/conditional write, không chỉ kiểm tra trước rồi insert.
 - `GET /ocr-jobs/{id}` trả 200: job_id, session_id, source_id, frame_id, status, result_id hoặc null, error hoặc null, created_at, updated_at. Succeeded phải có result_id; failed/expired phải có error code. Lỗi truy cập resource vẫn dùng HTTP error envelope, không trả job giả.
@@ -404,6 +449,130 @@ Mọi trường bắt buộc/tùy chọn, nullable, HTTP status khi idempotent r
 - **OCR job:** `queued → processing → succeeded | failed | expired`. Retry không đổi thành một frame khác; completion trùng phải idempotent.
 - **Từ chung:** ai thêm có `created_by`; đề xuất member xóa từ do mình thêm, host xóa từ chung bất kỳ; tắt tính năng thì API trả 403.
 - **Admin:** role hệ thống độc lập host/member. Truy cập quản trị cần audit; không tự động phát JoinToken cho admin chỉ vì xem danh sách phòng. Khóa tài khoản phải có chính sách chặn request/socket đang hoạt động, không coi việc ẩn tài khoản trên UI là thu hồi phiên.
+
+### 9.6. Hồ sơ, danh tính và quyền để nối User/Admin
+
+**Phụ trách:** Hoàng Bảo làm AU-03/AU-04 và schema; Đức nối auth/profile/điều hướng. Các ví dụ dưới đây là đề xuất cho OpenAPI, không phải response của server hiện tại.
+
+Ví dụ `GET /me` sau đăng nhập:
+
+```json
+{
+  "data": {
+    "user_id": "00000000-0000-4000-8000-000000000020",
+    "display_name": "Người học thử nghiệm",
+    "email": "learner@example.com",
+    "email_verified": true,
+    "roles": ["user"],
+    "permissions": [],
+    "status": "active",
+    "locale": "vi",
+    "timezone": "Asia/Ho_Chi_Minh",
+    "learning_language": "ja",
+    "version": 1
+  },
+  "request_id": "req-profile-example"
+}
+```
+
+- `user_id` theo Cognito subject đã kiểm chứng; không nhận user_id/roles từ localStorage, sessionStorage, body hoặc header tự khai làm bằng chứng quyền. Backend xác minh token và chính sách tài khoản ở mỗi request cần quyền.
+- `roles` là quyền hệ thống (`user`, `admin`); `permissions` là danh sách quyền hệ thống được backend cấp. **`room_role: host | member` thuộc membership từng phòng**, không gộp thành một enum với User/Admin. Admin mở giao diện người học chỉ đổi màn hình, không đổi quyền tài khoản và không tự trở thành host.
+- Bộ chọn vai trò dev hiện tại chỉ phục vụ demo. Khi làm real mode, phải vô hiệu hóa đường cấp quyền demo cả khi chạy Vite dev; thử sửa sessionStorage không được mở API Admin. UI đọc `/me`, còn backend vẫn phải từ chối thao tác vượt quyền.
+- `PATCH /me` chỉ cho `display_name`, `locale`, `timezone`, `learning_language`, kèm `expected_version`. Trả profile mới/version mới. Sai field hoặc cố gửi `roles`, `permissions`, `user_id`, `status`, `email_verified` hay `email` thì trả lỗi validation, không âm thầm nhận.
+- Form hiện dùng `name` và `learningLanguage`; adapter map sang `display_name` và `learning_language`. `lingualive-demo-profile` hiện chỉ là dữ liệu preview; bản thật không lấy nó ghi đè profile server hoặc dùng chung hồ sơ giữa hai tài khoản.
+- **Email khác tên hiển thị:** form demo cho sửa email cục bộ, nhưng email thật phải qua auth adapter/quy trình xác nhận đã chốt ở D14. Hoàng Bảo ghi rõ bước yêu cầu đổi, gửi/nhập mã, trạng thái chờ, lỗi và thời điểm `/me` phản ánh email đã xác minh. Không cho `PATCH /me` thay email đã xác nhận chỉ bằng một chuỗi; không tạo luồng gửi mail thứ hai ngoài cơ chế auth đã chọn.
+
+`GET /rooms/{room_id}` trả room và membership của người gọi, trong đó `capabilities` có các boolean như `can_share_source`, `can_send_ocr`, `can_close_room`. Với solo, snapshot session trả quyền owner tương ứng. Backend tính quyền từ danh tính/membership/trạng thái phòng; client không gửi boolean để xin tự cấp quyền. `GET /rooms/{room_id}/members` trả `data.items` gồm `membership_id`, `user_id`, `display_name`, `room_role`, `joined_at` và `data.next_cursor`; không trả JoinToken/email riêng tư để hiển thị danh sách thành viên.
+
+### 9.7. Quản trị tài khoản, phòng và nhật ký
+
+**Phụ trách:** Hoàng Bảo làm AD-01/AD-04 và quyền; Đức nối `AdminWorkspace.tsx`, giữ bố cục hiện tại. Bảo Anh cung cấp thông tin OCR liên quan, không dựng API quản lý tài khoản trong OCR service.
+
+**Đọc dữ liệu:** `GET /admin/users` nhận `q`, `role`, `status`, `limit`, `cursor`; `/admin/rooms` nhận `q`, `status`, `limit`, `cursor`. `all` chỉ là giá trị bộ lọc trên UI: bỏ query tương ứng, không gửi nó như enum nghiệp vụ. Các list trả `{ "data": { "items": [], "next_cursor": null }, "request_id": "..." }`; query sai enum trả validation error. Backend định nghĩa thứ tự ổn định và cursor opaque, frontend không phân trang bằng index mảng fixture.
+
+| DTO chuẩn dự kiến | Field cần cho UI | Cách chuyển từ model demo hiện có |
+| --- | --- | --- |
+| AdminUser | `user_id`, `display_name`, `email`, `roles`, `status`, `created_at`, `last_sign_in_at` nullable, `sessions_count`/`saved_words_count` nullable, `version` | `id → user_id`, `name → display_name`; role badge đọc `roles`; `joined` được format từ timestamp; không parse chuỗi ngày mẫu thành ID/thời gian chuẩn |
+| AdminRoom | `room_id`, `code`, `title`, `host_user_id`, `host_display_name`, `member_count`, `language`, `status`, `started_at`, `closed_at` nullable, `ocr_jobs_count` nullable, `version` | `host` chỉ là nhãn tên; `members → member_count`, `ocrJobs → ocr_jobs_count`; language dùng `ja`/`zh`, UI tự dịch nhãn |
+| AuditEvent | `event_id`, `occurred_at`, `level`, `outcome`, `action`, `actor`, `target`, `reason`, `detail`, `request_id`, `action_id` nullable | `time` format từ `occurred_at`; `actor`/`target` object thành nhãn; `action` là mã ổn định được UI dịch |
+
+Chi tiết user/room dùng cùng ID và schema nền như list. Số liệu chưa thu thập trả `null` để hiện “Chưa có dữ liệu”, không điền số mẫu hoặc coi là 0.
+
+**Lệnh thay đổi:** ví dụ `PATCH /admin/users/{user_id}/status`, có `Idempotency-Key`:
+
+```json
+{
+  "status": "suspended",
+  "reason": "Tạm khóa theo yêu cầu kiểm tra tài khoản",
+  "expected_version": 4
+}
+```
+
+- Chỉ nhận trạng thái đích `active | suspended`; `pending` là chờ xác nhận danh tính. Không mở khóa `pending` thành `active` để bỏ qua xác nhận; trả `409 USER_NOT_VERIFIED` nếu cố làm.
+- Kiểm tra role/quyền, tài khoản đích, `expected_version`, lý do đã trim 3–300 ký tự, chặn tự khóa (`SELF_SUSPEND_FORBIDDEN`) và bảo vệ admin hoạt động cuối cùng (`LAST_ADMIN_PROTECTED`). Chống race bằng conditional write/transaction phù hợp, không chỉ disable nút.
+- `POST /admin/rooms/{room_id}/close` nhận `reason`, `expected_version` tương tự; không giả làm host bằng user_id ở body. Phải cập nhật room/membership, dừng cấp quyền mới và xử lý meeting/WS/job theo chính sách chung. User host vẫn dùng endpoint close thuộc `/rooms`, kiểm tra quyền host riêng.
+- Cùng người gọi/path/key/body trả cùng kết quả hoặc cùng action; đổi body với key cũ trả `409 IDEMPOTENCY_CONFLICT`. Chốt thời gian giữ key trong contract. Version cũ trả `409 VERSION_CONFLICT`: frontend tải snapshot mới, không tự ghi đè.
+- Nếu xử lý hoàn tất đồng bộ, trả 200 với resource mới. Nếu cần thu hồi phiên/đóng meeting hoặc bước nền, trả 202 với `action_id`, `status: "queued"`, `resource_type`, `resource_id`, `created_at`; theo dõi bằng `GET /admin/actions/{action_id}`. Action có `queued → running → succeeded | failed`, `updated_at`, `result` nullable, `error` nullable; failed có error code theo envelope chung. Đây là action quản trị, không tái sử dụng `job_id` OCR.
+- UI disable thao tác đang gửi, hiển thị đang xử lý khi 202; chỉ báo hoàn tất toàn bộ khi action succeeded và refresh resource. Nếu mất response, retry cùng key hoặc kiểm tra action đã biết, không tạo thao tác mới vô hạn. Failed/timeout phải có thông báo và lấy lại snapshot; không thay fixtures để làm như đã thành công.
+- Khóa tài khoản thật phải chặn request mới và xử lý socket/media credentials còn hiệu lực theo chính sách thu hồi ở AU-03/RM-06. Phải nghiệm thu giới hạn thời gian thu hồi đã chốt; thay badge trên UI chưa đủ.
+
+**Audit từ server:** `GET /admin/audit-events` nhận bộ lọc `q`, `level`, `action`, `actor_user_id`, `from`, `to`, `limit`, `cursor`; timestamp UTC. `level: success | warning | error` để nối bộ lọc hiện có; `outcome: requested | succeeded | failed | denied` mô tả kết quả riêng. `actor` có `user_id`, `display_name`; `target` có `type`, `id`, `label`. Server lấy actor/thời gian và ghi lý do, mã hành động, request_id/action_id; client không tự khai người thực hiện hoặc viết log thành công thay backend.
+
+Ghi được yêu cầu và kết quả kể cả lệnh bị từ chối/thất bại; nếu tách hai event thì liên kết bằng action_id/request_id. Audit là bản ghi bất biến, không bị nút “Đặt lại dữ liệu minh họa” xóa. **Không tạo endpoint reset/xóa toàn bộ dữ liệu thật theo nút demo.** Áp dụng chính sách lưu trữ đã chốt, che token/secret và giới hạn quyền đọc; thông tin kỹ thuật dài không đưa nguyên stack trace vào dialog.
+
+### 9.8. Cấu hình OCR, bảo trì và sức khỏe hệ thống
+
+**Task AD-05 mới bổ sung:** Hoàng Bảo giữ config API/storage/phân quyền; Bảo Anh giữ khả năng áp dụng của worker; Đức nối form có sẵn. Thực hiện sau khi schema và worker protocol đã chốt, không biến thay đổi số trong state thành bằng chứng cấu hình thật.
+
+`GET /admin/config` đề xuất trả `version`, `desired`, `effective`, `effective_version` nullable, `apply_status: applied | pending | failed`, `updated_at`, `updated_by`, `action_id` nullable và `limits`. `desired` là giá trị yêu cầu; `effective` là cấu hình đã xác nhận có hiệu lực. Khi worker chưa xác nhận, không gán `effective = desired` hoặc trả `applied` chỉ vì ghi DB thành công.
+
+| Field chuẩn | Giá trị khởi điểm đề xuất | Ánh xạ form hiện tại và quy tắc |
+| --- | --- | --- |
+| `desired.ocr.provider` | `meikiocr` | `provider`; server cấp danh sách provider khả dụng trong limits, không coi mọi option demo đã được cài/sẵn sàng |
+| `desired.ocr.frame_interval_ms` | `2000` | `frameInterval`; đơn vị ms; client capture và backend rate limit cùng phiên bản giới hạn |
+| `desired.ocr.workers_per_instance` | `2`, phải đo phù hợp máy | `workers`; là concurrency OCR trên mỗi instance, **không phải** số EC2/ASG instance hoặc tổng capacity |
+| `desired.ocr.max_image_bytes` | `1048576` | `maxImageMb × 1024 × 1024`; MiB, không nhân 1.000.000 |
+| `desired.ocr.max_image_pixels` | `4000000` | Giới hạn sau giải mã theo mục 10.2; server kiểm tra dù UI không có input riêng |
+| `desired.maintenance.enabled`, `.message` | `false`, thông báo rỗng | `maintenance`; khi bật cần thông báo cho user và reason cho audit |
+
+Các số là đề xuất ban đầu, chưa phải benchmark đạt. Form preview hiện cho chọn ảnh 1–10 MiB, interval 500–10000 ms và worker 1–8; **đó không phải giới hạn server đã chốt**. Contract ảnh đang đề xuất tối đa 1 MiB. Khi tích hợp, input lấy min/max/step/allowed values từ `limits`, backend validate độc lập. Không nâng trần ảnh lên 10 MiB chỉ để khớp input mẫu. Muốn đổi trần phải cập nhật D05/D12/D16, upload API, worker và fixtures đồng bộ.
+
+Ví dụ body `PATCH /admin/config`, có `Idempotency-Key`; `changes` chỉ chứa field được cho phép:
+
+```json
+{
+  "expected_version": 3,
+  "reason": "Điều chỉnh tần suất lấy frame trong đợt kiểm thử",
+  "changes": {
+    "ocr": { "frame_interval_ms": 2500 },
+    "maintenance": { "enabled": false, "message": "" }
+  }
+}
+```
+
+- PATCH merge các field hợp lệ, không thay toàn bộ cấu hình bằng object thiếu field. Không nhận actor, `effective`, `limits` hoặc version tự cấp từ client. Form lưu OCR hiện chưa hỏi reason; bổ sung reason và trạng thái chờ ở **task tích hợp**, không coi UI preview đã đáp ứng audit thật.
+- Conditional write kiểm tra version; lưu intent + audit/action rồi áp dụng qua controller/worker theo protocol chung. Bảo Anh báo readiness, version và lỗi áp dụng; Hoàng Bảo tổng hợp. Khi nhiều instance, `applied` phải có tiêu chí xác nhận cho các instance đang nhận tải; instance mới phải load cấu hình hiệu lực trước nhận việc. Không lấy phản hồi của một worker để tuyên bố cả cụm đã áp dụng.
+- Với thay provider/concurrency, chốt cách drain job cũ và deadline áp dụng; không hủy âm thầm job đang chạy. Nếu thất bại, giữ rõ cấu hình hiệu lực cũ, lỗi và action failed; retry/rollback là lệnh có version/audit, không hiển thị “Đã lưu thành công” như đã vận hành xong.
+- Đề xuất bảo trì: chặn tạo room/session/job mới bằng `503 MAINTENANCE`, cho phép đọc dữ liệu, đăng xuất và Admin sửa/tắt bảo trì; job đang chạy được hoàn tất hoặc dừng có trạng thái theo chính sách đã chốt. Cả nhóm chốt grace period, join room và call đang hoạt động ở D16; không chỉ che toàn màn hình frontend trong khi API vẫn nhận việc.
+- Khi thay giới hạn frame, client cần nhận giới hạn hiệu lực qua snapshot session/capabilities hoặc lỗi validation có chi tiết giới hạn, không cấp quyền gọi `/admin/config` cho user thường. Chốt đường truyền này trong OpenAPI trước khi nối OC-02.
+
+`GET /admin/health` trả từng thành phần với `status: healthy | degraded | unavailable | unknown`, `observed_at` nullable và chi tiết an toàn. Phân biệt process còn sống với model sẵn sàng phục vụ; không suy ra provider healthy chỉ vì app backend trả HTTP 200. `GET /admin/overview` và `/admin/metrics` có `sampled_at`, `data_source: live | mock` và khoảng đo; counts/latency chưa có là `null`, không phải 0. Mock hiện nhãn; lỗi hoặc số liệu quá cũ hiện unknown/degraded theo ngưỡng đã chốt, không fallback thành dữ liệu mẫu xanh.
+
+### 9.9. Hợp đồng cho các thao tác User đã có UI
+
+**Phụ trách:** Hoàng Bảo làm API dữ liệu và quyền, Đức nối component; Bảo Anh cung cấp identity/nghĩa từ và OCR logs. Tái sử dụng `AccountPanels`, `ReviewCards`, popup Yomitan và `useRoomMedia`, giữ thiết kế đã được chấp nhận.
+
+| Thao tác UI | Dữ liệu/quy tắc phải thống nhất trước khi giao AI |
+| --- | --- |
+| Lưu từ, mở bộ sưu tập, ôn flashcard | API cấp `word_id` bền vững, `entry_id/sense_id`, language, collection và `review_state: new | learning | known`. `GET /vocabulary` chốt filter `collection_id`, `language`, `review_state` và cursor. Không dùng index mảng/từ hiển thị làm ID |
+| “Cần ôn lại” / “Đã nhớ” | `PATCH /vocabulary/{word_id}/review` nhận `review_state: learning | known`, `expected_version`, trả resource/version mới. Đây là cập nhật trạng thái idempotent, chưa phải SRS hay bộ đếm số lượt review. Lỗi lưu phải hiện chưa đồng bộ/thử lại; không báo đã lưu bền vững chỉ vì state đã đổi |
+| Nhật ký và dialog chi tiết | `GET /history` trả item có session_id/title/mode/language/started_at/ended_at, counts và playback_state. Dialog đọc snapshot session/results/playback theo ID đó; null/chưa có video hiện trạng thái tương ứng, không dựng URL từ tên file cục bộ |
+| Chọn video/share | Hook hiện trả kind `file | screen`; adapter đổi sang source kind `local_video | screen_share`. Tạo session/source trên backend rồi mới capture/gửi frame; không lấy room_role ở state demo làm bằng chứng được upload |
+| Thành viên và quyền nguồn | Đọc membership/capabilities theo mục 9.6; mất quyền hoặc room đóng phải dừng track/capture/request. Member vẫn được backend chặn nếu tự gọi upload/job dù nút đã ẩn |
+| Chat local hiện tại | Giữ composer/render text, đổi sang transport D06 sau khi chốt. Kiểm cả giới hạn UI 500 ký tự và **toàn envelope UTF-8 dưới 1500 bytes** theo mục 11.3; lấy giới hạn chặt hơn. Không mặc định 500 ký tự tiếng Việt/Nhật luôn vừa payload |
+| Hồ sơ/cài đặt | Chỉ ghi các field `/me` cho phép; trạng thái đang lưu/lỗi/version conflict rõ ràng. Cache nếu có phải tách theo user và dọn khi logout; chế độ real không lấy profile demo làm nguồn chuẩn |
+
+`SavedWord` bổ sung `version` cho cập nhật review; quyền kiểm tra theo owner/scope. Tổng kết ôn tập của UI hiện chỉ tính trong lượt local: không coi là thống kê server. Dictionary renderer đã có nhưng nội dung thật còn task LX-01…03; không thêm fallback nghĩa mẫu cho từ chưa tìm thấy.
 
 ## 10. Hợp đồng ảnh, frame và kết quả OCR
 
@@ -670,19 +839,21 @@ Hover không được gọi API dồn theo từng pixel: cache theo ngôn ngữ/
 
 | Thực thể | Field nghiệp vụ tối thiểu | Người sở hữu logic |
 | --- | --- | --- |
-| User/Profile | Cognito sub, display_name, role, locale, timezone | Hoàng Bảo |
+| User/Profile | Cognito sub, display_name, roles/permissions read-only, status, email/email_verified, locale, timezone, learning_language, version | Hoàng Bảo |
 | Room | room_id, code, host_user_id, shared_session_id, status, language, shared_vocabulary_enabled, version, created_at/closed_at | Hoàng Bảo |
-| Membership | room_id, user_id, role, joined_at/left_at, trạng thái hiệu lực | Hoàng Bảo |
+| Membership | membership_id, room_id, user_id, room_role, capabilities, joined_at/left_at, trạng thái hiệu lực | Hoàng Bảo |
 | Session | session_id, mode, owner_user_id, room_id nullable, current_source_id, status, started_at/ended_at | Hoàng Bảo; Đức dùng |
 | Source | source_id, session_id, kind, width/height, started_at, timeline policy | Hoàng Bảo + Đức |
 | Upload/Job | upload_id/job_id/frame_id, owner/session/source, state, lease/deadline, object ref, idempotency digest | Hoàng Bảo + Bảo Anh |
 | OCRResult | metadata mục 10, object key, checksum, schema/provider version, created_at | Bảo Anh; Hoàng Bảo query/index |
-| SavedWord | word_id, owner hoặc shared room scope, entry_id/sense_id, lemma/reading/meaning, language, review_state, created_at | Hoàng Bảo; Bảo Anh identity từ |
+| SavedWord | word_id, owner hoặc shared room scope, entry_id/sense_id, lemma/reading/meaning, language, review_state, version, created_at | Hoàng Bảo; Bảo Anh identity từ |
 | WordOccurrence | word_id, session/result/source/media_time, surface đang thấy | Hoàng Bảo + Bảo Anh |
 | UserSessionIndex | user_id, session_id, participation duration, title và quyền xem lại | Hoàng Bảo; Bảo Anh ghi từ log contract |
 | Connection | connection_id, user_id, subscribed scopes, auth expiry, lease/last_seen | Hoàng Bảo |
 | Recording | recording_id, session/source scope, state, object/manifest refs, permissions, duration/timeline mapping | Hoàng Bảo |
-| Audit | admin_user_id, action, resource_id, outcome, occurred_at, request_id | Hoàng Bảo |
+| Audit | event_id, actor.user_id, action, target, level/outcome, reason, occurred_at, request_id/action_id | Hoàng Bảo |
+| SystemConfig | version, desired/effective OCR/maintenance config, apply status, updated_at/by | Hoàng Bảo schema/API; Bảo Anh worker áp dụng |
+| AdminAction | action_id, actor, target, status/result/error, reason, idempotency digest và deadline | Hoàng Bảo |
 
 Đây là thực thể logic, **không yêu cầu tạo đúng từng ấy bảng DynamoDB**. Hoàng Bảo thiết kế PK/SK/GSI theo query: phòng theo code, thành viên theo room, lịch sử theo user/time, result theo session/seq, word theo owner/language/collection. Cả ba AI dùng schema đã chốt, không tự thiết kế GSI trong module riêng.
 
@@ -729,6 +900,7 @@ Bảng này là quy trình cho lần phát triển tiếp theo. Yêu cầu trư�
 ### 14.2. Runtime/port/env đề xuất
 
 - Frontend hiện tại theo `.mise.toml`: Node 22, pnpm 10.34.3; xác nhận bản đang dùng rồi khóa thống nhất. Không để mỗi AI đổi package manager/lockfile.
+- Có lệch cấu hình sẵn có: tsconfig đang đặt ignoreDeprecations=6.0 nhưng TypeScript cài hiện tại không chấp nhận. Lượt kiểm tra UI dùng override CLI 5.0; CT-03 cần chốt phiên bản/config trong PR riêng, không để ba AI tự nâng/hạ toolchain.
 - OCR Docker hiện chọn Python 3.12; kiểm thử thật trên Python đó, không chỉ dựa vào venv thử trước bằng 3.14.
 - Port local: frontend 8443, app API 8081, OCR nội bộ 8080. Vite proxy `/api` sang app API; đường WS giữ adapter/path đã chốt.
 - Public frontend: `VITE_API_BASE_URL`, `VITE_REALTIME_URL`, `VITE_COGNITO_USER_POOL_ID`, `VITE_COGNITO_CLIENT_ID`, `VITE_COGNITO_REGION`, `VITE_DATA_MODE=mock|real`.
@@ -736,6 +908,7 @@ Bảng này là quy trình cho lần phát triển tiếp theo. Yêu cầu trư�
 - `VITE_*` là dữ liệu đi ra browser: không đặt AWS secret, client secret, private provider key hoặc refresh token vào đó. Runtime AWS dùng role phù hợp, không commit khóa vào code.
 - `.env.example` chỉ chứa placeholder; `.gitignore` hiện bỏ `.env*`, nên phải thêm ngoại lệ có chủ đích cho file example nếu muốn version hóa. Không bỏ ignore để tiện commit secret.
 - Mock mode hiện banner/nhãn và dùng cùng schema. Chế độ real không được âm thầm fallback sang mock khi API hỏng, vì sẽ tạo demo giả đạt.
+- Bộ chọn vai trò hiện chỉ là dev preview. Khi thêm VITE_DATA_MODE, real mode phải tắt preview ngay cả khi DEV=true; role/capabilities lấy từ `/me` đã xác thực.
 
 ### 14.3. Bộ bàn giao bắt buộc của mỗi task AI
 
@@ -795,13 +968,15 @@ Acceptance: <SCENARIOS WITH EXPECTED RESULTS>.
 ### 15.2. Prompt cho AI của Tài Đức — frontend/media/integration
 
 ```text
-Task OC-01 + OC-02: nối nguồn học thật vào UI đã chốt, chưa thay bố cục.
+Task OC-02 + phần frontend OC-04: capture và nối nguồn học hiện có vào API, không dựng lại UI.
+OC-01 đã có src/hooks/useRoomMedia.ts; giữ chức năng và thêm regression test khi nối session/source.
 Được sửa src/media, src/api, hooks và phần App cần tích hợp; không sửa OCR server.
 Dùng session/upload/job/result contracts phiên bản <VERSION> và fixture <PATHS>.
 
-Làm chọn video và chia sẻ màn hình, preview, capture/nén theo giới hạn đã chốt,
+Tái sử dụng chọn video/share/preview hiện có; bổ sung capture/nén theo giới hạn đã chốt,
 source_id mới khi đổi nguồn, một job in-flight, bỏ kết quả nguồn cũ.
 Dùng ocrClient thay vì rải fetch/WebSocket trực tiếp vào nhiều component.
+Không đưa StudySource của bản thiết kế đã hoàn tác trở lại, không thay bốn thẻ/UI đã chốt.
 Overlay theo vùng video thật sau object-fit contain; có empty/error/retry states.
 Dừng track/timer/request khi rời phiên; không giữ ảnh hoặc JSON mẫu ở real mode.
 
@@ -853,6 +1028,51 @@ không tự đặt S3 prefix, DynamoDB keys, role hoặc event name khác contra
 
 Task LX-01…03 riêng cho từ điển: bắt buộc offset code point, POS enum, nguồn dữ liệu, lemma/sense và missing-data policy đúng mục 12; không biến 18 mục demo thành “từ điển tự động”.
 
+### 15.5. Prompt nối User/Admin sau khi contract được chốt
+
+Hai prompt dưới giao ở hai branch/module riêng. Điền version/SHA và phạm vi thực tế trước khi dùng; không giao AI triển khai trực tiếp từ bản nháp chưa được nhóm xác nhận.
+
+**Hoàng Bảo — API quản trị:**
+
+```text
+Task AD-01 + AD-04: triển khai API User/Admin theo OpenAPI <VERSION>, commit <SHA>.
+Đọc mục 9.6–9.7 và docs/GIAO-DIEN-USER-VA-ADMIN.md để hiểu consumer hiện có.
+Chỉ sửa <APP BACKEND PATHS + ASSIGNED FIXTURES>, không sửa frontend/OCR provider.
+Phụ thuộc AU-03 và nguồn role thật phải có trước; không tạo token/role giả cho real mode.
+
+Làm /me, list/detail user/room, khóa/mở tài khoản, đóng phòng, audit/action tracking
+theo đúng task được giao; không tự mở API nâng role hoặc reset dữ liệu thật.
+Reason/version/idempotency và pending/failed phải đúng schema.
+Audit actor/time lấy từ server; phân trang, null metrics, denied/failed events theo contract.
+
+Acceptance: user thường không gọi được Admin; không tự khóa admin, không mở pending
+để bỏ xác nhận; retry không nhân đôi tác động, conflict không ghi đè;
+khóa tài khoản chặn API/socket trong giới hạn đã chốt; đóng phòng xử lý tài nguyên thật.
+Bàn giao contract test cả lỗi, local setup và bằng chứng integration; không chỉ fixture pass.
+AD-05 config/worker giao riêng sau khi protocol áp dụng ở mục 9.8 đã chốt với Bảo Anh.
+```
+
+**Tài Đức — client dùng UI có sẵn:**
+
+```text
+Task AU-04 + frontend AD-01/AD-04, giao từng lát nhỏ theo endpoint đã sẵn sàng.
+Đọc contracts <VERSION/SHA> và ghi chú User/Admin; chỉ sửa src/api, hooks,
+AccountPanels, AdminWorkspace và phần App cần nối. Không sửa server OCR/contract tùy ý.
+Giữ bố cục, hover, sáng/tối, responsive và popup Yomitan đang được chấp nhận.
+
+Tạo client adapter, map snake_case/ID/UTC sang UI theo mục 9.6–9.9.
+Real mode lấy role từ /me; dev role picker không cấp quyền thật.
+Nối list/filter/cursor, null/empty/error, reason/version, 202 polling và retry cùng key.
+Không báo thao tác hoàn tất khi mới 202, không fallback fixtures khi request hỏng.
+Profile PATCH chỉ field hợp lệ, email qua auth flow; cache tách theo user, dọn khi logout.
+Không nối nút reset demo thành API xóa dữ liệu thật.
+
+Acceptance: hai tài khoản tách dữ liệu; version conflict/mất mạng/pending/failed hiện đúng;
+refresh có dữ liệu thật, không còn nhãn/số liệu mẫu trong real mode;
+UI regression mobile/desktop/hover/Yomitan đạt, có integration smoke với backend thật.
+Config AD-05 và review ST-03 giao riêng với cùng nguyên tắc, không viết lại màn hình.
+```
+
 ## 16. Kiểm thử để ba thành phẩm ghép được với nhau
 
 ### 16.1. Fixtures tối thiểu dùng chung
@@ -867,6 +1087,12 @@ Task LX-01…03 riêng cho từ điển: bắt buộc offset code point, POS enu
 | `lexicon-inflected`, `lexicon-unknown`, `lexicon-unicode`, `lexicon-polysemy` | Dạng gốc, không tìm thấy, offset, nhiều nghĩa | Bảo Anh |
 | `vocabulary-duplicate`, `shared-word-forbidden`, `history-empty` | Lưu trữ và ownership | Hoàng Bảo + Đức |
 | `playback-processing`, `playback-unavailable`, `playback-ready` | Tránh nút xem lại giả | Hoàng Bảo + Đức |
+| `profile-forbidden-fields`, `profile-version-conflict`, `profile-switch-user` | Không nâng role/sửa email qua PATCH profile; không dùng cache của user khác | Hoàng Bảo + Đức |
+| `admin-forbidden`, `admin-self-lock`, `admin-last-active`, `admin-pending-user` | Backend chặn vượt quyền; không chỉ disable nút | Hoàng Bảo |
+| `admin-retry`, `admin-version-conflict`, `admin-action-running`, `admin-action-failed` | Idempotency, cạnh tranh cập nhật, pending/failed không báo hoàn tất | Hoàng Bảo + Đức |
+| `config-pending`, `config-apply-failed`, `config-image-limit`, `health-unknown` | Desired/effective khác nhau; MiB đúng; giới hạn 1 MiB không bị form mẫu nâng lên 10 MiB; null không thành 0 | Hoàng Bảo + Bảo Anh + Đức |
+| `audit-denied`, `audit-failed`, `audit-next-page` | Actor/time server, lỗi cũng có audit, phân trang; không có API reset audit theo nút demo | Hoàng Bảo + Đức |
+| `review-save-failed`, `review-reload`, `chat-utf8-limit` | Trạng thái ôn tồn tại sau refresh, lỗi lưu rõ ràng; 500 ký tự chưa chắc vừa payload chat | Hoàng Bảo + Đức |
 
 Schema test cả success lẫn error. Producer xuất được JSON không đủ: consumer phải render và thao tác được từ đúng fixture đó. CI ghi rõ test nào mock và test nào cần cloud/provider thật.
 
@@ -891,6 +1117,10 @@ Schema test cả success lẫn error. Producer xuất được JSON không đủ
 | Member rời/host mất mạng/reconnect | Cleanup/quyền/grace đúng state machine | Hoàng Bảo + Đức |
 | Lịch sử và playback | Đúng user/phiên/video/log; có trạng thái nếu không ghi hình | Cả ba |
 | User thường mở API Admin | Bị từ chối; admin có audit và theo dõi được lỗi | Hoàng Bảo + Đức |
+| Sửa role ở sessionStorage rồi mở Admin trong real mode | Quyền vẫn từ danh tính đã kiểm chứng; API từ chối dù đang chạy DEV | Hoàng Bảo + Đức |
+| Admin khóa user/đóng phòng khi đang có phiên/socket | API chặn quyền, tài nguyên đóng/thu hồi đúng policy; 202 còn hiện đang xử lý, retry không tạo tác động trùng | Hoàng Bảo + Đức |
+| Hai Admin cùng sửa cấu hình, worker áp dụng lỗi/chậm | Version conflict không mất thay đổi; desired/effective và lỗi đúng; không báo applied khi worker chưa xác nhận | Cả ba |
+| Health chưa kết nối, audit lệnh thất bại, ôn từ rồi reload | Health hiện chưa biết; audit truy được actor/request_id; review_state bền vững theo user | Cả ba |
 | Mạng chập chờn/provider lỗi/worker chết | UI báo đúng; job phục hồi hoặc fail rõ; không treo vô hạn | Cả ba |
 | URL cloud sau deploy/rollback | Luồng vẫn chạy đúng contract/version đã ghi | Đức + Hoàng Bảo |
 
@@ -900,7 +1130,7 @@ Lưu bằng chứng vào thư mục test/report riêng không chứa token, URL 
 
 AI có thể viết code, test, adapters, cấu hình hạ tầng và tài liệu. Vai trò con người vẫn có bốn việc để tránh “ba AI báo xong nhưng ghép không chạy”:
 
-1. **Chốt yêu cầu:** cả ba xác nhận D01…D14; Đức giữ một bản chuẩn. AI không thể tự biết nhóm muốn giữ nguyên sơ đồ PDF hay điều chỉnh đường truyền ảnh.
+1. **Chốt yêu cầu:** cả ba xác nhận D01…D16; Đức giữ một bản chuẩn. AI không thể tự biết nhóm muốn giữ nguyên sơ đồ PDF hay điều chỉnh đường truyền ảnh.
 2. **Giao quyền/phạm vi:** từng người chỉ định repo, file, môi trường, task, contract và acceptance. Ai giữ OCR mới giao quyền sửa OCR; không cấp quyền lan sang frontend/infra vô tình.
 3. **Chạy nghiệm thu chéo:** Đức thử backend mà không nhờ AI backend “tự chứng nhận”; Hoàng Bảo thử quyền và dữ liệu; Bảo Anh thử chữ thật/hiệu năng. Khi fail, gửi request_id/job_id/log đúng bộ, tránh chỉ gửi “không chạy”.
 4. **Xác nhận kết quả và báo cáo:** chỉ chuyển accepted khi có bằng chứng thật; ghi rõ mock/dummy, giới hạn provider và phần chưa làm. Không cần tự viết mọi dòng code, nhưng cần hiểu luồng dữ liệu và giải thích được khi trình bày môn học.
@@ -912,14 +1142,14 @@ Mỗi buổi tích hợp ghi: base/contract version → task vừa merge → l�
 1. **Đức:** tạo bảng quyết định thực tế từ mục 7, gửi cho hai bạn xác nhận; chốt việc giữ thiết kế và dữ liệu UI cần.
 2. **Hoàng Bảo:** điền stack/region/repo backend hiện có; chuẩn bị OpenAPI/WS draft và local setup theo mẫu; chứng minh Cognito/Chime/Gateway dev khả thi.
 3. **Bảo Anh:** xác nhận raw OCR schema/provider/runtime, chạy bộ ảnh thật và đề xuất từ điển. Liệt kê lỗi OCR sẽ sửa theo phạm vi repo của mình.
-4. **Cả nhóm:** đóng băng contract v1 + fixtures; Đức lưu version/commit và giao prompt theo từng task nhỏ.
-5. **Làm M1 song song rồi ghép M2:** mục tiêu đầu tiên là solo OCR thật, không đầu tư thêm hiệu ứng giao diện trong lúc đường dữ liệu chưa chạy.
+4. **Cả nhóm:** chốt cả D15/D16, DTO/quyền/phân trang/reason/version/action/config ở mục 9.6–9.9 rồi đóng băng contract v1 + fixtures; Đức lưu version/commit và giao prompt theo từng task nhỏ. Chỉ là bước tương lai, không tự ghi các quyết định là đã được xác nhận.
+5. **Làm M1 song song rồi ghép M2:** giữ UI User/Admin và useRoomMedia đã có; ưu tiên AU-03/AU-04/OC-02/OC-04 và adapter API. Mục tiêu đầu tiên là solo OCR thật; không đầu tư thêm hiệu ứng hoặc viết lại những màn đã xong.
 6. **Sau mỗi mốc:** cập nhật trạng thái ready/integrated/accepted và phần còn thiếu; không xóa bảng đối chiếu PDF chỉ vì một AI đã tạo đủ file.
 
 ## 19. Nguồn và giới hạn của kế hoạch
 
 - Báo cáo 2.pdf: use case/trách nhiệm/kiến trúc ở trang 9–15; bảng phân công gốc là căn cứ gắn người phụ trách.
-- Code hiện tại và các ghi chú: [đánh giá OCR](DANH-GIA-OCR.md), [giao diện/hover](NANG-CAP-HOVER-VA-HINH-ANH.md), [popup tra từ](TRA-TU-TRONG-PHIEN-AM.md).
+- Code hiện tại và các ghi chú: [đánh giá OCR](DANH-GIA-OCR.md), [giao diện/hover](NANG-CAP-HOVER-VA-HINH-ANH.md), [popup tra từ](TRA-TU-TRONG-PHIEN-AM.md), [User/Admin và giới hạn bản xem trước](GIAO-DIEN-USER-VA-ADMIN.md).
 - Tài liệu AWS chính thức đã đối chiếu cho những điểm có thể làm ba phần không tương thích: [WS binary payload](https://docs.aws.amazon.com/apigateway/latest/developerguide/websocket-api-develop-binary-media-types.html), [WS quotas](https://docs.aws.amazon.com/apigateway/latest/developerguide/apigateway-execution-service-websocket-limits-table.html), [WS authorizers](https://docs.aws.amazon.com/apigateway/latest/developerguide/apigateway-websocket-api-lambda-auth.html), [Chime meetings/data messages](https://docs.aws.amazon.com/chime-sdk/latest/dg/meetings-sdk.html), [capture](https://docs.aws.amazon.com/chime-sdk/latest/dg/capture-pipe-config.html), [concatenation](https://docs.aws.amazon.com/chime-sdk/latest/dg/create-concat-pipe.html).
 
 Không có API v1, contract files, cloud resource hoặc worker mới nào được triển khai chỉ vì tài liệu này mô tả chúng. Đây là kế hoạch và bộ đề xuất để chốt; việc triển khai tiếp cần theo task/owner/phạm vi đã xác nhận.

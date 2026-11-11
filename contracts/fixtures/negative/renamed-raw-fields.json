@@ -1,0 +1,16 @@
+{
+  "paragraphs": [
+    {
+      "text": "喫茶店",
+      "direction": "horizontal",
+      "bounding_box": {
+        "center_x": 0.5,
+        "center_y": 0.4,
+        "width": 0.4,
+        "height": 0.08
+      },
+      "words": []
+    }
+  ],
+  "elapsed_ms": 1
+}

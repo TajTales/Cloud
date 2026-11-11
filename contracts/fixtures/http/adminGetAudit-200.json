@@ -1,0 +1,23 @@
+{
+  "data": {
+    "event_id": "00000000-0000-4000-8000-000000000015",
+    "occurred_at": "2026-11-11T14:30:00.000Z",
+    "level": "warning",
+    "outcome": "requested",
+    "action": "user.status_change",
+    "actor": {
+      "user_id": "synthetic-admin-a",
+      "display_name": "Synthetic admin"
+    },
+    "target": {
+      "type": "user",
+      "id": "synthetic-user-a",
+      "label": "Synthetic learner A"
+    },
+    "reason": "SYNTHETIC audit example reason",
+    "detail": "SYNTHETIC; no account operation occurred.",
+    "request_id": "req-synthetic-001",
+    "action_id": "00000000-0000-4000-8000-000000000014"
+  },
+  "request_id": "req-synthetic-001"
+}

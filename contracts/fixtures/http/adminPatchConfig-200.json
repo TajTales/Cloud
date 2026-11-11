@@ -1,0 +1,52 @@
+{
+  "data": {
+    "version": 2,
+    "desired": {
+      "ocr": {
+        "provider": "meikiocr",
+        "frame_interval_ms": 2500,
+        "workers_per_instance": 2,
+        "max_image_bytes": 1048576,
+        "max_image_pixels": 4000000
+      },
+      "maintenance": {
+        "enabled": false,
+        "message": ""
+      }
+    },
+    "effective": {
+      "ocr": {
+        "provider": "meikiocr",
+        "frame_interval_ms": 2500,
+        "workers_per_instance": 2,
+        "max_image_bytes": 1048576,
+        "max_image_pixels": 4000000
+      },
+      "maintenance": {
+        "enabled": false,
+        "message": ""
+      }
+    },
+    "effective_version": 2,
+    "apply_status": "applied",
+    "updated_at": "2026-11-11T14:30:00.000Z",
+    "updated_by": {
+      "user_id": "synthetic-admin-a",
+      "display_name": "Synthetic admin"
+    },
+    "action_id": null,
+    "limits": {
+      "providers": [
+        "meikiocr"
+      ],
+      "frame_interval_min_ms": 500,
+      "frame_interval_max_ms": 10000,
+      "frame_interval_step_ms": 500,
+      "workers_per_instance_min": 1,
+      "workers_per_instance_max": 2,
+      "max_image_bytes": 1048576,
+      "max_image_pixels": 4000000
+    }
+  },
+  "request_id": "req-synthetic-001"
+}

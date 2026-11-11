@@ -1,0 +1,1357 @@
+{
+  "contract_version": "0.1.0-draft.1",
+  "status": "DRAFT",
+  "http": [
+    {
+      "operation_id": "getMe",
+      "method": "GET",
+      "path": "/api/v1/me",
+      "tag": "Profile",
+      "completeness": "provisional",
+      "dependencies": [
+        "D03",
+        "D04",
+        "D08",
+        "D14",
+        "D15"
+      ],
+      "responses": [
+        "200",
+        "400",
+        "401",
+        "403",
+        "404",
+        "429",
+        "500",
+        "503"
+      ]
+    },
+    {
+      "operation_id": "patchMe",
+      "method": "PATCH",
+      "path": "/api/v1/me",
+      "tag": "Profile",
+      "completeness": "provisional",
+      "dependencies": [
+        "D03",
+        "D04",
+        "D08",
+        "D14",
+        "D15"
+      ],
+      "responses": [
+        "200",
+        "400",
+        "401",
+        "403",
+        "404",
+        "409",
+        "429",
+        "500",
+        "503"
+      ]
+    },
+    {
+      "operation_id": "createSession",
+      "method": "POST",
+      "path": "/api/v1/sessions",
+      "tag": "Solo OCR",
+      "completeness": "solo-first",
+      "dependencies": [
+        "D03",
+        "D04",
+        "D08",
+        "D14",
+        "D01",
+        "D02",
+        "D12"
+      ],
+      "responses": [
+        "200",
+        "201",
+        "400",
+        "401",
+        "403",
+        "404",
+        "409",
+        "429",
+        "500",
+        "503"
+      ]
+    },
+    {
+      "operation_id": "getSession",
+      "method": "GET",
+      "path": "/api/v1/sessions/{session_id}",
+      "tag": "Solo OCR",
+      "completeness": "solo-first",
+      "dependencies": [
+        "D03",
+        "D04",
+        "D08",
+        "D14",
+        "D05",
+        "D12"
+      ],
+      "responses": [
+        "200",
+        "400",
+        "401",
+        "403",
+        "404",
+        "429",
+        "500",
+        "503"
+      ]
+    },
+    {
+      "operation_id": "registerSource",
+      "method": "POST",
+      "path": "/api/v1/sessions/{session_id}/sources",
+      "tag": "Solo OCR",
+      "completeness": "solo-first",
+      "dependencies": [
+        "D03",
+        "D04",
+        "D08",
+        "D14",
+        "D05",
+        "D12"
+      ],
+      "responses": [
+        "200",
+        "201",
+        "400",
+        "401",
+        "403",
+        "404",
+        "409",
+        "429",
+        "500",
+        "503"
+      ]
+    },
+    {
+      "operation_id": "endSession",
+      "method": "POST",
+      "path": "/api/v1/sessions/{session_id}/end",
+      "tag": "Solo OCR",
+      "completeness": "solo-first",
+      "dependencies": [
+        "D03",
+        "D04",
+        "D08",
+        "D14",
+        "D05",
+        "D15"
+      ],
+      "responses": [
+        "200",
+        "400",
+        "401",
+        "403",
+        "404",
+        "409",
+        "429",
+        "500",
+        "503"
+      ]
+    },
+    {
+      "operation_id": "createFrameUpload",
+      "method": "POST",
+      "path": "/api/v1/sessions/{session_id}/uploads",
+      "tag": "Solo OCR",
+      "completeness": "solo-first",
+      "dependencies": [
+        "D03",
+        "D04",
+        "D08",
+        "D14",
+        "D05",
+        "D12"
+      ],
+      "responses": [
+        "200",
+        "201",
+        "400",
+        "401",
+        "403",
+        "404",
+        "409",
+        "413",
+        "415",
+        "429",
+        "500",
+        "503"
+      ]
+    },
+    {
+      "operation_id": "createOcrJob",
+      "method": "POST",
+      "path": "/api/v1/sessions/{session_id}/ocr-jobs",
+      "tag": "Solo OCR",
+      "completeness": "solo-first",
+      "dependencies": [
+        "D03",
+        "D04",
+        "D08",
+        "D14",
+        "D05",
+        "D11",
+        "D12"
+      ],
+      "responses": [
+        "200",
+        "202",
+        "400",
+        "401",
+        "403",
+        "404",
+        "409",
+        "413",
+        "415",
+        "422",
+        "429",
+        "500",
+        "503"
+      ]
+    },
+    {
+      "operation_id": "getOcrJob",
+      "method": "GET",
+      "path": "/api/v1/ocr-jobs/{job_id}",
+      "tag": "Solo OCR",
+      "completeness": "solo-first",
+      "dependencies": [
+        "D03",
+        "D04",
+        "D08",
+        "D14",
+        "D05",
+        "D12"
+      ],
+      "responses": [
+        "200",
+        "400",
+        "401",
+        "403",
+        "404",
+        "429",
+        "500",
+        "503"
+      ]
+    },
+    {
+      "operation_id": "listSessionResults",
+      "method": "GET",
+      "path": "/api/v1/sessions/{session_id}/results",
+      "tag": "Solo OCR",
+      "completeness": "solo-first",
+      "dependencies": [
+        "D03",
+        "D04",
+        "D08",
+        "D14",
+        "D05"
+      ],
+      "responses": [
+        "200",
+        "400",
+        "401",
+        "403",
+        "404",
+        "429",
+        "500",
+        "503"
+      ]
+    },
+    {
+      "operation_id": "getOcrResult",
+      "method": "GET",
+      "path": "/api/v1/results/{result_id}",
+      "tag": "Solo OCR",
+      "completeness": "solo-first",
+      "dependencies": [
+        "D03",
+        "D04",
+        "D08",
+        "D14",
+        "D05",
+        "D11"
+      ],
+      "responses": [
+        "200",
+        "400",
+        "401",
+        "403",
+        "404",
+        "429",
+        "500",
+        "503"
+      ]
+    },
+    {
+      "operation_id": "lookupLexicon",
+      "method": "POST",
+      "path": "/api/v1/lexicon/lookups",
+      "tag": "Lexicon",
+      "completeness": "provisional",
+      "dependencies": [
+        "D03",
+        "D04",
+        "D08",
+        "D14",
+        "D01",
+        "D02",
+        "D13"
+      ],
+      "responses": [
+        "200",
+        "400",
+        "401",
+        "403",
+        "404",
+        "429",
+        "500",
+        "503",
+        "504"
+      ]
+    },
+    {
+      "operation_id": "translateText",
+      "method": "POST",
+      "path": "/api/v1/translations",
+      "tag": "Lexicon",
+      "completeness": "provisional",
+      "dependencies": [
+        "D03",
+        "D04",
+        "D08",
+        "D14",
+        "D01",
+        "D02",
+        "D13"
+      ],
+      "responses": [
+        "200",
+        "400",
+        "401",
+        "403",
+        "404",
+        "429",
+        "500",
+        "503",
+        "504"
+      ]
+    },
+    {
+      "operation_id": "listVocabulary",
+      "method": "GET",
+      "path": "/api/v1/vocabulary",
+      "tag": "Vocabulary",
+      "completeness": "provisional",
+      "dependencies": [
+        "D03",
+        "D04",
+        "D08",
+        "D14",
+        "D09",
+        "D13"
+      ],
+      "responses": [
+        "200",
+        "400",
+        "401",
+        "403",
+        "404",
+        "429",
+        "500",
+        "503"
+      ]
+    },
+    {
+      "operation_id": "saveVocabulary",
+      "method": "POST",
+      "path": "/api/v1/vocabulary",
+      "tag": "Vocabulary",
+      "completeness": "provisional",
+      "dependencies": [
+        "D03",
+        "D04",
+        "D08",
+        "D14",
+        "D09",
+        "D13"
+      ],
+      "responses": [
+        "200",
+        "201",
+        "400",
+        "401",
+        "403",
+        "404",
+        "409",
+        "429",
+        "500",
+        "503"
+      ]
+    },
+    {
+      "operation_id": "deleteVocabulary",
+      "method": "DELETE",
+      "path": "/api/v1/vocabulary/{word_id}",
+      "tag": "Vocabulary",
+      "completeness": "provisional",
+      "dependencies": [
+        "D03",
+        "D04",
+        "D08",
+        "D14",
+        "D09"
+      ],
+      "responses": [
+        "204",
+        "400",
+        "401",
+        "403",
+        "404",
+        "429",
+        "500",
+        "503"
+      ]
+    },
+    {
+      "operation_id": "reviewVocabulary",
+      "method": "PATCH",
+      "path": "/api/v1/vocabulary/{word_id}/review",
+      "tag": "Vocabulary",
+      "completeness": "provisional",
+      "dependencies": [
+        "D03",
+        "D04",
+        "D08",
+        "D14",
+        "D09"
+      ],
+      "responses": [
+        "200",
+        "400",
+        "401",
+        "403",
+        "404",
+        "409",
+        "429",
+        "500",
+        "503"
+      ]
+    },
+    {
+      "operation_id": "listCollections",
+      "method": "GET",
+      "path": "/api/v1/collections",
+      "tag": "Vocabulary",
+      "completeness": "provisional",
+      "dependencies": [
+        "D03",
+        "D04",
+        "D08",
+        "D14",
+        "D09"
+      ],
+      "responses": [
+        "200",
+        "400",
+        "401",
+        "403",
+        "404",
+        "429",
+        "500",
+        "503"
+      ]
+    },
+    {
+      "operation_id": "createCollection",
+      "method": "POST",
+      "path": "/api/v1/collections",
+      "tag": "Vocabulary",
+      "completeness": "provisional",
+      "dependencies": [
+        "D03",
+        "D04",
+        "D08",
+        "D14",
+        "D09"
+      ],
+      "responses": [
+        "200",
+        "201",
+        "400",
+        "401",
+        "403",
+        "404",
+        "409",
+        "429",
+        "500",
+        "503"
+      ]
+    },
+    {
+      "operation_id": "patchCollection",
+      "method": "PATCH",
+      "path": "/api/v1/collections/{collection_id}",
+      "tag": "Vocabulary",
+      "completeness": "provisional",
+      "dependencies": [
+        "D03",
+        "D04",
+        "D08",
+        "D14",
+        "D09"
+      ],
+      "responses": [
+        "200",
+        "400",
+        "401",
+        "403",
+        "404",
+        "409",
+        "429",
+        "500",
+        "503"
+      ]
+    },
+    {
+      "operation_id": "createRoom",
+      "method": "POST",
+      "path": "/api/v1/rooms",
+      "tag": "Rooms",
+      "completeness": "provisional",
+      "dependencies": [
+        "D03",
+        "D04",
+        "D08",
+        "D14",
+        "D01",
+        "D06",
+        "D09",
+        "D11",
+        "D15"
+      ],
+      "responses": [
+        "200",
+        "201",
+        "400",
+        "401",
+        "403",
+        "404",
+        "409",
+        "429",
+        "500",
+        "503"
+      ]
+    },
+    {
+      "operation_id": "getRoom",
+      "method": "GET",
+      "path": "/api/v1/rooms/{room_id}",
+      "tag": "Rooms",
+      "completeness": "provisional",
+      "dependencies": [
+        "D03",
+        "D04",
+        "D08",
+        "D14",
+        "D06",
+        "D15"
+      ],
+      "responses": [
+        "200",
+        "400",
+        "401",
+        "403",
+        "404",
+        "429",
+        "500",
+        "503"
+      ]
+    },
+    {
+      "operation_id": "joinRoom",
+      "method": "POST",
+      "path": "/api/v1/rooms/join",
+      "tag": "Rooms",
+      "completeness": "provisional",
+      "dependencies": [
+        "D03",
+        "D04",
+        "D08",
+        "D14",
+        "D06",
+        "D11",
+        "D15"
+      ],
+      "responses": [
+        "200",
+        "400",
+        "401",
+        "403",
+        "404",
+        "409",
+        "429",
+        "500",
+        "503"
+      ]
+    },
+    {
+      "operation_id": "leaveRoom",
+      "method": "POST",
+      "path": "/api/v1/rooms/{room_id}/leave",
+      "tag": "Rooms",
+      "completeness": "provisional",
+      "dependencies": [
+        "D03",
+        "D04",
+        "D08",
+        "D14",
+        "D06",
+        "D15"
+      ],
+      "responses": [
+        "200",
+        "400",
+        "401",
+        "403",
+        "404",
+        "409",
+        "429",
+        "500",
+        "503"
+      ]
+    },
+    {
+      "operation_id": "closeRoom",
+      "method": "POST",
+      "path": "/api/v1/rooms/{room_id}/close",
+      "tag": "Rooms",
+      "completeness": "provisional",
+      "dependencies": [
+        "D03",
+        "D04",
+        "D08",
+        "D14",
+        "D06",
+        "D10",
+        "D15"
+      ],
+      "responses": [
+        "200",
+        "400",
+        "401",
+        "403",
+        "404",
+        "409",
+        "429",
+        "500",
+        "503"
+      ]
+    },
+    {
+      "operation_id": "getMeetingCredentials",
+      "method": "POST",
+      "path": "/api/v1/rooms/{room_id}/meeting-credentials",
+      "tag": "Rooms",
+      "completeness": "provisional",
+      "dependencies": [
+        "D03",
+        "D04",
+        "D08",
+        "D14",
+        "D06",
+        "D11",
+        "D15"
+      ],
+      "responses": [
+        "200",
+        "400",
+        "401",
+        "403",
+        "404",
+        "409",
+        "429",
+        "500",
+        "503"
+      ]
+    },
+    {
+      "operation_id": "listRoomMembers",
+      "method": "GET",
+      "path": "/api/v1/rooms/{room_id}/members",
+      "tag": "Rooms",
+      "completeness": "provisional",
+      "dependencies": [
+        "D03",
+        "D04",
+        "D08",
+        "D14",
+        "D06",
+        "D15"
+      ],
+      "responses": [
+        "200",
+        "400",
+        "401",
+        "403",
+        "404",
+        "429",
+        "500",
+        "503"
+      ]
+    },
+    {
+      "operation_id": "listSharedVocabulary",
+      "method": "GET",
+      "path": "/api/v1/rooms/{room_id}/vocabulary",
+      "tag": "Vocabulary",
+      "completeness": "provisional",
+      "dependencies": [
+        "D03",
+        "D04",
+        "D08",
+        "D14",
+        "D09",
+        "D15"
+      ],
+      "responses": [
+        "200",
+        "400",
+        "401",
+        "403",
+        "404",
+        "429",
+        "500",
+        "503"
+      ]
+    },
+    {
+      "operation_id": "saveSharedVocabulary",
+      "method": "POST",
+      "path": "/api/v1/rooms/{room_id}/vocabulary",
+      "tag": "Vocabulary",
+      "completeness": "provisional",
+      "dependencies": [
+        "D03",
+        "D04",
+        "D08",
+        "D14",
+        "D09",
+        "D13",
+        "D15"
+      ],
+      "responses": [
+        "200",
+        "201",
+        "400",
+        "401",
+        "403",
+        "404",
+        "409",
+        "429",
+        "500",
+        "503"
+      ]
+    },
+    {
+      "operation_id": "deleteSharedVocabulary",
+      "method": "DELETE",
+      "path": "/api/v1/rooms/{room_id}/vocabulary/{word_id}",
+      "tag": "Vocabulary",
+      "completeness": "provisional",
+      "dependencies": [
+        "D03",
+        "D04",
+        "D08",
+        "D14",
+        "D09",
+        "D15"
+      ],
+      "responses": [
+        "204",
+        "400",
+        "401",
+        "403",
+        "404",
+        "429",
+        "500",
+        "503"
+      ]
+    },
+    {
+      "operation_id": "listHistory",
+      "method": "GET",
+      "path": "/api/v1/history",
+      "tag": "History",
+      "completeness": "provisional",
+      "dependencies": [
+        "D03",
+        "D04",
+        "D08",
+        "D14",
+        "D09",
+        "D10",
+        "D12"
+      ],
+      "responses": [
+        "200",
+        "400",
+        "401",
+        "403",
+        "404",
+        "429",
+        "500",
+        "503"
+      ]
+    },
+    {
+      "operation_id": "getStats",
+      "method": "GET",
+      "path": "/api/v1/stats",
+      "tag": "History",
+      "completeness": "provisional",
+      "dependencies": [
+        "D03",
+        "D04",
+        "D08",
+        "D14",
+        "D12"
+      ],
+      "responses": [
+        "200",
+        "400",
+        "401",
+        "403",
+        "404",
+        "429",
+        "500",
+        "503"
+      ]
+    },
+    {
+      "operation_id": "startRecording",
+      "method": "POST",
+      "path": "/api/v1/sessions/{session_id}/recording/start",
+      "tag": "Recording",
+      "completeness": "provisional",
+      "dependencies": [
+        "D03",
+        "D04",
+        "D08",
+        "D14",
+        "D10",
+        "D11",
+        "D12"
+      ],
+      "responses": [
+        "202",
+        "400",
+        "401",
+        "403",
+        "404",
+        "409",
+        "429",
+        "500",
+        "503"
+      ]
+    },
+    {
+      "operation_id": "stopRecording",
+      "method": "POST",
+      "path": "/api/v1/sessions/{session_id}/recording/stop",
+      "tag": "Recording",
+      "completeness": "provisional",
+      "dependencies": [
+        "D03",
+        "D04",
+        "D08",
+        "D14",
+        "D10",
+        "D11",
+        "D12"
+      ],
+      "responses": [
+        "202",
+        "400",
+        "401",
+        "403",
+        "404",
+        "409",
+        "429",
+        "500",
+        "503"
+      ]
+    },
+    {
+      "operation_id": "getPlayback",
+      "method": "GET",
+      "path": "/api/v1/sessions/{session_id}/playback",
+      "tag": "Recording",
+      "completeness": "provisional",
+      "dependencies": [
+        "D03",
+        "D04",
+        "D08",
+        "D14",
+        "D10",
+        "D11",
+        "D12"
+      ],
+      "responses": [
+        "200",
+        "400",
+        "401",
+        "403",
+        "404",
+        "429",
+        "500",
+        "503"
+      ]
+    },
+    {
+      "operation_id": "createRealtimeTicket",
+      "method": "POST",
+      "path": "/api/v1/realtime/tickets",
+      "tag": "Solo OCR",
+      "completeness": "solo-first",
+      "dependencies": [
+        "D03",
+        "D04",
+        "D08",
+        "D14",
+        "D05"
+      ],
+      "responses": [
+        "200",
+        "400",
+        "401",
+        "403",
+        "404",
+        "429",
+        "500",
+        "503"
+      ]
+    },
+    {
+      "operation_id": "adminOverview",
+      "method": "GET",
+      "path": "/api/v1/admin/overview",
+      "tag": "Admin",
+      "completeness": "provisional",
+      "dependencies": [
+        "D03",
+        "D04",
+        "D08",
+        "D14",
+        "D11",
+        "D12",
+        "D15",
+        "D16"
+      ],
+      "responses": [
+        "200",
+        "400",
+        "401",
+        "403",
+        "404",
+        "429",
+        "500",
+        "503"
+      ]
+    },
+    {
+      "operation_id": "adminListUsers",
+      "method": "GET",
+      "path": "/api/v1/admin/users",
+      "tag": "Admin",
+      "completeness": "provisional",
+      "dependencies": [
+        "D03",
+        "D04",
+        "D08",
+        "D14",
+        "D11",
+        "D12",
+        "D15",
+        "D16"
+      ],
+      "responses": [
+        "200",
+        "400",
+        "401",
+        "403",
+        "404",
+        "429",
+        "500",
+        "503"
+      ]
+    },
+    {
+      "operation_id": "adminGetUser",
+      "method": "GET",
+      "path": "/api/v1/admin/users/{user_id}",
+      "tag": "Admin",
+      "completeness": "provisional",
+      "dependencies": [
+        "D03",
+        "D04",
+        "D08",
+        "D14",
+        "D11",
+        "D12",
+        "D15",
+        "D16"
+      ],
+      "responses": [
+        "200",
+        "400",
+        "401",
+        "403",
+        "404",
+        "429",
+        "500",
+        "503"
+      ]
+    },
+    {
+      "operation_id": "adminSetUserStatus",
+      "method": "PATCH",
+      "path": "/api/v1/admin/users/{user_id}/status",
+      "tag": "Admin",
+      "completeness": "provisional",
+      "dependencies": [
+        "D03",
+        "D04",
+        "D08",
+        "D14",
+        "D11",
+        "D12",
+        "D15",
+        "D16"
+      ],
+      "responses": [
+        "200",
+        "202",
+        "400",
+        "401",
+        "403",
+        "404",
+        "409",
+        "429",
+        "500",
+        "503"
+      ]
+    },
+    {
+      "operation_id": "adminListRooms",
+      "method": "GET",
+      "path": "/api/v1/admin/rooms",
+      "tag": "Admin",
+      "completeness": "provisional",
+      "dependencies": [
+        "D03",
+        "D04",
+        "D08",
+        "D14",
+        "D11",
+        "D12",
+        "D15",
+        "D16"
+      ],
+      "responses": [
+        "200",
+        "400",
+        "401",
+        "403",
+        "404",
+        "429",
+        "500",
+        "503"
+      ]
+    },
+    {
+      "operation_id": "adminGetRoom",
+      "method": "GET",
+      "path": "/api/v1/admin/rooms/{room_id}",
+      "tag": "Admin",
+      "completeness": "provisional",
+      "dependencies": [
+        "D03",
+        "D04",
+        "D08",
+        "D14",
+        "D11",
+        "D12",
+        "D15",
+        "D16"
+      ],
+      "responses": [
+        "200",
+        "400",
+        "401",
+        "403",
+        "404",
+        "429",
+        "500",
+        "503"
+      ]
+    },
+    {
+      "operation_id": "adminCloseRoom",
+      "method": "POST",
+      "path": "/api/v1/admin/rooms/{room_id}/close",
+      "tag": "Admin",
+      "completeness": "provisional",
+      "dependencies": [
+        "D03",
+        "D04",
+        "D08",
+        "D14",
+        "D11",
+        "D12",
+        "D15",
+        "D16"
+      ],
+      "responses": [
+        "200",
+        "202",
+        "400",
+        "401",
+        "403",
+        "404",
+        "409",
+        "429",
+        "500",
+        "503"
+      ]
+    },
+    {
+      "operation_id": "adminGetConfig",
+      "method": "GET",
+      "path": "/api/v1/admin/config",
+      "tag": "Admin",
+      "completeness": "provisional",
+      "dependencies": [
+        "D03",
+        "D04",
+        "D08",
+        "D14",
+        "D11",
+        "D12",
+        "D15",
+        "D16"
+      ],
+      "responses": [
+        "200",
+        "400",
+        "401",
+        "403",
+        "404",
+        "429",
+        "500",
+        "503"
+      ]
+    },
+    {
+      "operation_id": "adminPatchConfig",
+      "method": "PATCH",
+      "path": "/api/v1/admin/config",
+      "tag": "Admin",
+      "completeness": "provisional",
+      "dependencies": [
+        "D03",
+        "D04",
+        "D08",
+        "D14",
+        "D11",
+        "D12",
+        "D15",
+        "D16"
+      ],
+      "responses": [
+        "200",
+        "202",
+        "400",
+        "401",
+        "403",
+        "404",
+        "409",
+        "429",
+        "500",
+        "503"
+      ]
+    },
+    {
+      "operation_id": "adminHealth",
+      "method": "GET",
+      "path": "/api/v1/admin/health",
+      "tag": "Admin",
+      "completeness": "provisional",
+      "dependencies": [
+        "D03",
+        "D04",
+        "D08",
+        "D14",
+        "D11",
+        "D12",
+        "D15",
+        "D16"
+      ],
+      "responses": [
+        "200",
+        "400",
+        "401",
+        "403",
+        "404",
+        "429",
+        "500",
+        "503"
+      ]
+    },
+    {
+      "operation_id": "adminMetrics",
+      "method": "GET",
+      "path": "/api/v1/admin/metrics",
+      "tag": "Admin",
+      "completeness": "provisional",
+      "dependencies": [
+        "D03",
+        "D04",
+        "D08",
+        "D14",
+        "D11",
+        "D12",
+        "D15",
+        "D16"
+      ],
+      "responses": [
+        "200",
+        "400",
+        "401",
+        "403",
+        "404",
+        "429",
+        "500",
+        "503"
+      ]
+    },
+    {
+      "operation_id": "adminListAudit",
+      "method": "GET",
+      "path": "/api/v1/admin/audit-events",
+      "tag": "Admin",
+      "completeness": "provisional",
+      "dependencies": [
+        "D03",
+        "D04",
+        "D08",
+        "D14",
+        "D11",
+        "D12",
+        "D15",
+        "D16"
+      ],
+      "responses": [
+        "200",
+        "400",
+        "401",
+        "403",
+        "404",
+        "429",
+        "500",
+        "503"
+      ]
+    },
+    {
+      "operation_id": "adminGetAudit",
+      "method": "GET",
+      "path": "/api/v1/admin/audit-events/{event_id}",
+      "tag": "Admin",
+      "completeness": "provisional",
+      "dependencies": [
+        "D03",
+        "D04",
+        "D08",
+        "D14",
+        "D11",
+        "D12",
+        "D15",
+        "D16"
+      ],
+      "responses": [
+        "200",
+        "400",
+        "401",
+        "403",
+        "404",
+        "429",
+        "500",
+        "503"
+      ]
+    },
+    {
+      "operation_id": "adminGetAction",
+      "method": "GET",
+      "path": "/api/v1/admin/actions/{action_id}",
+      "tag": "Admin",
+      "completeness": "provisional",
+      "dependencies": [
+        "D03",
+        "D04",
+        "D08",
+        "D14",
+        "D11",
+        "D12",
+        "D15",
+        "D16"
+      ],
+      "responses": [
+        "200",
+        "400",
+        "401",
+        "403",
+        "404",
+        "429",
+        "500",
+        "503"
+      ]
+    }
+  ],
+  "client_actions": [
+    "session.subscribe",
+    "session.unsubscribe",
+    "room.subscribe",
+    "room.unsubscribe",
+    "app.ping"
+  ],
+  "server_events": [
+    "session.subscribed",
+    "session.unsubscribed",
+    "room.snapshot",
+    "room.unsubscribed",
+    "ocr.result_available",
+    "ocr.job_failed",
+    "session.source_changed",
+    "session.ended",
+    "room.member_joined",
+    "room.member_left",
+    "room.closed",
+    "request.failed",
+    "app.pong"
+  ],
+  "schemas": [
+    "ocr-provider.schema.json",
+    "lexicon.schema.json",
+    "application.schema.json",
+    "realtime.schema.json",
+    "chime-chat.schema.json"
+  ]
+}

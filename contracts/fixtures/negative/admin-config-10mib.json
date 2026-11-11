@@ -1,0 +1,9 @@
+{
+  "expected_version": 1,
+  "reason": "SYNTHETIC",
+  "changes": {
+    "ocr": {
+      "max_image_bytes": 10485760
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "data": {
+    "session_id": "00000000-0000-4000-8000-000000000001",
+    "state": "processing",
+    "recording_id": "00000000-0000-4000-8000-000000000016",
+    "duration_ms": null,
+    "playback_url": null,
+    "expires_at": null,
+    "timeline": [],
+    "error": null
+  },
+  "request_id": "req-synthetic-001"
+}

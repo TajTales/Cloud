@@ -1,0 +1,47 @@
+{
+  "data": {
+    "result_id": "00000000-0000-4000-8000-000000000031",
+    "job_id": "00000000-0000-4000-8000-000000000032",
+    "session_id": "00000000-0000-4000-8000-000000000001",
+    "source_id": "00000000-0000-4000-8000-000000000002",
+    "frame_id": "00000000-0000-4000-8000-000000000033",
+    "frame_index": 16,
+    "media_time_ms": 101000,
+    "seq": 3,
+    "created_at": "2026-11-11T14:30:02.000Z",
+    "language": "ja",
+    "provider": "fixture.synthetic",
+    "image": {
+      "width_px": 1280,
+      "height_px": 720
+    },
+    "ocr": {
+      "paragraphs": [
+        {
+          "full_text": "喫茶店",
+          "is_vertical": false,
+          "box": {
+            "center_x": 0.5,
+            "center_y": 0.4,
+            "width": 0.4,
+            "height": 0.08
+          },
+          "words": [
+            {
+              "text": "喫茶店",
+              "separator": "",
+              "box": {
+                "center_x": 0.5,
+                "center_y": 0.4,
+                "width": 0.4,
+                "height": 0.08
+              }
+            }
+          ]
+        }
+      ],
+      "elapsed_ms": 12.5
+    }
+  },
+  "request_id": "req-synthetic-001"
+}

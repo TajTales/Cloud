@@ -1,0 +1,4 @@
+#!/bin/sh
+set -eu
+ct04_repo_dir=$(CDPATH= cd "$(dirname "$0")/.." && pwd)
+exec "${CT04_PYTHON:-python3}" -B "$ct04_repo_dir/tools/contract-testing/validate.py" "$@"

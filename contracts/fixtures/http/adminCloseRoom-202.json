@@ -1,0 +1,13 @@
+{
+  "data": {
+    "action_id": "00000000-0000-4000-8000-000000000014",
+    "status": "queued",
+    "resource_type": "room",
+    "resource_id": "00000000-0000-4000-8000-000000000010",
+    "created_at": "2026-11-11T14:30:00.000Z",
+    "updated_at": "2026-11-11T14:30:00.000Z",
+    "result": null,
+    "error": null
+  },
+  "request_id": "req-synthetic-001"
+}

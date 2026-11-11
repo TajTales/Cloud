@@ -1,0 +1,18 @@
+{
+  "data": {
+    "user_id": "synthetic-user-a",
+    "display_name": "Synthetic learner A",
+    "email": "learner-a@example.invalid",
+    "email_verified": true,
+    "roles": [
+      "user"
+    ],
+    "permissions": [],
+    "status": "active",
+    "locale": "vi",
+    "timezone": "Asia/Ho_Chi_Minh",
+    "learning_language": "ja",
+    "version": 2
+  },
+  "request_id": "req-synthetic-001"
+}

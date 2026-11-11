@@ -1,0 +1,27 @@
+{
+  "paragraphs": [
+    {
+      "full_text": "縦書き",
+      "is_vertical": true,
+      "box": {
+        "center_x": 0.2,
+        "center_y": 0.5,
+        "width": 0.08,
+        "height": 0.6
+      },
+      "words": [
+        {
+          "text": "縦書き",
+          "separator": "",
+          "box": {
+            "center_x": 0.2,
+            "center_y": 0.5,
+            "width": 0.08,
+            "height": 0.6
+          }
+        }
+      ]
+    }
+  ],
+  "elapsed_ms": 12.5
+}

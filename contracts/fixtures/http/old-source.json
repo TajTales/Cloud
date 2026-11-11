@@ -1,0 +1,12 @@
+{
+  "error": {
+    "code": "STALE_SOURCE",
+    "message": "SYNTHETIC source changed",
+    "details": {
+      "provided_source_id": "00000000-0000-4000-8000-000000000002",
+      "current_source_id": "00000000-0000-4000-8000-000000000020"
+    },
+    "retryable": false
+  },
+  "request_id": "req-synthetic-001"
+}

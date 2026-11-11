@@ -1,0 +1,9 @@
+{
+  "data": {
+    "ticket": "REDACTED_SYNTHETIC_PLACEHOLDER_NOT_USABLE",
+    "ws_url": "wss://realtime.example.invalid/realtime",
+    "expires_at": "2026-11-11T14:31:00.000Z",
+    "connection_expires_at": "2026-11-11T14:45:00.000Z"
+  },
+  "request_id": "req-synthetic-001"
+}

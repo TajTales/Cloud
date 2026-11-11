@@ -1,0 +1,40 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DRAFT Chime meeting data message chat_v1 (separate from app WS)",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "client_message_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "body": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 500
+    },
+    "sent_at": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "Z$",
+      "description": "UTC ISO 8601 with Z; no local formatted dates."
+    }
+  },
+  "required": [
+    "schema_version",
+    "client_message_id",
+    "body",
+    "sent_at"
+  ],
+  "additionalProperties": false,
+  "x-contract-status": "DRAFT",
+  "x-decision-dependencies": [
+    "D06",
+    "D11",
+    "D14"
+  ],
+  "x-max-utf8-bytes-exclusive": 1500,
+  "description": "SYNTHETIC examples only. Sender identity from verified attendee metadata, never client body. No persisted chat implied. Enforce UTF-8 envelope budget after serialization; maxLength alone cannot enforce bytes."
+}

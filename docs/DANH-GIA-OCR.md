@@ -6,7 +6,7 @@ Cập nhật: 11/11/2026. Chỉ đánh giá và đề xuất; **không sửa b�
 
 Server hiện đủ cơ sở cho OCR ảnh/khung hình qua HTTP và WebSocket trực tiếp. Chưa phải backend quản lý phòng, tài khoản, truyền video hay lưu lịch sử.
 
-Giao diện đã được khôi phục về thiết kế Figma ban đầu, giữ con trỏ mặc định. Video hiện là ảnh tĩnh; chữ nhận dạng, phiên âm, bản dịch và từ vựng là dữ liệu mẫu, chưa kết nối OCR. Component StudySource của bản thiết kế đã bỏ không còn tồn tại. Khi tích hợp cần bổ sung chọn nguồn học, thẻ video và chụp canvas; không coi dữ liệu mẫu đang hiển thị là kết quả server. Các ảnh trong `review-assets` đã được chụp lại theo giao diện khôi phục; ảnh hậu tố `after` của thiết kế đã bỏ đã được xóa.
+Giao diện giữ bố cục Figma đã được người dùng chấp nhận, với nâng cấp hover và popup Yomitan. Theo cập nhật User/Admin, `useRoomMedia` đã mở được video hoặc chia sẻ màn hình để xem trước cục bộ. Nguồn thật chưa được chụp canvas/nén/gửi tới OCR; khi mở nguồn thật, overlay mẫu được ẩn. Chữ nhận dạng, phiên âm và bản dịch vẫn là dữ liệu mẫu. Khi tích hợp tiếp cần client frame/upload/job/result và overlay theo kết quả thật, không coi dữ liệu demo là output server. Xem [ghi chú User/Admin](GIAO-DIEN-USER-VA-ADMIN.md) cho phần UI mới.
 
 Cần giữ tên LinguaLive trong frontend và dùng tên này khi ghi tài liệu tích hợp. Báo cáo môn học gọi hệ thống là OCR Learning; có thể chú thích “LinguaLive – giao diện của OCR Learning” để thống nhất mà không đổi thương hiệu đã có.
 

@@ -1,5 +1,11 @@
 import { useEffect, useState } from "react";
 import TranscriptVocabulary from "./components/TranscriptVocabulary";
+import AdminWorkspace from "./admin/AdminWorkspace";
+import AppDialog from "./components/AppDialog";
+import AccountPanels, { type AccountView, type UserProfile } from "./components/AccountPanels";
+import ReviewCards from "./components/ReviewCards";
+import useRoomMedia from "./hooks/useRoomMedia";
+import "./userFeatures.css";
 
 type IconName =
   | "book"
@@ -356,6 +362,19 @@ const copy = {
 
 export default function App() {
   const [authenticated, setAuthenticated] = useState(() => localStorage.getItem("lingualive-auth") === "true");
+  const [role, setRole] = useState<"user" | "admin">(() => import.meta.env.DEV && sessionStorage.getItem("lingualive-preview-role") === "admin" ? "admin" : "user");
+  const [profile, setProfile] = useState<UserProfile>(() => {
+    const fallback = { name: "Mai Anh", email: "mai.anh@example.com", timezone: "Asia/Ho_Chi_Minh", learningLanguage: "ja" };
+    try { const saved = JSON.parse(localStorage.getItem("lingualive-demo-profile") || "null"); return saved && typeof saved.name === "string" && typeof saved.email === "string" ? { ...fallback, ...saved } : fallback; } catch { return fallback; }
+  });
+  const [accountView, setAccountView] = useState<AccountView | null>(null);
+  const [roomRole, setRoomRole] = useState<"host" | "member">("host");
+  const [roomTool, setRoomTool] = useState<"source" | "participants" | null>(null);
+  const [review, setReview] = useState<"ja" | "fr" | "en" | null>(null);
+  const [historyDetail, setHistoryDetail] = useState<(typeof previousSessions)[number] | null>(null);
+  const [chatDraft, setChatDraft] = useState("");
+  const [localMessages, setLocalMessages] = useState<{ id: string; text: string; time: string }[]>([]);
+  const [copyError, setCopyError] = useState("");
   const [darkMode, setDarkMode] = useState(() => {
     const saved = localStorage.getItem("lingualive-theme");
     return saved ? saved === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
@@ -379,7 +398,10 @@ export default function App() {
   const [email, setEmail] = useState("");
   const [loginStatus, setLoginStatus] = useState<"idle" | "loading" | "done">("idle");
   const [tipIndex, setTipIndex] = useState(0);
+  const media = useRoomMedia(authenticated && role === "user" && screen === "room");
+  const roomCode = roomRole === "member" && joinCode.trim() ? joinCode.trim() : "LINGO-3821";
   const text = copy[language];
+  const saveProfile = (next: UserProfile) => { setProfile(next); localStorage.setItem("lingualive-demo-profile", JSON.stringify(next)); };
   const inspectedWord = [...detectedWords, ...savedWords].find(item => item.word === selectedWord);
 
   useEffect(() => {
@@ -419,19 +441,29 @@ export default function App() {
     }
   };
 
-  const copyRoom = () => {
-    navigator.clipboard?.writeText("LINGO-3821");
-    setCopied(true);
-    window.setTimeout(() => setCopied(false), 1400);
+  const copyRoom = async () => {
+    setCopyError("");
+    try { await navigator.clipboard.writeText(roomCode); setCopied(true); window.setTimeout(() => setCopied(false), 1400); }
+    catch { setCopyError("Chưa sao chép được. Bạn có thể chọn mã phòng và chép thủ công."); }
   };
 
   const goTo = (next: typeof screen) => {
+    setAccountMenu(false);
+    setRoomTool(null);
     setScreen(next);
     setMobileNav(false);
   };
 
-  const enterRoom = (mode: "solo" | "group", title = "Khám phá Tokyo về đêm") => {
+  const enterRoom = (mode: "solo" | "group", title = "Khám phá Tokyo về đêm", participantRole: "host" | "member" = "host") => {
     setSelectedWord(null);
+    media.stop();
+    setRoomRole(participantRole);
+    setRoomTool(null);
+    setCopyError("");
+    setCopied(false);
+    setLocalMessages([]);
+    setChatDraft("");
+    setPanel("transcript");
     setRoomMode(mode);
     setRoomTitle(title);
     setDialog(null);
@@ -444,11 +476,18 @@ export default function App() {
     window.setTimeout(() => {
       setLoginStatus("done");
       localStorage.setItem("lingualive-auth", "true");
+      if (import.meta.env.DEV) sessionStorage.setItem("lingualive-preview-role", role);
       window.setTimeout(() => setAuthenticated(true), 420);
     }, 760);
   };
 
   const logout = () => {
+    media.stop();
+    sessionStorage.removeItem("lingualive-preview-role");
+    setRole("user");
+    setLoginStatus("idle");
+    setAccountView(null);
+    setRoomTool(null);
     localStorage.removeItem("lingualive-auth");
     setAuthenticated(false);
     setAccountMenu(false);
@@ -502,6 +541,8 @@ export default function App() {
             <div className="login-eyebrow">{text.loginEyebrow}</div>
             <h1><SplitText>{text.loginTitle}</SplitText></h1>
             <p>{text.loginSubtitle}</p>
+            {import.meta.env.DEV && <div className="demo-role-picker"><span>VAI TRÒ XEM TRƯỚC</span><div role="group" aria-label="Chọn giao diện dùng thử"><button type="button" aria-pressed={role === "user"} className={role === "user" ? "active" : ""} onClick={() => setRole("user")}><Icon name="user" size={16} /> Người học</button><button type="button" aria-pressed={role === "admin"} className={role === "admin" ? "active" : ""} onClick={() => setRole("admin")}><Icon name="settings" size={16} /> Quản trị viên</button></div><small>Chế độ phát triển · Chưa xác thực quyền thật.</small></div>}
+
             <form onSubmit={login}>
               <label>{text.email}
                 <div className={`login-input ${email.includes("@") ? "valid" : ""}`}><span>@</span><input type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="mai@example.com" required /><i>✓</i></div>
@@ -511,7 +552,7 @@ export default function App() {
               </label>
               <div className="login-options">
                 <label><input type="checkbox" defaultChecked /> {text.remember}</label>
-                <button type="button">{text.forgot}</button>
+                <button type="button" onClick={() => setAccountView("reset-password")}>{text.forgot}</button>
               </div>
               <MotionButton magnetic className={`login-submit spark-action ${loginStatus}`} type="submit" disabled={loginStatus !== "idle"}>
                 <span>{loginStatus === "idle" ? text.login : loginStatus === "loading" ? "Đang đăng nhập" : "Hoàn tất"}</span>
@@ -523,13 +564,16 @@ export default function App() {
               <button><b>G</b> Google</button>
               <button><b>f</b> Facebook</button>
             </div>
-            <p className="signup-prompt">{text.noAccount} <button>{text.signup}</button></p>
+            <p className="signup-prompt">{text.noAccount} <button onClick={() => setAccountView("signup")}>{text.signup}</button></p>
           </div>
           <footer>© 2025 LinguaLive <span>{language === "vi" ? "Quyền riêng tư" : "Privacy"}</span><span>{language === "vi" ? "Điều khoản" : "Terms"}</span></footer>
         </section>
+        {accountView && <AccountPanels key={accountView} view={accountView} profile={profile} onSave={saveProfile} onClose={() => setAccountView(null)} />}
       </main>
     );
   }
+
+  if (import.meta.env.DEV && role === "admin") return <AdminWorkspace darkMode={darkMode} onToggleTheme={() => setDarkMode(value => !value)} onLogout={logout} onExit={() => { sessionStorage.removeItem("lingualive-preview-role"); setRole("user"); setScreen("lobby"); }} />;
 
   return (
     <div className="app-shell">
@@ -542,7 +586,7 @@ export default function App() {
           </span>
           <span>Lingua<span>Live</span></span>
         </div>
-        <nav className={`main-nav ${mobileNav ? "open" : ""}`}>
+        <nav aria-label="Điều hướng người học" id="learner-navigation" className={`main-nav ${mobileNav ? "open" : ""}`}>
           <button className={screen === "lobby" || screen === "room" ? "active" : ""} onClick={() => goTo("lobby")}><Icon name="grid" size={18} /> {text.rooms}</button>
           <button className={screen === "library" ? "active" : ""} onClick={() => goTo("library")}><Icon name="book" size={18} /> {text.library}</button>
           <button className={screen === "history" ? "active" : ""} onClick={() => goTo("history")}><Icon name="history" size={18} /> {text.history}</button>
@@ -551,16 +595,16 @@ export default function App() {
           <button className="streak-pill"><span>12</span> {text.streak}</button>
           <ThemeToggle darkMode={darkMode} onToggle={toggleTheme} label={darkMode ? text.light : text.dark} />
           <div className="account-wrap">
-            <button className={`avatar ${accountMenu ? "active" : ""}`} aria-label="Tài khoản của Mai" aria-expanded={accountMenu} onClick={() => setAccountMenu(!accountMenu)}>MA</button>
+            <button className={`avatar ${accountMenu ? "active" : ""}`} aria-label="Tài khoản người học" aria-expanded={accountMenu} onClick={() => setAccountMenu(!accountMenu)}>{profile.name.trim().split(/\s+/).map(part => part[0]).slice(-2).join("") || "B"}</button>
             {accountMenu && (
               <div className="account-menu">
                 <div className="account-summary">
-                  <span className="avatar large">MA</span>
-                  <div><strong>Mai Anh</strong><small>mai.anh@example.com</small></div>
+                  <span className="avatar large">{profile.name.trim().split(/\s+/).map(part => part[0]).slice(-2).join("") || "B"}</span>
+                  <div><strong>{profile.name}</strong><small>{profile.email}</small></div>
                 </div>
                 <div className="account-links">
-                  <button><Icon name="user" size={17} /><span>{text.profile}<small>{language === "vi" ? "Xem và chỉnh sửa thông tin" : "View and edit your details"}</small></span><Icon name="chevron" size={15} /></button>
-                  <button><Icon name="settings" size={17} /><span>{text.settings}<small>{language === "vi" ? "Bảo mật và thông báo" : "Security and notifications"}</small></span><Icon name="chevron" size={15} /></button>
+                  <button onClick={() => { setAccountMenu(false); setAccountView("profile"); }}><Icon name="user" size={17} /><span>{text.profile}<small>{language === "vi" ? "Xem và chỉnh sửa thông tin" : "View and edit your details"}</small></span><Icon name="chevron" size={15} /></button>
+                  <button onClick={() => { setAccountMenu(false); setAccountView("settings"); }}><Icon name="settings" size={17} /><span>{text.settings}<small>{language === "vi" ? "Bảo mật và thông báo" : "Security and notifications"}</small></span><Icon name="chevron" size={15} /></button>
                 </div>
                 <div className="setting-row">
                   <span><Icon name={darkMode ? "moon" : "sun"} size={17} /> {text.appearance}</span>
@@ -580,7 +624,7 @@ export default function App() {
               </div>
             )}
           </div>
-          <button className="mobile-menu" onClick={() => setMobileNav(!mobileNav)} aria-label="Mở menu">
+          <button className="mobile-menu" onClick={() => setMobileNav(!mobileNav)} aria-label="Mở menu" aria-expanded={mobileNav} aria-controls="learner-navigation">
             <Icon name={mobileNav ? "x" : "menu"} />
           </button>
         </div>
@@ -669,7 +713,7 @@ export default function App() {
                 <div className="session-name"><small>{session.date}</small><strong>{session.title}</strong><span>{session.language}</span></div>
                 <div className="session-meta"><span><Icon name="clock" size={15} /> {session.duration}</span><span><Icon name="book" size={15} /> {session.words} từ</span></div>
                 <div className="session-preview"><span>{index === 0 ? "東京 · 喫茶店" : index === 1 ? "bonjour · merci" : "coffee · subway"}</span></div>
-                <button onClick={() => enterRoom("solo", session.title)}>Xem lại <Icon name="chevron" size={15} /></button>
+                <button onClick={() => setHistoryDetail(session)}>Xem lại <Icon name="chevron" size={15} /></button>
               </article>
             ))}
           </section>
@@ -678,7 +722,7 @@ export default function App() {
         <main className="workspace page-workspace">
           <section className="page-heading">
             <div><div className="eyebrow">Bộ sưu tập cá nhân</div><h1>Thư viện từ vựng</h1><p>Ôn lại những từ bạn đã bắt gặp trong các video.</p></div>
-            <MotionButton magnetic className="primary-action spark-action" onClick={() => goTo("lobby")}><Icon name="play" size={17} /> Bắt đầu luyện</MotionButton>
+            <MotionButton magnetic className="primary-action spark-action" onClick={() => setReview("ja")}><Icon name="play" size={17} /> Bắt đầu luyện</MotionButton>
           </section>
           <div className="library-grid">
             {[
@@ -692,26 +736,28 @@ export default function App() {
                 <h2>{collection.title}</h2>
                 <p>{collection.count} từ vựng đã lưu</p>
                 <span className="deck-progress" style={{ "--deck-progress": `${Math.min(82, collection.count + 25)}%` } as React.CSSProperties}><b>{Math.min(82, collection.count + 25)}%</b></span>
-                <button>Ôn tập ngay <Icon name="chevron" size={15} /></button>
+                <button onClick={() => setReview(collection.tone === "coral" ? "fr" : collection.tone === "violet" ? "en" : "ja")}>Ôn tập ngay <Icon name="chevron" size={15} /></button>
               </article>
             ))}
           </div>
         </main>
       ) : (
       <main className="workspace room-workspace">
+        <section className="learner-room-heading"><div><span className="learner-room-role">{roomMode === "solo" ? "HỌC CÁ NHÂN" : roomRole === "host" ? "CHỦ PHÒNG" : "THÀNH VIÊN"}</span><h1>{roomTitle}</h1><p>{roomMode === "solo" ? "Không gian riêng để tập trung vào nội dung bạn chọn." : "Giao diện phòng học mẫu · Chưa kết nối gọi nhóm hoặc xác thực mã phòng."}</p></div><div className="learner-room-tools">{(roomMode === "solo" || roomRole === "host") && <button className="app-btn" onClick={() => setRoomTool("source")}><Icon name="play" size={16} />{media.source ? "Đổi nguồn học" : "Chọn nguồn học"}</button>}{roomMode === "group" && <button className="app-btn" onClick={() => setRoomTool("participants")}><Icon name="people" size={16} /> Thành viên mẫu</button>}</div></section>
+        <div className="learner-demo-strip"><span />Phiên âm, OCR và thành viên đang dùng dữ liệu mẫu. {media.source ? "Nguồn video của bạn chỉ được xem trước trên thiết bị, chưa gửi để nhận dạng." : "Bạn có thể chọn nguồn thật để xem trước hoặc tiếp tục khám phá bản mẫu."}</div>
+        <input ref={media.fileRef} type="file" hidden accept="video/*" aria-label="Chọn tệp video" onChange={event => { media.openFile(event.target.files?.[0]); event.target.value = ""; setRoomTool(null); }} />
+        {media.error && <p className="app-notice app-inline-error" role="alert">{media.error}</p>}
         <div className="learning-grid">
           <section className="video-column">
             <div className="video-frame">
-              <img
-                src="https://images.unsplash.com/photo-1564284369929-026ba231f89b?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&q=86&w=1600&h=1000"
-                alt="Một cửa hàng Nhật Bản với đèn lồng vào buổi tối"
-              />
-              <div className="video-shade" />
+              <video ref={media.videoRef} className="room-live-video" hidden={!media.source} controls={media.source === "file"} muted={media.source === "screen"} playsInline onError={media.onVideoError} />
+              {!media.source && <><img className="room-demo-image" src="https://images.unsplash.com/photo-1564284369929-026ba231f89b?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&q=86&w=1600&h=1000" alt="Một cửa hàng Nhật Bản với đèn lồng vào buổi tối" /><div className="video-shade" /></>}
               <div className="video-top">
-                <span className="ocr-status"><Icon name="sparkles" size={15} /> OCR đang nhận diện</span>
+                <span className="ocr-status"><Icon name="sparkles" size={15} /> {media.source ? "Xem trước · OCR chưa kết nối" : "OCR · Kết quả mẫu"}</span>
                 <span className="quality-pill">HD</span>
               </div>
 
+              {!media.source && <>
               <button className={`ocr-box ocr-box-one ${selectedWord === "居酒屋" ? "selected" : ""}`} onClick={() => setSelectedWord(selectedWord === "居酒屋" ? null : "居酒屋")} aria-expanded={selectedWord === "居酒屋"}>
                 <span>居酒屋</span>
                 <small>izakaya · quán nhậu</small>
@@ -742,25 +788,25 @@ export default function App() {
                 <button aria-label="Phụ đề"><Icon name="captions" size={21} /></button>
                 <button aria-label="Toàn màn hình"><span className="fullscreen-icon" /></button>
               </div>
+              </>}
             </div>
+            {media.source && <div className="learner-source-info"><span title={media.name}>{media.name}</span><button onClick={media.stop}>Dừng nguồn học</button></div>}
 
             <div className="call-bar">
-              <div className="room-code">
-                <span>Mã phòng</span>
-                <strong>LINGO-3821</strong>
-                <button onClick={copyRoom}><Icon name="copy" size={16} /> {copied ? "Đã chép" : ""}</button>
-              </div>
+              {roomMode === "group" ? <div className="room-code"><span>Mã phòng mẫu</span><strong>{roomCode}</strong><button onClick={copyRoom} aria-label="Sao chép mã phòng"><Icon name="copy" size={16} />{copied ? "Đã chép" : ""}</button></div> : <div className="learner-solo-label"><Icon name="headphones" size={18} /> Học theo nhịp của bạn</div>}
               <div className="call-controls">
-                <button className={!micOn ? "off" : ""} onClick={() => setMicOn(!micOn)} aria-label="Bật tắt micro">
+                {roomMode === "group" && <><button className={!micOn ? "off" : ""} onClick={() => setMicOn(!micOn)} aria-label="Bật tắt micro">
                   <Icon name={micOn ? "mic" : "x"} />
                 </button>
                 <button className={!cameraOn ? "off" : ""} onClick={() => setCameraOn(!cameraOn)} aria-label="Bật tắt camera">
                   <Icon name={cameraOn ? "camera" : "x"} />
                 </button>
+                </>}
                 <button className="leave-call" onClick={() => goTo("lobby")}>Rời phòng</button>
               </div>
-              <div className="participants-label"><Icon name="people" size={18} /> 5 người tham gia</div>
+              {roomMode === "group" && <button className="participants-label learner-participants-button" onClick={() => setRoomTool("participants")}><Icon name="people" size={18} /> 5 người · Mẫu</button>}
             </div>
+            {copyError && <p className="app-inline-error" role="status">{copyError}</p>}
           </section>
 
           <aside className="side-panel">
@@ -768,21 +814,21 @@ export default function App() {
               <button className={panel === "transcript" ? "active" : ""} onClick={() => setPanel("transcript")}>
                 Phiên âm
               </button>
-              <button className={panel === "chat" ? "active" : ""} onClick={() => setPanel("chat")}>
-                Trò chuyện <span>3</span>
-              </button>
+              {roomMode === "group" && <button className={panel === "chat" ? "active" : ""} onClick={() => setPanel("chat")}>
+                Trò chuyện <span>{3 + localMessages.length}</span>
+              </button>}
             </div>
 
             {panel === "transcript" ? (
               <div className="transcript-panel">
-                <div className="panel-label"><span>Nội dung trực tiếp</span><button><Icon name="sparkles" size={15} /> Dịch tự động</button></div>
+                <div className="panel-label"><span>Nội dung mẫu</span><button><Icon name="sparkles" size={15} /> Dịch tự động</button></div>
                 <TranscriptVocabulary lines={transcript} savedWords={savedWords.map(item => item.word)} onSpeak={pronounce} onSave={entry => {
                   const word = entry.lemma || entry.word;
                   setSavedWords(current => current.some(item => item.word === word) ? current : [...current, { word, reading: entry.lemmaReading || entry.kana, meaning: entry.lemmaMeaning || entry.meaning, color: "coral" }]);
                 }} />
                 <div className="listening-card">
                   <span className="sound-wave"><i /><i /><i /><i /><i /></span>
-                  <div><strong>Đang lắng nghe...</strong><small>Lời thoại sẽ xuất hiện tại đây</small></div>
+                  <div><strong>Chế độ minh họa</strong><small>Nhận dạng thật đang chờ kết nối dịch vụ</small></div>
                 </div>
               </div>
             ) : (
@@ -798,7 +844,9 @@ export default function App() {
                 <div className="chat-message mine">
                   <div><b>Bạn</b><small>01:41</small><p>Mình đã lưu vào danh sách từ vựng rồi.</p></div>
                 </div>
-                <div className="chat-input"><input placeholder="Nhắn tin cho cả phòng..." /><button><Icon name="send" size={18} /></button></div>
+                {localMessages.map(message => <div className="chat-message mine" key={message.id}><div><b>Bạn · Bản mẫu</b><small>{message.time}</small><p>{message.text}</p></div></div>)}
+                <p className="learner-chat-note">Tin nhắn thử chỉ hiển thị trên thiết bị này, chưa gửi cho người khác.</p>
+                <form className="chat-input" onSubmit={event => { event.preventDefault(); const value = chatDraft.trim(); if (!value) return; setLocalMessages(items => [...items, { id: crypto.randomUUID(), text: value, time: new Intl.DateTimeFormat("vi-VN", { hour: "2-digit", minute: "2-digit" }).format(new Date()) }]); setChatDraft(""); }}><input aria-label="Tin nhắn thử" value={chatDraft} onChange={event => setChatDraft(event.target.value)} maxLength={500} placeholder="Viết tin nhắn thử…" /><button type="submit" disabled={!chatDraft.trim()} aria-label="Gửi tin nhắn thử"><Icon name="send" size={18} /></button></form>
               </div>
             )}
 
@@ -821,12 +869,18 @@ export default function App() {
                 ))}
                 {savedWords.length === 0 && <p className="empty-state">Chọn từ trên video để lưu lại.</p>}
               </div>
-              <button className="review-button"><Icon name="book" size={18} /> Ôn tập {savedWords.length} từ</button>
+              <button className="review-button" onClick={() => setReview("ja")}><Icon name="book" size={18} /> Ôn tập {savedWords.length} từ</button>
             </div>
           </aside>
         </div>
       </main>
       )}
+
+      {accountView && <AccountPanels key={accountView} view={accountView} profile={profile} onSave={saveProfile} onClose={() => setAccountView(null)} />}
+      {review && <ReviewCards title={review === "ja" ? "Ôn tập từ đã lưu" : review === "fr" ? "Tiếng Pháp du lịch · Mẫu" : "Tiếng Anh hằng ngày · Mẫu"} words={review === "ja" ? savedWords : review === "fr" ? [{ word: "bonjour", reading: "bon-jour", meaning: "xin chào" }, { word: "merci", reading: "mer-ci", meaning: "cảm ơn" }, { word: "voyage", reading: "vo-yage", meaning: "chuyến đi" }] : [{ word: "coffee", reading: "/ˈkɒfi/", meaning: "cà phê" }, { word: "subway", reading: "/ˈsʌbweɪ/", meaning: "tàu điện ngầm" }, { word: "quiet", reading: "/ˈkwaɪət/", meaning: "yên tĩnh" }]} onClose={() => setReview(null)} />}
+      {historyDetail && <AppDialog title={historyDetail.title} description="Chi tiết nhật ký mẫu; chưa có bản ghi video hoặc dữ liệu phiên học trên máy chủ." onClose={() => setHistoryDetail(null)}><dl className="app-detail-list"><div><dt>Thời gian</dt><dd>{historyDetail.date}</dd></div><div><dt>Ngôn ngữ</dt><dd>{historyDetail.language}</dd></div><div><dt>Thời lượng mẫu</dt><dd>{historyDetail.duration}</dd></div><div><dt>Từ mới mẫu</dt><dd>{historyDetail.words}</dd></div><div><dt>Video xem lại</dt><dd>Chưa có bản ghi</dd></div></dl><div className="app-dialog-actions"><button className="app-btn" onClick={() => setHistoryDetail(null)}>Đóng</button><button className="app-btn app-btn-primary" onClick={() => { enterRoom("solo", historyDetail.title); setHistoryDetail(null); }}>Mở giao diện phiên mẫu</button></div></AppDialog>}
+      {roomTool === "source" && <AppDialog title="Bạn muốn học từ đâu?" description="Chọn nguồn để xem trước trên thiết bị. Video chưa được tải lên hoặc gửi nhận dạng OCR." onClose={() => setRoomTool(null)}><div className="learner-source-options"><button aria-label="Chia sẻ màn hình" onClick={async () => { if (await media.share()) setRoomTool(null); }} disabled={media.pending}><Icon name="camera" size={25} /><span><strong>{media.pending ? "Đang chọn cửa sổ…" : "Chia sẻ màn hình"}</strong><small>Chọn tab, cửa sổ hoặc màn hình bạn muốn học.</small></span><Icon name="chevron" size={17} /></button><button aria-label="Mở video trên máy" onClick={() => media.fileRef.current?.click()} disabled={media.pending}><Icon name="play" size={25} /><span><strong>Mở video trên máy</strong><small>Video chỉ mở trên trình duyệt, không tải lên server.</small></span><Icon name="chevron" size={17} /></button></div>{media.error && <p className="app-inline-error" role="alert">{media.error}</p>}<p className="app-muted">Bạn có thể dừng chia sẻ hoặc đổi nguồn bất cứ lúc nào. Nếu trình duyệt không hỗ trợ chia sẻ màn hình, hãy mở video.</p></AppDialog>}
+      {roomTool === "participants" && <AppDialog title="Thành viên trong phòng" description="Danh sách minh họa cho giao diện phòng học; chưa kết nối thành viên thật." onClose={() => setRoomTool(null)}><div className="learner-participant-list">{[{ name: roomRole === "host" ? `${profile.name} (Bạn)` : "Anh Nguyễn", role: "Chủ phòng" }, { name: roomRole === "member" ? `${profile.name} (Bạn)` : "Anh Nguyễn", role: "Thành viên" }, { name: "Julia", role: "Thành viên" }, { name: "Minh Khang", role: "Thành viên" }, { name: "Thu Hà", role: "Thành viên" }].map(person => <div key={person.name}><span>{person.name.split(" ").filter(Boolean).map(part => part[0]).slice(0, 2).join("")}</span><strong>{person.name}</strong><small>{person.role}</small></div>)}</div><p className="app-notice">{roomRole === "host" ? "Chủ phòng có thể chọn nguồn chia sẻ. Thành viên chỉ xem, trao đổi và lưu từ." : "Bạn đang xem với vai trò thành viên. Quyền chia sẻ nguồn thuộc chủ phòng."}</p></AppDialog>}
 
       {dialog && (
         <div className="dialog-backdrop" role="presentation" onMouseDown={() => setDialog(null)}>
@@ -848,7 +902,7 @@ export default function App() {
                 <button className="dialog-submit" type="submit">Tạo phòng và tiếp tục <Icon name="chevron" size={16} /></button>
               </form>
             ) : (
-              <form onSubmit={(event) => { event.preventDefault(); if (joinCode.trim()) enterRoom("group"); }}>
+              <form onSubmit={(event) => { event.preventDefault(); if (joinCode.trim()) enterRoom("group", "Phòng học tham gia · Mẫu", "member"); }}>
                 <label>Mã phòng
                   <input className="code-input" value={joinCode} onChange={(event) => setJoinCode(event.target.value.toUpperCase())} placeholder="LINGO-3821" autoFocus />
                 </label>

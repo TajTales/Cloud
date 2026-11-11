@@ -1,0 +1,12 @@
+{
+  "language": "ja",
+  "entry_id": "fixture:entry-001",
+  "sense_id": "fixture:sense-001",
+  "occurrence": {
+    "session_id": "00000000-0000-4000-8000-000000000001",
+    "result_id": "00000000-0000-4000-8000-000000000006",
+    "source_id": "00000000-0000-4000-8000-000000000002",
+    "media_time_ms": 102000,
+    "surface": "喫茶店"
+  }
+}

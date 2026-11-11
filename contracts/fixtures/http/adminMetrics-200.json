@@ -1,0 +1,12 @@
+{
+  "data": {
+    "sampled_at": null,
+    "data_source": "mock",
+    "window_start": null,
+    "window_end": null,
+    "jobs_count": null,
+    "ocr_scan_p95_ms": null,
+    "ocr_end_to_end_p95_ms": null
+  },
+  "request_id": "req-synthetic-001"
+}

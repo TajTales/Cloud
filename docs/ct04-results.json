@@ -1,0 +1,684 @@
+{
+  "task": "CT-04",
+  "recorded_at_utc": "2026-11-11T12:55:37.922988+00:00",
+  "task_status": "ready_for_review",
+  "readiness_for_integration": "PENDING_APPROVAL",
+  "integrated": false,
+  "scope": "Tooling tests and DRAFT structural review only; no approved conformance or live producer/consumer tests.",
+  "branch": "main",
+  "source_head": "81be4b4a5a7baf24db0c9fdc5bbd2d72fed87340",
+  "contract_version": "0.1.0-draft.1",
+  "contract_status": "DRAFT",
+  "contract_commit_sha": null,
+  "bundle_sha256": "bcfd39b6a2fd85d74cd5efd53e7a6bff753f60bf7e286246c27ef696c1c6bfd2",
+  "tool_environment": {
+    "CT04_PYTHON": "/private/tmp/ct02-validator-venv/bin/python",
+    "CT04_ASYNCAPI_PARSER": "/private/tmp/ct02-asyncapi-validation/node_modules/@asyncapi/parser",
+    "note": "Local temporary CT-02 validators reused; no installation in CT-04"
+  },
+  "runtime_versions": {
+    "node": "v22.23.4",
+    "pnpm": "12.18.0",
+    "python_default": "Python 3.14.7",
+    "python_qa": "Python 3.14.7"
+  },
+  "dependency_installations": 0,
+  "existing_files_checked": 299,
+  "existing_files_changed": [],
+  "new_files_at_recording": [
+    "contracts/fixtures/ct04-draft/README.md",
+    "contracts/fixtures/ct04-draft/forbidden-room.json",
+    "contracts/fixtures/ct04-draft/forbidden-session.json",
+    "contracts/fixtures/ct04-draft/forbidden-shared-vocabulary.json",
+    "contracts/fixtures/ct04-draft/image-too-large.json",
+    "contracts/fixtures/ct04-draft/job-processing.json",
+    "contracts/fixtures/ct04-draft/lexicon-inflected.json",
+    "contracts/fixtures/ct04-draft/lexicon-polysemy-a.json",
+    "contracts/fixtures/ct04-draft/lexicon-polysemy-b.json",
+    "contracts/fixtures/ct04-draft/manifest.json",
+    "contracts/fixtures/ct04-draft/ocr-busy.json",
+    "contracts/fixtures/ct04-draft/ocr-vertical.json",
+    "contracts/fixtures/ct04-draft/out-of-order-event.json",
+    "contracts/fixtures/ct04-draft/out-of-order-frame.json",
+    "contracts/fixtures/ct04-draft/room-closed.json",
+    "docs/ACCEPTANCE.md",
+    "docs/CONTRACT-TESTING.md",
+    "docs/ct04-results.json",
+    "scripts/mock-contracts",
+    "scripts/test-contract-tools",
+    "scripts/validate-contracts",
+    "tools/contract-testing/consumer-fixtures.test.cjs",
+    "tools/contract-testing/contracts_core.py",
+    "tools/contract-testing/mock_server.py",
+    "tools/contract-testing/requirements.txt",
+    "tools/contract-testing/tests/test_contract_tools.py",
+    "tools/contract-testing/tool-versions.json",
+    "tools/contract-testing/validate-asyncapi.cjs",
+    "tools/contract-testing/validate.py"
+  ],
+  "blocked": [
+    "Approved contract conformance",
+    "Live HTTP mock startup/smoke",
+    "Real frontend API consumer",
+    "Application backend producer (external repo NOT_ACCESSIBLE)",
+    "Real OCR model/worker mapping",
+    "Real lexicon corpus/tokenizer",
+    "Cognito/AWS/storage/realtime/Chime integration",
+    "Simultaneous multi-sense response design (D13)"
+  ],
+  "results": [
+    {
+      "name": "draft-structure",
+      "command": [
+        "./scripts/validate-contracts",
+        "--lint-draft"
+      ],
+      "scope": "STRUCTURAL_REVIEW_ONLY",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "expectation_met": true,
+      "stdout_sha256": "a1a50e15f79727d28f67b71a3c4ebc78656734adce364c3ad677ad520f92c0bd",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "report": {
+        "tool": "CT-04",
+        "conformance": "PENDING",
+        "runtime_integration": "NOT_RUN",
+        "errors": [],
+        "contract_version": "0.1.0-draft.1",
+        "contract_status": "DRAFT",
+        "bundle_sha256": "bcfd39b6a2fd85d74cd5efd53e7a6bff753f60bf7e286246c27ef696c1c6bfd2",
+        "contract_commit_sha": null,
+        "approval_pending": [
+          "contract_status=DRAFT; approved contract required",
+          "three named member approvals with evidence are missing",
+          "contract_commit_sha is not pinned",
+          "HTTP/WS document status is not approved",
+          "one or more application operations remain draft",
+          "document remains draft: application.schema.json",
+          "document remains draft: chime-chat.schema.json",
+          "document remains draft: realtime.schema.json",
+          "document remains draft: openapi.yaml",
+          "document remains draft: asyncapi.yaml",
+          "fixture manifest remains draft: fixtures/manifest.json",
+          "fixture manifest remains draft: fixtures/ct04-draft/manifest.json",
+          "fixture set is not included in pinned bundle: fixtures/ct04-draft/manifest.json"
+        ],
+        "mode": "DRAFT_LINT",
+        "lint": {
+          "errors": [],
+          "bundle_files": 159,
+          "local_references": 908,
+          "json_schemas": 5,
+          "asyncapi": {
+            "document_created": true,
+            "errors": [],
+            "warnings": [],
+            "information": [
+              {
+                "code": "asyncapi-latest-version",
+                "message": "The latest version of AsyncAPi is not used. It is recommended update to the \"3.1.0\" version.",
+                "path": [
+                  "asyncapi"
+                ],
+                "severity": 2,
+                "source": "/Users/ducen/VScode/Video Stream Language Learning/contracts/asyncapi.yaml",
+                "range": {
+                  "start": {
+                    "line": 0,
+                    "character": 10
+                  },
+                  "end": {
+                    "line": 0,
+                    "character": 15
+                  }
+                }
+              }
+            ]
+          },
+          "fixtures": {
+            "positive": 141,
+            "negative_schema": 11,
+            "negative_semantic": 5
+          },
+          "examples": {
+            "request_examples": 21,
+            "parameter_examples": 67,
+            "success_examples": 59,
+            "error_examples": 396,
+            "ws_examples": 18,
+            "operations": 50
+          },
+          "correlations": {
+            "reference_groups": 7,
+            "scenario_coverage": 24
+          },
+          "raw_shape": {
+            "status": "EVIDENCED_SHAPE_ONLY",
+            "classes": 3,
+            "real_provider_tested": false
+          }
+        },
+        "status": "STRUCTURE_VALID",
+        "tools": {
+          "jsonschema": "4.26.0",
+          "PyYAML": "6.0.3",
+          "openapi-spec-validator": "0.7.2",
+          "referencing": "0.36.2"
+        },
+        "exit_code": 0
+      }
+    },
+    {
+      "name": "approved-gate",
+      "command": [
+        "./scripts/validate-contracts"
+      ],
+      "scope": "PENDING_APPROVAL",
+      "exit_code": 2,
+      "expected_exit_code": 2,
+      "expectation_met": true,
+      "stdout_sha256": "9cf82573539d5fa0d1ab162e3048772d4ad99697c8cc0ff71a772ab5de0605ab",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "report": {
+        "tool": "CT-04",
+        "conformance": "PENDING",
+        "runtime_integration": "NOT_RUN",
+        "errors": [],
+        "contract_version": "0.1.0-draft.1",
+        "contract_status": "DRAFT",
+        "bundle_sha256": "bcfd39b6a2fd85d74cd5efd53e7a6bff753f60bf7e286246c27ef696c1c6bfd2",
+        "contract_commit_sha": null,
+        "approval_pending": [
+          "contract_status=DRAFT; approved contract required",
+          "three named member approvals with evidence are missing",
+          "contract_commit_sha is not pinned",
+          "HTTP/WS document status is not approved",
+          "one or more application operations remain draft",
+          "document remains draft: application.schema.json",
+          "document remains draft: chime-chat.schema.json",
+          "document remains draft: realtime.schema.json",
+          "document remains draft: openapi.yaml",
+          "document remains draft: asyncapi.yaml",
+          "fixture manifest remains draft: fixtures/manifest.json",
+          "fixture manifest remains draft: fixtures/ct04-draft/manifest.json",
+          "fixture set is not included in pinned bundle: fixtures/ct04-draft/manifest.json"
+        ],
+        "mode": "APPROVED_CONTRACT_REQUIRED",
+        "lint": {
+          "errors": [],
+          "bundle_files": 159,
+          "local_references": 908,
+          "json_schemas": 5,
+          "asyncapi": {
+            "document_created": true,
+            "errors": [],
+            "warnings": [],
+            "information": [
+              {
+                "code": "asyncapi-latest-version",
+                "message": "The latest version of AsyncAPi is not used. It is recommended update to the \"3.1.0\" version.",
+                "path": [
+                  "asyncapi"
+                ],
+                "severity": 2,
+                "source": "/Users/ducen/VScode/Video Stream Language Learning/contracts/asyncapi.yaml",
+                "range": {
+                  "start": {
+                    "line": 0,
+                    "character": 10
+                  },
+                  "end": {
+                    "line": 0,
+                    "character": 15
+                  }
+                }
+              }
+            ]
+          },
+          "fixtures": {
+            "positive": 141,
+            "negative_schema": 11,
+            "negative_semantic": 5
+          },
+          "examples": {
+            "request_examples": 21,
+            "parameter_examples": 67,
+            "success_examples": 59,
+            "error_examples": 396,
+            "ws_examples": 18,
+            "operations": 50
+          },
+          "correlations": {
+            "reference_groups": 7,
+            "scenario_coverage": 24
+          },
+          "raw_shape": {
+            "status": "EVIDENCED_SHAPE_ONLY",
+            "classes": 3,
+            "real_provider_tested": false
+          }
+        },
+        "status": "PENDING_APPROVAL",
+        "tools": {
+          "jsonschema": "4.26.0",
+          "PyYAML": "6.0.3",
+          "openapi-spec-validator": "0.7.2",
+          "referencing": "0.36.2"
+        },
+        "exit_code": 2
+      }
+    },
+    {
+      "name": "tool-unit-tests",
+      "command": [
+        "./scripts/test-contract-tools"
+      ],
+      "scope": "TOOLING_ONLY",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "expectation_met": true,
+      "stdout_sha256": "8cb57dae9cbf9b4fc535af7affdc01fd1279898479efc4b782eb62fb65fa8096",
+      "stderr_sha256": "550f0d201d616c9e8f84b5ef14211574ad0a28956987819974da752797611df8",
+      "output_summary": ".. ok\ntest_raw_error_is_not_empty_success (test_contract_tools.ContractToolTests.test_raw_error_is_not_empty_success) ... ok\ntest_raw_shape_matches_dataclasses_without_importing_provider (test_contract_tools.ContractToolTests.test_raw_shape_matches_dataclasses_without_importing_provider) ... ok\ntest_routing_unknown_resource_does_not_rewrite_fixture_ids (test_contract_tools.ContractToolTests.test_routing_unknown_resource_does_not_rewrite_fixture_ids) ... ok\ntest_strict_json_rejects_duplicate_keys_and_non_finite (test_contract_tools.ContractToolTests.test_strict_json_rejects_duplicate_keys_and_non_finite) ... ok\ntest_strict_yaml_rejects_duplicate_keys (test_contract_tools.ContractToolTests.test_strict_yaml_rejects_duplicate_keys) ... ok\ntest_unicode_code_points_preserve_combining_characters (test_contract_tools.ContractToolTests.test_unicode_code_points_preserve_combining_characters) ... ok\n\n----------------------------------------------------------------------\nRan 23 tests in 1.236s\n\nOK",
+      "python_tests": 23,
+      "node_pass": 8,
+      "node_fail": 0
+    },
+    {
+      "name": "self-baseline",
+      "command": [
+        "./scripts/validate-contracts",
+        "--lint-draft",
+        "--baseline-dir",
+        "contracts"
+      ],
+      "scope": "SELF_BASELINE_SANITY_ONLY",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "expectation_met": true,
+      "stdout_sha256": "070dae765e923657c257d6b1b87a2b70aefa173bab55e66b8e22116ed6161cc3",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "report": {
+        "tool": "CT-04",
+        "conformance": "PENDING",
+        "runtime_integration": "NOT_RUN",
+        "errors": [],
+        "contract_version": "0.1.0-draft.1",
+        "contract_status": "DRAFT",
+        "bundle_sha256": "bcfd39b6a2fd85d74cd5efd53e7a6bff753f60bf7e286246c27ef696c1c6bfd2",
+        "contract_commit_sha": null,
+        "approval_pending": [
+          "contract_status=DRAFT; approved contract required",
+          "three named member approvals with evidence are missing",
+          "contract_commit_sha is not pinned",
+          "HTTP/WS document status is not approved",
+          "one or more application operations remain draft",
+          "document remains draft: application.schema.json",
+          "document remains draft: chime-chat.schema.json",
+          "document remains draft: realtime.schema.json",
+          "document remains draft: openapi.yaml",
+          "document remains draft: asyncapi.yaml",
+          "fixture manifest remains draft: fixtures/manifest.json",
+          "fixture manifest remains draft: fixtures/ct04-draft/manifest.json",
+          "fixture set is not included in pinned bundle: fixtures/ct04-draft/manifest.json"
+        ],
+        "mode": "DRAFT_LINT",
+        "lint": {
+          "errors": [],
+          "bundle_files": 159,
+          "local_references": 908,
+          "json_schemas": 5,
+          "asyncapi": {
+            "document_created": true,
+            "errors": [],
+            "warnings": [],
+            "information": [
+              {
+                "code": "asyncapi-latest-version",
+                "message": "The latest version of AsyncAPi is not used. It is recommended update to the \"3.1.0\" version.",
+                "path": [
+                  "asyncapi"
+                ],
+                "severity": 2,
+                "source": "/Users/ducen/VScode/Video Stream Language Learning/contracts/asyncapi.yaml",
+                "range": {
+                  "start": {
+                    "line": 0,
+                    "character": 10
+                  },
+                  "end": {
+                    "line": 0,
+                    "character": 15
+                  }
+                }
+              }
+            ]
+          },
+          "fixtures": {
+            "positive": 141,
+            "negative_schema": 11,
+            "negative_semantic": 5
+          },
+          "examples": {
+            "request_examples": 21,
+            "parameter_examples": 67,
+            "success_examples": 59,
+            "error_examples": 396,
+            "ws_examples": 18,
+            "operations": 50
+          },
+          "correlations": {
+            "reference_groups": 7,
+            "scenario_coverage": 24
+          },
+          "raw_shape": {
+            "status": "EVIDENCED_SHAPE_ONLY",
+            "classes": 3,
+            "real_provider_tested": false
+          }
+        },
+        "compatibility_review_required": [],
+        "status": "STRUCTURE_VALID",
+        "tools": {
+          "jsonschema": "4.26.0",
+          "PyYAML": "6.0.3",
+          "openapi-spec-validator": "0.7.2",
+          "referencing": "0.36.2"
+        },
+        "exit_code": 0
+      }
+    },
+    {
+      "name": "reject-utf16-offset",
+      "command": [
+        "./scripts/validate-contracts",
+        "--lint-draft",
+        "--message",
+        "contracts/fixtures/negative/lexicon-utf16-offset.json",
+        "--schema",
+        "schemas/lexicon.schema.json"
+      ],
+      "scope": "EXPECTED_REJECTION",
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "expectation_met": true,
+      "stdout_sha256": "7355f4125c561ce399abd29ad7a9ecc546bd4b75bd2e4cf95045c34fe4cc09a7",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "report": {
+        "tool": "CT-04",
+        "conformance": "PENDING",
+        "runtime_integration": "NOT_RUN",
+        "errors": [
+          "unicode-code-point-offset-or-coverage",
+          "unicode-code-point-offset-or-coverage"
+        ],
+        "contract_version": "0.1.0-draft.1",
+        "contract_status": "DRAFT",
+        "bundle_sha256": "bcfd39b6a2fd85d74cd5efd53e7a6bff753f60bf7e286246c27ef696c1c6bfd2",
+        "contract_commit_sha": null,
+        "approval_pending": [
+          "contract_status=DRAFT; approved contract required",
+          "three named member approvals with evidence are missing",
+          "contract_commit_sha is not pinned",
+          "HTTP/WS document status is not approved",
+          "one or more application operations remain draft",
+          "document remains draft: application.schema.json",
+          "document remains draft: chime-chat.schema.json",
+          "document remains draft: realtime.schema.json",
+          "document remains draft: openapi.yaml",
+          "document remains draft: asyncapi.yaml",
+          "fixture manifest remains draft: fixtures/manifest.json",
+          "fixture manifest remains draft: fixtures/ct04-draft/manifest.json",
+          "fixture set is not included in pinned bundle: fixtures/ct04-draft/manifest.json"
+        ],
+        "mode": "DRAFT_LINT",
+        "status": "FAIL",
+        "tools": {
+          "jsonschema": "4.26.0",
+          "PyYAML": "6.0.3",
+          "openapi-spec-validator": "0.7.2",
+          "referencing": "0.36.2"
+        },
+        "exit_code": 1
+      }
+    },
+    {
+      "name": "raw-capture-harness-synthetic",
+      "command": [
+        "./scripts/validate-contracts",
+        "--lint-draft",
+        "--message",
+        "contracts/fixtures/ocr/success.json",
+        "--schema",
+        "schemas/ocr-provider.schema.json"
+      ],
+      "scope": "SYNTHETIC_STRUCTURE_ONLY",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "expectation_met": true,
+      "stdout_sha256": "2e31f15f4868b49edff105ce744994970031c0fcb164636553c04b040ed1c265",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "report": {
+        "tool": "CT-04",
+        "conformance": "PENDING",
+        "runtime_integration": "NOT_RUN",
+        "errors": [],
+        "contract_version": "0.1.0-draft.1",
+        "contract_status": "DRAFT",
+        "bundle_sha256": "bcfd39b6a2fd85d74cd5efd53e7a6bff753f60bf7e286246c27ef696c1c6bfd2",
+        "contract_commit_sha": null,
+        "approval_pending": [
+          "contract_status=DRAFT; approved contract required",
+          "three named member approvals with evidence are missing",
+          "contract_commit_sha is not pinned",
+          "HTTP/WS document status is not approved",
+          "one or more application operations remain draft",
+          "document remains draft: application.schema.json",
+          "document remains draft: chime-chat.schema.json",
+          "document remains draft: realtime.schema.json",
+          "document remains draft: openapi.yaml",
+          "document remains draft: asyncapi.yaml",
+          "fixture manifest remains draft: fixtures/manifest.json",
+          "fixture manifest remains draft: fixtures/ct04-draft/manifest.json",
+          "fixture set is not included in pinned bundle: fixtures/ct04-draft/manifest.json"
+        ],
+        "mode": "DRAFT_LINT",
+        "status": "STRUCTURE_VALID",
+        "tools": {
+          "jsonschema": "4.26.0",
+          "PyYAML": "6.0.3",
+          "openapi-spec-validator": "0.7.2",
+          "referencing": "0.36.2"
+        },
+        "exit_code": 0
+      }
+    },
+    {
+      "name": "response-capture-harness-synthetic",
+      "command": [
+        "./scripts/validate-contracts",
+        "--lint-draft",
+        "--message",
+        "contracts/fixtures/http/getOcrResult-200.json",
+        "--operation",
+        "getOcrResult",
+        "--http-status",
+        "200"
+      ],
+      "scope": "SYNTHETIC_STRUCTURE_ONLY",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "expectation_met": true,
+      "stdout_sha256": "2e31f15f4868b49edff105ce744994970031c0fcb164636553c04b040ed1c265",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "report": {
+        "tool": "CT-04",
+        "conformance": "PENDING",
+        "runtime_integration": "NOT_RUN",
+        "errors": [],
+        "contract_version": "0.1.0-draft.1",
+        "contract_status": "DRAFT",
+        "bundle_sha256": "bcfd39b6a2fd85d74cd5efd53e7a6bff753f60bf7e286246c27ef696c1c6bfd2",
+        "contract_commit_sha": null,
+        "approval_pending": [
+          "contract_status=DRAFT; approved contract required",
+          "three named member approvals with evidence are missing",
+          "contract_commit_sha is not pinned",
+          "HTTP/WS document status is not approved",
+          "one or more application operations remain draft",
+          "document remains draft: application.schema.json",
+          "document remains draft: chime-chat.schema.json",
+          "document remains draft: realtime.schema.json",
+          "document remains draft: openapi.yaml",
+          "document remains draft: asyncapi.yaml",
+          "fixture manifest remains draft: fixtures/manifest.json",
+          "fixture manifest remains draft: fixtures/ct04-draft/manifest.json",
+          "fixture set is not included in pinned bundle: fixtures/ct04-draft/manifest.json"
+        ],
+        "mode": "DRAFT_LINT",
+        "status": "STRUCTURE_VALID",
+        "tools": {
+          "jsonschema": "4.26.0",
+          "PyYAML": "6.0.3",
+          "openapi-spec-validator": "0.7.2",
+          "referencing": "0.36.2"
+        },
+        "exit_code": 0
+      }
+    },
+    {
+      "name": "reject-undeclared-http-status",
+      "command": [
+        "./scripts/validate-contracts",
+        "--lint-draft",
+        "--message",
+        "contracts/fixtures/http/getOcrResult-200.json",
+        "--operation",
+        "getOcrResult",
+        "--http-status",
+        "204"
+      ],
+      "scope": "EXPECTED_REJECTION",
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "expectation_met": true,
+      "stdout_sha256": "fc95dfc396efe48ed28c0ae7ba032f1cf6e8260cbbbf56a97b98fc2e392d9752",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "report": {
+        "tool": "CT-04",
+        "conformance": "PENDING",
+        "runtime_integration": "NOT_RUN",
+        "errors": [
+          "ContractError: Status 204 is not declared by getOcrResult"
+        ],
+        "contract_version": "0.1.0-draft.1",
+        "contract_status": "DRAFT",
+        "bundle_sha256": "bcfd39b6a2fd85d74cd5efd53e7a6bff753f60bf7e286246c27ef696c1c6bfd2",
+        "contract_commit_sha": null,
+        "approval_pending": [
+          "contract_status=DRAFT; approved contract required",
+          "three named member approvals with evidence are missing",
+          "contract_commit_sha is not pinned",
+          "HTTP/WS document status is not approved",
+          "one or more application operations remain draft",
+          "document remains draft: application.schema.json",
+          "document remains draft: chime-chat.schema.json",
+          "document remains draft: realtime.schema.json",
+          "document remains draft: openapi.yaml",
+          "document remains draft: asyncapi.yaml",
+          "fixture manifest remains draft: fixtures/manifest.json",
+          "fixture manifest remains draft: fixtures/ct04-draft/manifest.json",
+          "fixture set is not included in pinned bundle: fixtures/ct04-draft/manifest.json"
+        ],
+        "mode": "DRAFT_LINT",
+        "status": "FAIL",
+        "exit_code": 1
+      }
+    },
+    {
+      "name": "mock-startup-gate",
+      "command": [
+        "./scripts/mock-contracts",
+        "--mode",
+        "mock"
+      ],
+      "scope": "PENDING_APPROVAL_NO_SOCKET",
+      "exit_code": 2,
+      "expected_exit_code": 2,
+      "expectation_met": true,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "6468907bf1f940829271f18dc7591b7ff0e85ea9b6fc5556ca1b30f8da91ee58",
+      "output_summary": "PENDING_APPROVAL: mock NOT started; contract_status=DRAFT; approved contract required; three named member approvals with evidence are missing; contract_commit_sha is not pinned; HTTP/WS document status is not approved; one or more application operations remain draft; document remains draft: application.schema.json; document remains draft: chime-chat.schema.json; document remains draft: realtime.schema.json; document remains draft: openapi.yaml; document remains draft: asyncapi.yaml; fixture manifest remains draft: fixtures/manifest.json; fixture manifest remains draft: fixtures/ct04-draft/manifest.json; fixture set is not included in pinned bundle: fixtures/ct04-draft/manifest.json"
+    },
+    {
+      "name": "missing-tools-guard",
+      "command": [
+        "./scripts/validate-contracts",
+        "--lint-draft"
+      ],
+      "scope": "SETUP_REQUIRED_EXPECTED",
+      "exit_code": 3,
+      "expected_exit_code": 3,
+      "expectation_met": true,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "c3a5143267466c77a8b9a005c2f4204633fe9b0afa251f17c78e9f8eceefb9c8",
+      "environment_override": {
+        "CT04_PYTHON": "python3"
+      },
+      "output_summary": "SETUP_REQUIRED: yaml; install isolated tools/contract-testing/requirements.txt"
+    }
+  ],
+  "final_scope_audit": {
+    "recorded_at_utc": "2026-11-11T13:00:19.298665+00:00",
+    "existing_files_checked": 299,
+    "existing_files_changed": [],
+    "new_file_count": 29,
+    "trailing_whitespace_in_new_files": [],
+    "local_document_links": "PASS (3 new Markdown files)",
+    "python_ast_parse": "PASS (all new Python files)",
+    "syntax_and_diff_checks": [
+      {
+        "command": [
+          "sh",
+          "-n",
+          "scripts/validate-contracts",
+          "scripts/mock-contracts",
+          "scripts/test-contract-tools"
+        ],
+        "exit_code": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "node",
+          "--check",
+          "tools/contract-testing/validate-asyncapi.cjs"
+        ],
+        "exit_code": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "node",
+          "--check",
+          "tools/contract-testing/consumer-fixtures.test.cjs"
+        ],
+        "exit_code": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit_code": 0,
+        "stdout": "",
+        "stderr": ""
+      }
+    ]
+  }
+}

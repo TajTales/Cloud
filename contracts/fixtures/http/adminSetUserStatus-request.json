@@ -1,0 +1,5 @@
+{
+  "status": "suspended",
+  "reason": "SYNTHETIC audit example reason",
+  "expected_version": 1
+}

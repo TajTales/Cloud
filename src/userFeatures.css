@@ -1,0 +1,54 @@
+.demo-role-picker { margin: 22px 0 0; border-top: 1px solid var(--line); padding-top: 18px; }
+.demo-role-picker > span { font-size: 9px; letter-spacing: 1px; color: var(--muted); font-weight: 600; }
+.demo-role-picker > div { display: flex; gap: 6px; background: var(--surface-elevated); border-radius: 9px; padding: 4px; margin: 10px 0 8px; }
+.demo-role-picker button { display: flex; align-items: center; justify-content: center; gap: 8px; flex: 1; padding: 10px 6px; background: transparent; border: 1px solid transparent; border-radius: 7px; font-size: 12px; color: var(--muted); }
+.demo-role-picker button.active { background: var(--surface-solid); border-color: var(--line); color: var(--forest); font-weight: 600; }
+.demo-role-picker > small { color: var(--muted); font-size: 10px; }
+.learner-room-heading { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 4px 0 20px; }
+.learner-room-role { color: var(--coral); font-size: 9px; letter-spacing: 1.4px; font-weight: 700; }
+.learner-room-heading h1 { margin: 8px 0; font: 700 23px/1.4 "Manrope", sans-serif; letter-spacing: -.5px; }
+.learner-room-heading p { margin: 0; font-size: 12px; color: var(--muted); }
+.learner-room-tools { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.learner-room-tools button { font-size: 12px; }
+.learner-demo-strip { display: flex; align-items: flex-start; gap: 9px; padding: 11px 14px; border: 1px solid var(--line); background: var(--surface-solid); color: var(--muted); font-size: 11px; line-height: 1.7; border-radius: 9px; margin-bottom: 18px; }
+.learner-demo-strip > span { width: 5px; height: 5px; border-radius: 50%; background: var(--coral); flex-shrink: 0; margin-top: 7px; }
+.room-live-video { position: absolute; width: 100%; height: 100%; inset: 0; object-fit: contain; background: #09151a; }
+.room-live-video[hidden] { display: none; }
+.learner-source-info { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 4px; font-size: 12px; color: var(--muted); }
+.learner-source-info span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.learner-source-info button { padding: 8px 10px; border-radius: 7px; background: var(--surface-elevated); color: var(--coral); white-space: nowrap; font-size: 11px; }
+.learner-solo-label { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--muted); }
+.learner-participants-button { border: 0; background: transparent; cursor: pointer; }
+.learner-chat-note { font-size: 10px; color: var(--muted); line-height: 1.6; padding: 12px 0 0; }
+.chat-message p { overflow-wrap: anywhere; }
+.chat-input button:disabled { opacity: .4; cursor: default; }
+.learner-source-options { display: grid; gap: 14px; margin: 0 0 22px; }
+.learner-source-options > button { display: flex; align-items: center; gap: 14px; padding: 20px 16px; border: 1px solid var(--line); border-radius: 11px; background: var(--surface-solid); color: var(--forest); text-align: left; transition: border-color 180ms, background 180ms; }
+.learner-source-options > button:hover { background: var(--surface-elevated); border-color: var(--forest); }
+.learner-source-options > button > span { flex: 1; }
+.learner-source-options strong { display: block; font-size: 14px; }
+.learner-source-options small { display: block; color: var(--muted); font-size: 11px; line-height: 1.7; margin-top: 5px; }
+.learner-source-options > button > svg { flex-shrink: 0; }
+.learner-source-options > button:disabled { opacity: .5; cursor: wait; }
+.learner-participant-list { display: grid; margin-bottom: 22px; }
+.learner-participant-list > div { display: flex; align-items: center; gap: 12px; padding: 13px 0; border-bottom: 1px solid var(--line); }
+.learner-participant-list > div > span { width: 34px; height: 34px; display: grid; place-items: center; background: var(--surface-elevated); color: var(--forest); border-radius: 50%; font-size: 11px; }
+.learner-participant-list strong { flex: 1; font-size: 13px; }
+.learner-participant-list small { color: var(--muted); font-size: 11px; }
+.review-progress { display: flex; justify-content: space-between; gap: 16px; color: var(--muted); font-size: 12px; margin-bottom: 14px; }
+.review-flashcard { width: 100%; min-height: 230px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface-elevated); color: var(--ink); padding: 30px 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; transition: background 180ms, border-color 180ms; }
+.review-flashcard:hover { border-color: var(--forest); }
+.review-flashcard small { font-size: 9px; letter-spacing: 1.5px; color: var(--muted); }
+.review-flashcard strong { font-size: 32px; line-height: 1.5; font-weight: 600; }
+.review-flashcard span { font-size: 12px; color: var(--muted); }
+.review-flashcard.is-flipped { background: color-mix(in srgb,var(--forest) 10%,var(--surface-solid)); }
+.review-flashcard.is-flipped strong { font-size: 24px; }
+.review-decisions { display: flex; justify-content: space-between; gap: 14px; margin-top: 20px; }
+.review-summary { text-align: center; padding: 15px 0 5px; }
+.review-summary > span { color: var(--forest); font: 52px Georgia,serif; }
+.review-summary h3 { font-size: 22px; margin: 18px 0 12px; }
+.review-summary > p { color: var(--muted); font-size: 14px; }
+@media (max-width: 820px) { .learner-room-heading { flex-direction: column; align-items: flex-start; gap: 18px; } .learner-room-tools { flex-wrap: wrap; } }
+@media (max-width: 560px) { .learner-room-heading h1 { font-size: 21px; } .learner-room-tools { width: 100%; gap: 8px; } .learner-room-tools button { font-size: 11px; padding: 10px 12px; } .learner-room-heading p { font-size: 11px; } .demo-role-picker button { font-size: 11px; } .review-decisions { gap: 8px; } .review-decisions button { font-size: 12px; padding: 11px; } }
+
+@media (max-width: 560px) { .page-workspace .session-row > button { display: flex; grid-column: 2; justify-self: start; padding: 7px 0; font-size: 12px; } }

@@ -1,0 +1,9 @@
+{
+  "error": {
+    "code": "FORBIDDEN",
+    "message": "SYNTHETIC member cannot upload or close room",
+    "details": {},
+    "retryable": false
+  },
+  "request_id": "req-synthetic-001"
+}

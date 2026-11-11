@@ -1,0 +1,8 @@
+{
+  "schema_version": "1.0",
+  "action": "ocr.frame",
+  "request_id": "req-example",
+  "payload": {
+    "image": "SYNTHETIC_BASE64_NOT_AN_IMAGE"
+  }
+}

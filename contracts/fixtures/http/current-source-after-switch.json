@@ -1,0 +1,47 @@
+{
+  "data": {
+    "session_id": "00000000-0000-4000-8000-000000000001",
+    "mode": "solo",
+    "owner_user_id": "synthetic-user-a",
+    "room_id": null,
+    "status": "active",
+    "title": "SYNTHETIC solo example",
+    "language": "ja",
+    "current_source_id": "00000000-0000-4000-8000-000000000020",
+    "current_source": {
+      "source_id": "00000000-0000-4000-8000-000000000020",
+      "session_id": "00000000-0000-4000-8000-000000000001",
+      "kind": "local_video",
+      "source_index": 1,
+      "started_at": "2026-11-11T14:30:00.000Z",
+      "timeline_origin_ms": 0,
+      "width_px": 1280,
+      "height_px": 720,
+      "duration_ms": 120000,
+      "session_version": 3
+    },
+    "started_at": "2026-11-11T14:30:00.000Z",
+    "ended_at": null,
+    "version": 3,
+    "latest_seq": 3,
+    "capabilities": {
+      "can_share_source": true,
+      "can_send_ocr": true,
+      "can_close_room": false,
+      "can_record": true
+    },
+    "capture_limits": {
+      "version": 1,
+      "max_image_bytes": 1048576,
+      "max_image_pixels": 4000000,
+      "max_long_edge_px": 1600,
+      "frame_interval_ms": 2000,
+      "max_in_flight": 1,
+      "content_types": [
+        "image/jpeg",
+        "image/png"
+      ]
+    }
+  },
+  "request_id": "req-synthetic-001"
+}

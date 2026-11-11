@@ -1,0 +1,8 @@
+{
+  "source_id": "00000000-0000-4000-8000-000000000002",
+  "kind": "local_video",
+  "width_px": 1280,
+  "height_px": 720,
+  "duration_ms": 120000,
+  "expected_version": 1
+}

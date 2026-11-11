@@ -1,0 +1,30 @@
+{
+  "data": {
+    "status": "not_found",
+    "language": "ja",
+    "text": "未知",
+    "offset_unit": "unicode_code_point",
+    "normalization": "none",
+    "tokens": [
+      {
+        "surface": "未知",
+        "start": 0,
+        "end": 2,
+        "lemma": null,
+        "reading": null,
+        "lemma_reading": null,
+        "pos": [
+          "unknown"
+        ],
+        "inflection": null,
+        "entry_id": null,
+        "sense_id": null,
+        "meanings": [],
+        "usage_note": null,
+        "examples": [],
+        "source": null
+      }
+    ]
+  },
+  "request_id": "req-synthetic-001"
+}

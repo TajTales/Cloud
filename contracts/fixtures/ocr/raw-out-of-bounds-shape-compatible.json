@@ -1,0 +1,16 @@
+{
+  "paragraphs": [
+    {
+      "full_text": "SYNTHETIC",
+      "is_vertical": false,
+      "box": {
+        "center_x": 1.5,
+        "center_y": 2,
+        "width": 1.2,
+        "height": 0.2
+      },
+      "words": []
+    }
+  ],
+  "elapsed_ms": 1
+}

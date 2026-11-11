@@ -1,0 +1,9 @@
+{
+  "error": {
+    "code": "TOKEN_EXPIRED",
+    "message": "SYNTHETIC expired access token",
+    "details": {},
+    "retryable": false
+  },
+  "request_id": "req-synthetic-001"
+}

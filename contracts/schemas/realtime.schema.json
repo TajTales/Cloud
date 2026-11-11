@@ -1,0 +1,1350 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Realtime command/event envelopes 0.1.0-draft.1",
+  "description": "DRAFT 0.1.0-draft.1; synthetic examples; not an implemented API.",
+  "definitions": {
+    "Command_session_subscribe": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "1.0"
+        },
+        "action": {
+          "const": "session.subscribe"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "payload": {
+          "type": "object",
+          "properties": {
+            "session_id": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "after_seq": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "session_id",
+            "after_seq"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "schema_version",
+        "action",
+        "request_id",
+        "payload"
+      ],
+      "additionalProperties": false
+    },
+    "Command_session_unsubscribe": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "1.0"
+        },
+        "action": {
+          "const": "session.unsubscribe"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "payload": {
+          "type": "object",
+          "properties": {
+            "session_id": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "required": [
+            "session_id"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "schema_version",
+        "action",
+        "request_id",
+        "payload"
+      ],
+      "additionalProperties": false
+    },
+    "Command_room_subscribe": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "1.0"
+        },
+        "action": {
+          "const": "room.subscribe"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "payload": {
+          "type": "object",
+          "properties": {
+            "room_id": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "required": [
+            "room_id"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "schema_version",
+        "action",
+        "request_id",
+        "payload"
+      ],
+      "additionalProperties": false
+    },
+    "Command_room_unsubscribe": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "1.0"
+        },
+        "action": {
+          "const": "room.unsubscribe"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "payload": {
+          "type": "object",
+          "properties": {
+            "room_id": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "required": [
+            "room_id"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "schema_version",
+        "action",
+        "request_id",
+        "payload"
+      ],
+      "additionalProperties": false
+    },
+    "Command_app_ping": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "1.0"
+        },
+        "action": {
+          "const": "app.ping"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "payload": {
+          "type": "object",
+          "properties": {
+            "client_time": {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "Z$",
+              "description": "UTC ISO 8601 with Z; no local formatted dates."
+            }
+          },
+          "required": [
+            "client_time"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "schema_version",
+        "action",
+        "request_id",
+        "payload"
+      ],
+      "additionalProperties": false
+    },
+    "Event_session_subscribed": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "1.0"
+        },
+        "type": {
+          "const": "session.subscribed"
+        },
+        "event_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "seq": {
+          "type": "null"
+        },
+        "occurred_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "Z$",
+          "description": "UTC ISO 8601 with Z; no local formatted dates."
+        },
+        "session_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uuid"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "room_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uuid"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "data": {
+          "type": "object",
+          "properties": {
+            "session": {
+              "$ref": "application.schema.json#/definitions/Session"
+            },
+            "latest_seq": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "resync_required": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "session",
+            "latest_seq",
+            "resync_required"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "schema_version",
+        "type",
+        "event_id",
+        "request_id",
+        "seq",
+        "occurred_at",
+        "session_id",
+        "room_id",
+        "data"
+      ],
+      "additionalProperties": false
+    },
+    "Event_session_unsubscribed": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "1.0"
+        },
+        "type": {
+          "const": "session.unsubscribed"
+        },
+        "event_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "seq": {
+          "type": "null"
+        },
+        "occurred_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "Z$",
+          "description": "UTC ISO 8601 with Z; no local formatted dates."
+        },
+        "session_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uuid"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "room_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uuid"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "data": {
+          "type": "object",
+          "properties": {
+            "session_id": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "required": [
+            "session_id"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "schema_version",
+        "type",
+        "event_id",
+        "request_id",
+        "seq",
+        "occurred_at",
+        "session_id",
+        "room_id",
+        "data"
+      ],
+      "additionalProperties": false
+    },
+    "Event_room_snapshot": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "1.0"
+        },
+        "type": {
+          "const": "room.snapshot"
+        },
+        "event_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "seq": {
+          "type": "null"
+        },
+        "occurred_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "Z$",
+          "description": "UTC ISO 8601 with Z; no local formatted dates."
+        },
+        "session_id": {
+          "type": "null"
+        },
+        "room_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "data": {
+          "type": "object",
+          "properties": {
+            "room": {
+              "$ref": "application.schema.json#/definitions/Room"
+            },
+            "membership": {
+              "$ref": "application.schema.json#/definitions/Membership"
+            },
+            "room_version": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": [
+            "room",
+            "membership",
+            "room_version"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "schema_version",
+        "type",
+        "event_id",
+        "request_id",
+        "seq",
+        "occurred_at",
+        "session_id",
+        "room_id",
+        "data"
+      ],
+      "additionalProperties": false
+    },
+    "Event_room_unsubscribed": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "1.0"
+        },
+        "type": {
+          "const": "room.unsubscribed"
+        },
+        "event_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "seq": {
+          "type": "null"
+        },
+        "occurred_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "Z$",
+          "description": "UTC ISO 8601 with Z; no local formatted dates."
+        },
+        "session_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uuid"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "room_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uuid"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "data": {
+          "type": "object",
+          "properties": {
+            "room_id": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "required": [
+            "room_id"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "schema_version",
+        "type",
+        "event_id",
+        "request_id",
+        "seq",
+        "occurred_at",
+        "session_id",
+        "room_id",
+        "data"
+      ],
+      "additionalProperties": false
+    },
+    "Event_ocr_result_available": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "1.0"
+        },
+        "type": {
+          "const": "ocr.result_available"
+        },
+        "event_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "request_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "seq": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "occurred_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "Z$",
+          "description": "UTC ISO 8601 with Z; no local formatted dates."
+        },
+        "session_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "room_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uuid"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "data": {
+          "$ref": "application.schema.json#/definitions/ResultManifest"
+        }
+      },
+      "required": [
+        "schema_version",
+        "type",
+        "event_id",
+        "request_id",
+        "seq",
+        "occurred_at",
+        "session_id",
+        "room_id",
+        "data"
+      ],
+      "additionalProperties": false
+    },
+    "Event_ocr_job_failed": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "1.0"
+        },
+        "type": {
+          "const": "ocr.job_failed"
+        },
+        "event_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "request_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "seq": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "occurred_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "Z$",
+          "description": "UTC ISO 8601 with Z; no local formatted dates."
+        },
+        "session_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "room_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uuid"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "data": {
+          "type": "object",
+          "properties": {
+            "job_id": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "source_id": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "frame_id": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "frame_index": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "error": {
+              "$ref": "application.schema.json#/definitions/Error"
+            }
+          },
+          "required": [
+            "job_id",
+            "source_id",
+            "frame_id",
+            "frame_index",
+            "error"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "schema_version",
+        "type",
+        "event_id",
+        "request_id",
+        "seq",
+        "occurred_at",
+        "session_id",
+        "room_id",
+        "data"
+      ],
+      "additionalProperties": false
+    },
+    "Event_session_source_changed": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "1.0"
+        },
+        "type": {
+          "const": "session.source_changed"
+        },
+        "event_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "request_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "seq": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "occurred_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "Z$",
+          "description": "UTC ISO 8601 with Z; no local formatted dates."
+        },
+        "session_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "room_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uuid"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "data": {
+          "type": "object",
+          "properties": {
+            "source": {
+              "$ref": "application.schema.json#/definitions/Source"
+            },
+            "session_version": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": [
+            "source",
+            "session_version"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "schema_version",
+        "type",
+        "event_id",
+        "request_id",
+        "seq",
+        "occurred_at",
+        "session_id",
+        "room_id",
+        "data"
+      ],
+      "additionalProperties": false
+    },
+    "Event_session_ended": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "1.0"
+        },
+        "type": {
+          "const": "session.ended"
+        },
+        "event_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "request_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "seq": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "occurred_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "Z$",
+          "description": "UTC ISO 8601 with Z; no local formatted dates."
+        },
+        "session_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "room_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uuid"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "data": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "ended",
+                "failed"
+              ]
+            },
+            "ended_at": {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "Z$",
+              "description": "UTC ISO 8601 with Z; no local formatted dates."
+            },
+            "session_version": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": [
+            "status",
+            "ended_at",
+            "session_version"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "schema_version",
+        "type",
+        "event_id",
+        "request_id",
+        "seq",
+        "occurred_at",
+        "session_id",
+        "room_id",
+        "data"
+      ],
+      "additionalProperties": false
+    },
+    "Event_room_member_joined": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "1.0"
+        },
+        "type": {
+          "const": "room.member_joined"
+        },
+        "event_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "request_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "seq": {
+          "type": "null"
+        },
+        "occurred_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "Z$",
+          "description": "UTC ISO 8601 with Z; no local formatted dates."
+        },
+        "session_id": {
+          "type": "null"
+        },
+        "room_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "data": {
+          "type": "object",
+          "properties": {
+            "room_id": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "room_version": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "membership_id": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "user_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256,
+              "description": "Opaque Cognito sub, never validate as an app UUID."
+            },
+            "room_role": {
+              "type": "string",
+              "enum": [
+                "host",
+                "member"
+              ]
+            },
+            "member_count": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "room_id",
+            "room_version",
+            "membership_id",
+            "user_id",
+            "room_role",
+            "member_count"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "schema_version",
+        "type",
+        "event_id",
+        "request_id",
+        "seq",
+        "occurred_at",
+        "session_id",
+        "room_id",
+        "data"
+      ],
+      "additionalProperties": false
+    },
+    "Event_room_member_left": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "1.0"
+        },
+        "type": {
+          "const": "room.member_left"
+        },
+        "event_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "request_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "seq": {
+          "type": "null"
+        },
+        "occurred_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "Z$",
+          "description": "UTC ISO 8601 with Z; no local formatted dates."
+        },
+        "session_id": {
+          "type": "null"
+        },
+        "room_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "data": {
+          "type": "object",
+          "properties": {
+            "room_id": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "room_version": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "membership_id": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "user_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256,
+              "description": "Opaque Cognito sub, never validate as an app UUID."
+            },
+            "room_role": {
+              "type": "string",
+              "enum": [
+                "host",
+                "member"
+              ]
+            },
+            "member_count": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "room_id",
+            "room_version",
+            "membership_id",
+            "user_id",
+            "room_role",
+            "member_count"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "schema_version",
+        "type",
+        "event_id",
+        "request_id",
+        "seq",
+        "occurred_at",
+        "session_id",
+        "room_id",
+        "data"
+      ],
+      "additionalProperties": false
+    },
+    "Event_room_closed": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "1.0"
+        },
+        "type": {
+          "const": "room.closed"
+        },
+        "event_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "request_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "seq": {
+          "type": "null"
+        },
+        "occurred_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "Z$",
+          "description": "UTC ISO 8601 with Z; no local formatted dates."
+        },
+        "session_id": {
+          "type": "null"
+        },
+        "room_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "data": {
+          "type": "object",
+          "properties": {
+            "room_id": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "room_version": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "closed_at": {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "Z$",
+              "description": "UTC ISO 8601 with Z; no local formatted dates."
+            }
+          },
+          "required": [
+            "room_id",
+            "room_version",
+            "closed_at"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "schema_version",
+        "type",
+        "event_id",
+        "request_id",
+        "seq",
+        "occurred_at",
+        "session_id",
+        "room_id",
+        "data"
+      ],
+      "additionalProperties": false
+    },
+    "Event_request_failed": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "1.0"
+        },
+        "type": {
+          "const": "request.failed"
+        },
+        "event_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "request_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "seq": {
+          "type": "null"
+        },
+        "occurred_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "Z$",
+          "description": "UTC ISO 8601 with Z; no local formatted dates."
+        },
+        "session_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uuid"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "room_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uuid"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "data": {
+          "type": "object",
+          "properties": {
+            "error": {
+              "$ref": "application.schema.json#/definitions/Error"
+            }
+          },
+          "required": [
+            "error"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "schema_version",
+        "type",
+        "event_id",
+        "request_id",
+        "seq",
+        "occurred_at",
+        "session_id",
+        "room_id",
+        "data"
+      ],
+      "additionalProperties": false
+    },
+    "Event_app_pong": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "1.0"
+        },
+        "type": {
+          "const": "app.pong"
+        },
+        "event_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "seq": {
+          "type": "null"
+        },
+        "occurred_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "Z$",
+          "description": "UTC ISO 8601 with Z; no local formatted dates."
+        },
+        "session_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uuid"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "room_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uuid"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "data": {
+          "type": "object",
+          "properties": {
+            "client_time": {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "Z$",
+              "description": "UTC ISO 8601 with Z; no local formatted dates."
+            },
+            "server_time": {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "Z$",
+              "description": "UTC ISO 8601 with Z; no local formatted dates."
+            }
+          },
+          "required": [
+            "client_time",
+            "server_time"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "schema_version",
+        "type",
+        "event_id",
+        "request_id",
+        "seq",
+        "occurred_at",
+        "session_id",
+        "room_id",
+        "data"
+      ],
+      "additionalProperties": false
+    },
+    "ClientCommand": {
+      "oneOf": [
+        {
+          "$ref": "#/definitions/Command_session_subscribe"
+        },
+        {
+          "$ref": "#/definitions/Command_session_unsubscribe"
+        },
+        {
+          "$ref": "#/definitions/Command_room_subscribe"
+        },
+        {
+          "$ref": "#/definitions/Command_room_unsubscribe"
+        },
+        {
+          "$ref": "#/definitions/Command_app_ping"
+        }
+      ]
+    },
+    "ServerEvent": {
+      "oneOf": [
+        {
+          "$ref": "#/definitions/Event_session_subscribed"
+        },
+        {
+          "$ref": "#/definitions/Event_session_unsubscribed"
+        },
+        {
+          "$ref": "#/definitions/Event_room_snapshot"
+        },
+        {
+          "$ref": "#/definitions/Event_room_unsubscribed"
+        },
+        {
+          "$ref": "#/definitions/Event_ocr_result_available"
+        },
+        {
+          "$ref": "#/definitions/Event_ocr_job_failed"
+        },
+        {
+          "$ref": "#/definitions/Event_session_source_changed"
+        },
+        {
+          "$ref": "#/definitions/Event_session_ended"
+        },
+        {
+          "$ref": "#/definitions/Event_room_member_joined"
+        },
+        {
+          "$ref": "#/definitions/Event_room_member_left"
+        },
+        {
+          "$ref": "#/definitions/Event_room_closed"
+        },
+        {
+          "$ref": "#/definitions/Event_request_failed"
+        },
+        {
+          "$ref": "#/definitions/Event_app_pong"
+        }
+      ]
+    }
+  },
+  "oneOf": [
+    {
+      "$ref": "#/definitions/ClientCommand"
+    },
+    {
+      "$ref": "#/definitions/ServerEvent"
+    }
+  ],
+  "x-contract-status": "DRAFT",
+  "x-max-utf8-bytes": 24576
+}

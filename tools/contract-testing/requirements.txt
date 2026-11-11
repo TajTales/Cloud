@@ -1,0 +1,6 @@
+# Isolated QA tooling only; these exact versions were already used in CT-02.
+# No application dependency or production runtime change.
+openapi-spec-validator==0.7.2
+jsonschema==4.26.0
+referencing==0.36.2
+PyYAML==6.0.3

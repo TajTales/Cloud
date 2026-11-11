@@ -1,0 +1,15 @@
+{
+  "data": {
+    "sampled_at": null,
+    "data_source": "mock",
+    "components": [
+      {
+        "name": "ocr",
+        "status": "unknown",
+        "observed_at": null,
+        "detail": "SYNTHETIC, no health measurement."
+      }
+    ]
+  },
+  "request_id": "req-synthetic-001"
+}

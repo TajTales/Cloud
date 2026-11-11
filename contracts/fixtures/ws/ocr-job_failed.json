@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0",
+  "type": "ocr.job_failed",
+  "event_id": "00000000-0000-4000-8000-000000000105",
+  "request_id": null,
+  "seq": 3,
+  "occurred_at": "2026-11-11T14:30:01.000Z",
+  "session_id": "00000000-0000-4000-8000-000000000001",
+  "room_id": null,
+  "data": {
+    "job_id": "00000000-0000-4000-8000-000000000005",
+    "source_id": "00000000-0000-4000-8000-000000000002",
+    "frame_id": "00000000-0000-4000-8000-000000000003",
+    "frame_index": 17,
+    "error": {
+      "code": "OCR_TIMEOUT",
+      "message": "SYNTHETIC provider timeout",
+      "details": {},
+      "retryable": true
+    }
+  }
+}

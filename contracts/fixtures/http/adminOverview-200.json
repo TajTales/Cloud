@@ -1,0 +1,11 @@
+{
+  "data": {
+    "sampled_at": null,
+    "data_source": "mock",
+    "users_count": null,
+    "open_rooms_count": null,
+    "active_sessions_count": null,
+    "failed_jobs_count": null
+  },
+  "request_id": "req-synthetic-001"
+}

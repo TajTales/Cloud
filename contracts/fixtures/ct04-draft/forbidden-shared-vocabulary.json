@@ -1,0 +1,9 @@
+{
+  "error": {
+    "code": "FORBIDDEN",
+    "message": "SYNTHETIC shared words disabled or member not authorized",
+    "details": {},
+    "retryable": false
+  },
+  "request_id": "req-ct04-synthetic"
+}

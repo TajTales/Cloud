@@ -1,0 +1,37 @@
+{
+  "status": "found",
+  "language": "ja",
+  "text": "生",
+  "offset_unit": "unicode_code_point",
+  "normalization": "none",
+  "tokens": [
+    {
+      "surface": "生",
+      "start": 0,
+      "end": 1,
+      "lemma": "生",
+      "reading": null,
+      "lemma_reading": null,
+      "pos": [
+        "noun"
+      ],
+      "inflection": null,
+      "entry_id": "fixture:polysemy-001",
+      "sense_id": "fixture:polysemy-sense-b",
+      "meanings": [
+        {
+          "language": "vi",
+          "text": "SYNTHETIC_SENSE_B",
+          "origin": "fixture"
+        }
+      ],
+      "usage_note": null,
+      "examples": [],
+      "source": {
+        "provider": "fixture.synthetic",
+        "attribution": "SYNTHETIC CONTRACT FIXTURE; not a dictionary lookup or real OCR measurement.",
+        "revision": "fixture-1"
+      }
+    }
+  ]
+}

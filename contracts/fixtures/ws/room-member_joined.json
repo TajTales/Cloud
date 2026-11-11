@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0",
+  "type": "room.member_joined",
+  "event_id": "00000000-0000-4000-8000-000000000108",
+  "request_id": null,
+  "seq": null,
+  "occurred_at": "2026-11-11T14:30:01.000Z",
+  "session_id": null,
+  "room_id": "00000000-0000-4000-8000-000000000010",
+  "data": {
+    "room_id": "00000000-0000-4000-8000-000000000010",
+    "room_version": 2,
+    "membership_id": "00000000-0000-4000-8000-000000000013",
+    "user_id": "synthetic-user-b",
+    "room_role": "member",
+    "member_count": 2
+  }
+}

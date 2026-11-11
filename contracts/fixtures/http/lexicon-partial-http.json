@@ -1,0 +1,62 @@
+{
+  "data": {
+    "status": "partial",
+    "language": "ja",
+    "text": "喫茶店？",
+    "offset_unit": "unicode_code_point",
+    "normalization": "none",
+    "tokens": [
+      {
+        "surface": "喫茶店",
+        "start": 0,
+        "end": 3,
+        "lemma": "喫茶店",
+        "reading": {
+          "kana": "きっさてん",
+          "romaji": "kissaten",
+          "pinyin": null
+        },
+        "lemma_reading": "きっさてん",
+        "pos": [
+          "noun"
+        ],
+        "inflection": null,
+        "entry_id": "fixture:entry-001",
+        "sense_id": "fixture:sense-001",
+        "meanings": [
+          {
+            "language": "vi",
+            "text": "SYNTHETIC_GLOSS_A",
+            "origin": "fixture"
+          }
+        ],
+        "usage_note": null,
+        "examples": [],
+        "source": {
+          "provider": "fixture.synthetic",
+          "attribution": "SYNTHETIC CONTRACT FIXTURE; not a dictionary lookup or real OCR measurement.",
+          "revision": "fixture-1"
+        }
+      },
+      {
+        "surface": "？",
+        "start": 3,
+        "end": 4,
+        "lemma": null,
+        "reading": null,
+        "lemma_reading": null,
+        "pos": [
+          "unknown"
+        ],
+        "inflection": null,
+        "entry_id": null,
+        "sense_id": null,
+        "meanings": [],
+        "usage_note": null,
+        "examples": [],
+        "source": null
+      }
+    ]
+  },
+  "request_id": "req-synthetic-001"
+}

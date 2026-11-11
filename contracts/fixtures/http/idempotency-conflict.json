@@ -1,0 +1,9 @@
+{
+  "error": {
+    "code": "IDEMPOTENCY_CONFLICT",
+    "message": "SYNTHETIC same key different body",
+    "details": {},
+    "retryable": false
+  },
+  "request_id": "req-synthetic-001"
+}

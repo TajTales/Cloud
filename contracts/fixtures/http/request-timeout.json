@@ -1,0 +1,9 @@
+{
+  "error": {
+    "code": "PROVIDER_TIMEOUT",
+    "message": "SYNTHETIC synchronous lexicon/translation timeout",
+    "details": {},
+    "retryable": true
+  },
+  "request_id": "req-synthetic-001"
+}

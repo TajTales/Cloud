@@ -1,0 +1,53 @@
+{
+  "status": "PASS",
+  "contract_status": "DRAFT",
+  "contract_version": "0.1.0-draft.1",
+  "counts": {
+    "positive_fixtures": 128,
+    "negative_schema_fixtures": 11,
+    "negative_semantic_fixtures": 5,
+    "http_request_examples": 21,
+    "http_response_examples": 59,
+    "http_failure_examples": 396,
+    "asyncapi_message_examples": 18,
+    "http_operations": 50,
+    "local_refs_resolved": 908,
+    "json_schemas": 5,
+    "cross_fixture_scenarios": 3,
+    "raw_dataclasses_compatible": 3
+  },
+  "errors": [],
+  "tools": {
+    "openapi-spec-validator": "0.7.2",
+    "jsonschema": "4.26.0",
+    "referencing": "0.36.2",
+    "PyYAML": "6.0.3"
+  },
+  "limitations": [
+    "No backend, real provider, auth, AWS, browser or runtime integration tested.",
+    "Schemas cannot prove membership, quota, idempotency/lease transactions, URL expiry, provider readiness or dynamic config application."
+  ],
+  "asyncapi": {
+    "status": "PASS",
+    "parser_version": "3.6.6",
+    "errors": [],
+    "warnings": [],
+    "information": [
+      {
+        "code": "asyncapi-latest-version",
+        "message": "The latest version of AsyncAPi is not used. It is recommended update to the \"3.1.0\" version."
+      }
+    ]
+  },
+  "source_snapshot_check": "PASS",
+  "final_scope_check": {
+    "pre_existing_files_unchanged": 133,
+    "new_files": 160,
+    "allowed_new_locations": [
+      "contracts/",
+      "docs/CT-02-INTEGRATION-GUIDE.md"
+    ],
+    "markdown_links_checked": 39,
+    "bundle_sha256": "bcfd39b6a2fd85d74cd5efd53e7a6bff753f60bf7e286246c27ef696c1c6bfd2"
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "status": "found",
+  "language": "ja",
+  "text": "曲がった",
+  "offset_unit": "unicode_code_point",
+  "normalization": "none",
+  "tokens": [
+    {
+      "surface": "曲がった",
+      "start": 0,
+      "end": 4,
+      "lemma": "曲がる",
+      "reading": {
+        "kana": "まがった",
+        "romaji": "magatta",
+        "pinyin": null
+      },
+      "lemma_reading": "まがる",
+      "pos": [
+        "verb"
+      ],
+      "inflection": "past_ta",
+      "entry_id": "fixture:inflected-001",
+      "sense_id": "fixture:inflected-sense-001",
+      "meanings": [
+        {
+          "language": "vi",
+          "text": "SYNTHETIC_VERB_GLOSS",
+          "origin": "fixture"
+        }
+      ],
+      "usage_note": null,
+      "examples": [],
+      "source": {
+        "provider": "fixture.synthetic",
+        "attribution": "SYNTHETIC CONTRACT FIXTURE; not a dictionary lookup or real OCR measurement.",
+        "revision": "fixture-1"
+      }
+    }
+  ]
+}

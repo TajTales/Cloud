@@ -1,0 +1,8 @@
+{
+  "schema_version": "1.0",
+  "action": "app.ping",
+  "request_id": "req-ws-synthetic-001",
+  "payload": {
+    "client_time": "2026-11-11T14:30:00.000Z"
+  }
+}

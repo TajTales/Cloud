@@ -1,0 +1,12 @@
+{
+  "error": {
+    "code": "IMAGE_TOO_LARGE",
+    "message": "SYNTHETIC frame rejected",
+    "details": {
+      "max_image_bytes": 1048576,
+      "size_bytes": 1048577
+    },
+    "retryable": false
+  },
+  "request_id": "req-ct04-synthetic"
+}

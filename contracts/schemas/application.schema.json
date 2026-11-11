@@ -1,0 +1,4837 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Application data schemas 0.1.0-draft.1",
+  "description": "DRAFT 0.1.0-draft.1; synthetic examples; not an implemented API.",
+  "definitions": {
+    "ErrorCode": {
+      "type": "string",
+      "enum": [
+        "VALIDATION_ERROR",
+        "AUTH_REQUIRED",
+        "TOKEN_EXPIRED",
+        "FORBIDDEN",
+        "RESOURCE_NOT_FOUND",
+        "ROOM_NOT_FOUND",
+        "SESSION_NOT_FOUND",
+        "WORD_NOT_FOUND",
+        "ROOM_CLOSED",
+        "ROOM_FULL",
+        "SESSION_ENDED",
+        "STALE_SOURCE",
+        "IDEMPOTENCY_CONFLICT",
+        "VERSION_CONFLICT",
+        "SELF_SUSPEND_FORBIDDEN",
+        "LAST_ADMIN_PROTECTED",
+        "USER_NOT_VERIFIED",
+        "IMAGE_TOO_LARGE",
+        "UNSUPPORTED_IMAGE_TYPE",
+        "INVALID_IMAGE",
+        "UPLOAD_EXPIRED",
+        "UPLOAD_NOT_READY",
+        "RATE_LIMITED",
+        "OCR_BUSY",
+        "INTERNAL_ERROR",
+        "PROVIDER_UNAVAILABLE",
+        "PROVIDER_INVALID_RESPONSE",
+        "PROVIDER_TIMEOUT",
+        "OCR_TIMEOUT",
+        "JOB_EXPIRED",
+        "MAINTENANCE",
+        "FEATURE_NOT_CONFIGURED",
+        "UNSUPPORTED_LANGUAGE",
+        "WS_TICKET_EXPIRED",
+        "WS_TICKET_USED",
+        "PROTOCOL_ERROR"
+      ]
+    },
+    "Error": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "$ref": "#/definitions/ErrorCode"
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "details": {
+          "type": "object",
+          "additionalProperties": true,
+          "description": "Sanitized contextual fields only; no stack trace, tokens, signed URLs or raw images."
+        },
+        "retryable": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "code",
+        "message",
+        "details",
+        "retryable"
+      ],
+      "additionalProperties": false
+    },
+    "ErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "$ref": "#/definitions/Error"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "error",
+        "request_id"
+      ],
+      "additionalProperties": false
+    },
+    "Capabilities": {
+      "type": "object",
+      "properties": {
+        "can_share_source": {
+          "type": "boolean"
+        },
+        "can_send_ocr": {
+          "type": "boolean"
+        },
+        "can_close_room": {
+          "type": "boolean"
+        },
+        "can_record": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "can_share_source",
+        "can_send_ocr",
+        "can_close_room",
+        "can_record"
+      ],
+      "additionalProperties": false
+    },
+    "CaptureLimits": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "max_image_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1048576
+        },
+        "max_image_pixels": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 4000000
+        },
+        "max_long_edge_px": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1600
+        },
+        "frame_interval_ms": {
+          "type": "integer",
+          "minimum": 500
+        },
+        "max_in_flight": {
+          "const": 1
+        },
+        "content_types": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "image/jpeg",
+              "image/png"
+            ]
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "version",
+        "max_image_bytes",
+        "max_image_pixels",
+        "max_long_edge_px",
+        "frame_interval_ms",
+        "max_in_flight",
+        "content_types"
+      ],
+      "additionalProperties": false
+    },
+    "Profile": {
+      "type": "object",
+      "properties": {
+        "user_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "description": "Opaque Cognito sub, never validate as an app UUID."
+        },
+        "display_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 60
+        },
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+        "email_verified": {
+          "type": "boolean"
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "user",
+              "admin"
+            ]
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "permissions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "active",
+            "suspended",
+            "pending"
+          ]
+        },
+        "locale": {
+          "type": "string",
+          "enum": [
+            "vi",
+            "en"
+          ]
+        },
+        "timezone": {
+          "type": "string",
+          "minLength": 1,
+          "description": "IANA timezone, validated by application; not merely a UTC offset."
+        },
+        "learning_language": {
+          "type": "string",
+          "pattern": "^[a-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$",
+          "description": "Language code, not UI label. Accepted languages depend on configured capabilities / D01."
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "required": [
+        "user_id",
+        "display_name",
+        "email",
+        "email_verified",
+        "roles",
+        "permissions",
+        "status",
+        "locale",
+        "timezone",
+        "learning_language",
+        "version"
+      ],
+      "additionalProperties": false
+    },
+    "ProfilePatch": {
+      "type": "object",
+      "properties": {
+        "display_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 60
+        },
+        "locale": {
+          "type": "string",
+          "enum": [
+            "vi",
+            "en"
+          ]
+        },
+        "timezone": {
+          "type": "string",
+          "minLength": 1
+        },
+        "learning_language": {
+          "type": "string",
+          "pattern": "^[a-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$",
+          "description": "Language code, not UI label. Accepted languages depend on configured capabilities / D01."
+        },
+        "expected_version": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "required": [
+        "expected_version"
+      ],
+      "additionalProperties": false,
+      "minProperties": 2
+    },
+    "Session": {
+      "type": "object",
+      "properties": {
+        "session_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "solo",
+            "group"
+          ]
+        },
+        "owner_user_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "description": "Opaque Cognito sub, never validate as an app UUID."
+        },
+        "room_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uuid"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "active",
+            "ended",
+            "failed"
+          ]
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "language": {
+          "type": "string",
+          "pattern": "^[a-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$",
+          "description": "Language code, not UI label. Accepted languages depend on configured capabilities / D01."
+        },
+        "current_source_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uuid"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "started_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "Z$",
+          "description": "UTC ISO 8601 with Z; no local formatted dates."
+        },
+        "ended_at": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "Z$",
+              "description": "UTC ISO 8601 with Z; no local formatted dates."
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "latest_seq": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "capabilities": {
+          "$ref": "#/definitions/Capabilities"
+        },
+        "capture_limits": {
+          "$ref": "#/definitions/CaptureLimits"
+        },
+        "current_source": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Source"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "session_id",
+        "mode",
+        "owner_user_id",
+        "room_id",
+        "status",
+        "title",
+        "language",
+        "current_source_id",
+        "started_at",
+        "ended_at",
+        "version",
+        "latest_seq",
+        "capabilities",
+        "capture_limits",
+        "current_source"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "mode": {
+                "const": "solo"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "room_id": {
+                "type": "null"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "room_id": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "active"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "ended_at": {
+                "type": "null"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "ended_at": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "Z$",
+                "description": "UTC ISO 8601 with Z; no local formatted dates."
+              }
+            }
+          }
+        }
+      ]
+    },
+    "SessionCreate": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "const": "solo"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "language": {
+          "type": "string",
+          "pattern": "^[a-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$",
+          "description": "Language code, not UI label. Accepted languages depend on configured capabilities / D01."
+        }
+      },
+      "required": [
+        "mode",
+        "title",
+        "language"
+      ],
+      "additionalProperties": false
+    },
+    "VersionRequest": {
+      "type": "object",
+      "properties": {
+        "expected_version": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "required": [
+        "expected_version"
+      ],
+      "additionalProperties": false
+    },
+    "SourceCreate": {
+      "type": "object",
+      "properties": {
+        "source_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "local_video",
+            "screen_share"
+          ]
+        },
+        "width_px": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "height_px": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "duration_ms": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "expected_version": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "required": [
+        "source_id",
+        "kind",
+        "width_px",
+        "height_px",
+        "duration_ms",
+        "expected_version"
+      ],
+      "additionalProperties": false
+    },
+    "Source": {
+      "type": "object",
+      "properties": {
+        "source_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "session_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "local_video",
+            "screen_share"
+          ]
+        },
+        "source_index": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "started_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "Z$",
+          "description": "UTC ISO 8601 with Z; no local formatted dates."
+        },
+        "timeline_origin_ms": {
+          "const": 0
+        },
+        "width_px": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "height_px": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "duration_ms": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "session_version": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "required": [
+        "source_id",
+        "session_id",
+        "kind",
+        "source_index",
+        "started_at",
+        "timeline_origin_ms",
+        "width_px",
+        "height_px",
+        "duration_ms",
+        "session_version"
+      ],
+      "additionalProperties": false
+    },
+    "UploadCreate": {
+      "type": "object",
+      "properties": {
+        "source_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "frame_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "frame_index": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "media_time_ms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "captured_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "Z$",
+          "description": "UTC ISO 8601 with Z; no local formatted dates."
+        },
+        "width_px": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1600
+        },
+        "height_px": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1600
+        },
+        "content_type": {
+          "type": "string",
+          "enum": [
+            "image/jpeg",
+            "image/png"
+          ]
+        },
+        "size_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1048576
+        }
+      },
+      "required": [
+        "source_id",
+        "frame_id",
+        "frame_index",
+        "media_time_ms",
+        "captured_at",
+        "width_px",
+        "height_px",
+        "content_type",
+        "size_bytes"
+      ],
+      "additionalProperties": false
+    },
+    "UploadTarget": {
+      "type": "object",
+      "properties": {
+        "method": {
+          "const": "PUT"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "headers": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "expires_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "Z$",
+          "description": "UTC ISO 8601 with Z; no local formatted dates."
+        }
+      },
+      "required": [
+        "method",
+        "url",
+        "headers",
+        "expires_at"
+      ],
+      "additionalProperties": false
+    },
+    "Upload": {
+      "type": "object",
+      "properties": {
+        "upload_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "session_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "source_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "frame_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "upload": {
+          "$ref": "#/definitions/UploadTarget"
+        }
+      },
+      "required": [
+        "upload_id",
+        "session_id",
+        "source_id",
+        "frame_id",
+        "upload"
+      ],
+      "additionalProperties": false
+    },
+    "JobCreate": {
+      "type": "object",
+      "properties": {
+        "upload_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "frame_id": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "required": [
+        "upload_id",
+        "frame_id"
+      ],
+      "additionalProperties": false
+    },
+    "Job": {
+      "type": "object",
+      "properties": {
+        "job_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "session_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "source_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "frame_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "frame_index": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "media_time_ms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "queued",
+            "processing",
+            "succeeded",
+            "failed",
+            "expired"
+          ]
+        },
+        "result_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uuid"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "error": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Error"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "poll_after_ms": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 250
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "Z$",
+          "description": "UTC ISO 8601 with Z; no local formatted dates."
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "Z$",
+          "description": "UTC ISO 8601 with Z; no local formatted dates."
+        }
+      },
+      "required": [
+        "job_id",
+        "session_id",
+        "source_id",
+        "frame_id",
+        "frame_index",
+        "media_time_ms",
+        "status",
+        "result_id",
+        "error",
+        "poll_after_ms",
+        "created_at",
+        "updated_at"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "enum": [
+                  "queued",
+                  "processing"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "result_id": {
+                "type": "null"
+              },
+              "error": {
+                "type": "null"
+              },
+              "poll_after_ms": {
+                "type": "integer",
+                "minimum": 250
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "succeeded"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "result_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "error": {
+                "type": "null"
+              },
+              "poll_after_ms": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "enum": [
+                  "failed",
+                  "expired"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "result_id": {
+                "type": "null"
+              },
+              "error": {
+                "$ref": "#/definitions/Error"
+              },
+              "poll_after_ms": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "NormalizedBox": {
+      "type": "object",
+      "properties": {
+        "center_x": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "center_y": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "width": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 1
+        },
+        "height": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 1
+        }
+      },
+      "required": [
+        "center_x",
+        "center_y",
+        "width",
+        "height"
+      ],
+      "additionalProperties": false,
+      "description": "Public-only strict bounds; also check center +/- size/2 in [0,1] in adapter. Does not mutate raw provider."
+    },
+    "PublicWord": {
+      "allOf": [
+        {
+          "$ref": "ocr-provider.schema.json#/definitions/Word"
+        },
+        {
+          "properties": {
+            "box": {
+              "$ref": "#/definitions/NormalizedBox"
+            }
+          }
+        }
+      ]
+    },
+    "PublicParagraph": {
+      "allOf": [
+        {
+          "$ref": "ocr-provider.schema.json#/definitions/Paragraph"
+        },
+        {
+          "properties": {
+            "box": {
+              "$ref": "#/definitions/NormalizedBox"
+            },
+            "words": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/PublicWord"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "PublicOcr": {
+      "allOf": [
+        {
+          "$ref": "ocr-provider.schema.json#/definitions/Success"
+        },
+        {
+          "properties": {
+            "paragraphs": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/PublicParagraph"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "ResultManifest": {
+      "type": "object",
+      "properties": {
+        "result_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "job_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "session_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "source_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "frame_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "frame_index": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "media_time_ms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "seq": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "Z$",
+          "description": "UTC ISO 8601 with Z; no local formatted dates."
+        }
+      },
+      "required": [
+        "result_id",
+        "job_id",
+        "session_id",
+        "source_id",
+        "frame_id",
+        "frame_index",
+        "media_time_ms",
+        "seq",
+        "created_at"
+      ],
+      "additionalProperties": false
+    },
+    "PublicResult": {
+      "type": "object",
+      "properties": {
+        "result_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "job_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "session_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "source_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "frame_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "frame_index": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "media_time_ms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "seq": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "Z$",
+          "description": "UTC ISO 8601 with Z; no local formatted dates."
+        },
+        "language": {
+          "type": "string",
+          "pattern": "^[a-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$",
+          "description": "Language code, not UI label. Accepted languages depend on configured capabilities / D01."
+        },
+        "provider": {
+          "type": "string",
+          "minLength": 1
+        },
+        "image": {
+          "type": "object",
+          "properties": {
+            "width_px": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1600
+            },
+            "height_px": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1600
+            }
+          },
+          "required": [
+            "width_px",
+            "height_px"
+          ],
+          "additionalProperties": false
+        },
+        "ocr": {
+          "$ref": "#/definitions/PublicOcr"
+        }
+      },
+      "required": [
+        "result_id",
+        "job_id",
+        "session_id",
+        "source_id",
+        "frame_id",
+        "frame_index",
+        "media_time_ms",
+        "seq",
+        "created_at",
+        "language",
+        "provider",
+        "image",
+        "ocr"
+      ],
+      "additionalProperties": false
+    },
+    "ResultPage": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ResultManifest"
+          }
+        },
+        "next_cursor": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "through_seq": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "items",
+        "next_cursor",
+        "through_seq"
+      ],
+      "additionalProperties": false
+    },
+    "LexiconRequest": {
+      "type": "object",
+      "properties": {
+        "language": {
+          "type": "string",
+          "pattern": "^[a-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$",
+          "description": "Language code, not UI label. Accepted languages depend on configured capabilities / D01."
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "session_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "result_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "paragraph_index": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "language",
+        "text"
+      ],
+      "additionalProperties": false,
+      "dependencies": {
+        "session_id": [
+          "result_id",
+          "paragraph_index"
+        ],
+        "result_id": [
+          "session_id",
+          "paragraph_index"
+        ],
+        "paragraph_index": [
+          "session_id",
+          "result_id"
+        ]
+      }
+    },
+    "LexiconData": {
+      "$ref": "lexicon.schema.json"
+    },
+    "TranslationRequest": {
+      "type": "object",
+      "properties": {
+        "text": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "source_language": {
+          "type": "string",
+          "pattern": "^[a-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$",
+          "description": "Language code, not UI label. Accepted languages depend on configured capabilities / D01."
+        },
+        "target_language": {
+          "type": "string",
+          "pattern": "^[a-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$",
+          "description": "Language code, not UI label. Accepted languages depend on configured capabilities / D01."
+        }
+      },
+      "required": [
+        "text",
+        "source_language",
+        "target_language"
+      ],
+      "additionalProperties": false
+    },
+    "Translation": {
+      "type": "object",
+      "properties": {
+        "text": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "source_language": {
+          "type": "string",
+          "pattern": "^[a-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$",
+          "description": "Language code, not UI label. Accepted languages depend on configured capabilities / D01."
+        },
+        "target_language": {
+          "type": "string",
+          "pattern": "^[a-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$",
+          "description": "Language code, not UI label. Accepted languages depend on configured capabilities / D01."
+        },
+        "translation": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "source": {
+          "$ref": "lexicon.schema.json#/definitions/Source"
+        },
+        "origin": {
+          "type": "string",
+          "enum": [
+            "translation",
+            "generated",
+            "fixture"
+          ]
+        }
+      },
+      "required": [
+        "text",
+        "source_language",
+        "target_language",
+        "translation",
+        "source",
+        "origin"
+      ],
+      "additionalProperties": false
+    },
+    "Occurrence": {
+      "type": "object",
+      "properties": {
+        "session_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "result_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "source_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "media_time_ms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "surface": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        }
+      },
+      "required": [
+        "session_id",
+        "result_id",
+        "source_id",
+        "media_time_ms",
+        "surface"
+      ],
+      "additionalProperties": false
+    },
+    "VocabularyCreate": {
+      "type": "object",
+      "properties": {
+        "language": {
+          "type": "string",
+          "pattern": "^[a-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$",
+          "description": "Language code, not UI label. Accepted languages depend on configured capabilities / D01."
+        },
+        "entry_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sense_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "collection_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uuid"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "occurrence": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Occurrence"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "language",
+        "entry_id",
+        "sense_id",
+        "collection_id",
+        "occurrence"
+      ],
+      "additionalProperties": false
+    },
+    "SavedWord": {
+      "type": "object",
+      "properties": {
+        "word_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "scope": {
+          "const": "personal"
+        },
+        "owner_user_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "description": "Opaque Cognito sub, never validate as an app UUID."
+        },
+        "room_id": {
+          "type": "null"
+        },
+        "created_by": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "description": "Opaque Cognito sub, never validate as an app UUID."
+        },
+        "language": {
+          "type": "string",
+          "pattern": "^[a-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$",
+          "description": "Language code, not UI label. Accepted languages depend on configured capabilities / D01."
+        },
+        "entry_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sense_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "lemma": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "reading": {
+          "anyOf": [
+            {
+              "$ref": "lexicon.schema.json#/definitions/Reading"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "meanings": {
+          "type": "array",
+          "items": {
+            "$ref": "lexicon.schema.json#/definitions/Meaning"
+          },
+          "minItems": 1
+        },
+        "collection_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uuid"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "review_state": {
+          "type": "string",
+          "enum": [
+            "new",
+            "learning",
+            "known"
+          ]
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "Z$",
+          "description": "UTC ISO 8601 with Z; no local formatted dates."
+        }
+      },
+      "required": [
+        "word_id",
+        "scope",
+        "owner_user_id",
+        "room_id",
+        "created_by",
+        "language",
+        "entry_id",
+        "sense_id",
+        "lemma",
+        "reading",
+        "meanings",
+        "collection_id",
+        "review_state",
+        "version",
+        "created_at"
+      ],
+      "additionalProperties": false
+    },
+    "SharedVocabularyCreate": {
+      "type": "object",
+      "properties": {
+        "language": {
+          "type": "string",
+          "pattern": "^[a-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$",
+          "description": "Language code, not UI label. Accepted languages depend on configured capabilities / D01."
+        },
+        "entry_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sense_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "occurrence": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Occurrence"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "language",
+        "entry_id",
+        "sense_id",
+        "occurrence"
+      ],
+      "additionalProperties": false
+    },
+    "ReviewPatch": {
+      "type": "object",
+      "properties": {
+        "review_state": {
+          "type": "string",
+          "enum": [
+            "learning",
+            "known"
+          ]
+        },
+        "expected_version": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "required": [
+        "review_state",
+        "expected_version"
+      ],
+      "additionalProperties": false
+    },
+    "CollectionCreate": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "language": {
+          "type": "string",
+          "pattern": "^[a-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$",
+          "description": "Language code, not UI label. Accepted languages depend on configured capabilities / D01."
+        }
+      },
+      "required": [
+        "title",
+        "language"
+      ],
+      "additionalProperties": false
+    },
+    "CollectionPatch": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "expected_version": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "required": [
+        "title",
+        "expected_version"
+      ],
+      "additionalProperties": false
+    },
+    "Collection": {
+      "type": "object",
+      "properties": {
+        "collection_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "language": {
+          "type": "string",
+          "pattern": "^[a-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$",
+          "description": "Language code, not UI label. Accepted languages depend on configured capabilities / D01."
+        },
+        "word_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "Z$",
+          "description": "UTC ISO 8601 with Z; no local formatted dates."
+        }
+      },
+      "required": [
+        "collection_id",
+        "title",
+        "language",
+        "word_count",
+        "version",
+        "created_at"
+      ],
+      "additionalProperties": false
+    },
+    "Room": {
+      "type": "object",
+      "properties": {
+        "room_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "code": {
+          "type": "string",
+          "pattern": "^[A-HJ-NP-Z2-9]{8}$"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "language": {
+          "type": "string",
+          "pattern": "^[a-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$",
+          "description": "Language code, not UI label. Accepted languages depend on configured capabilities / D01."
+        },
+        "host_user_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "description": "Opaque Cognito sub, never validate as an app UUID."
+        },
+        "shared_session_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "shared_vocabulary_enabled": {
+          "type": "boolean"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "open",
+            "closed"
+          ]
+        },
+        "member_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "Z$",
+          "description": "UTC ISO 8601 with Z; no local formatted dates."
+        },
+        "closed_at": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "Z$",
+              "description": "UTC ISO 8601 with Z; no local formatted dates."
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "room_id",
+        "code",
+        "title",
+        "language",
+        "host_user_id",
+        "shared_session_id",
+        "shared_vocabulary_enabled",
+        "status",
+        "member_count",
+        "version",
+        "created_at",
+        "closed_at"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "open"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "closed_at": {
+                "type": "null"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "closed_at": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "Z$",
+                "description": "UTC ISO 8601 with Z; no local formatted dates."
+              }
+            }
+          }
+        }
+      ]
+    },
+    "Membership": {
+      "type": "object",
+      "properties": {
+        "membership_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "room_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "user_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "description": "Opaque Cognito sub, never validate as an app UUID."
+        },
+        "room_role": {
+          "type": "string",
+          "enum": [
+            "host",
+            "member"
+          ]
+        },
+        "capabilities": {
+          "$ref": "#/definitions/Capabilities"
+        },
+        "joined_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "Z$",
+          "description": "UTC ISO 8601 with Z; no local formatted dates."
+        },
+        "left_at": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "Z$",
+              "description": "UTC ISO 8601 with Z; no local formatted dates."
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "membership_id",
+        "room_id",
+        "user_id",
+        "room_role",
+        "capabilities",
+        "joined_at",
+        "left_at"
+      ],
+      "additionalProperties": false
+    },
+    "RoomSnapshot": {
+      "type": "object",
+      "properties": {
+        "room": {
+          "$ref": "#/definitions/Room"
+        },
+        "membership": {
+          "$ref": "#/definitions/Membership"
+        },
+        "session": {
+          "$ref": "#/definitions/Session"
+        }
+      },
+      "required": [
+        "room",
+        "membership",
+        "session"
+      ],
+      "additionalProperties": false
+    },
+    "RoomCreate": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "language": {
+          "type": "string",
+          "pattern": "^[a-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$",
+          "description": "Language code, not UI label. Accepted languages depend on configured capabilities / D01."
+        },
+        "shared_vocabulary_enabled": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "title",
+        "language",
+        "shared_vocabulary_enabled"
+      ],
+      "additionalProperties": false
+    },
+    "RoomJoin": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string",
+          "pattern": "^[A-HJ-NP-Z2-9]{8}$"
+        }
+      },
+      "required": [
+        "code"
+      ],
+      "additionalProperties": false
+    },
+    "RoomMember": {
+      "type": "object",
+      "properties": {
+        "membership_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "user_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "description": "Opaque Cognito sub, never validate as an app UUID."
+        },
+        "display_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "room_role": {
+          "type": "string",
+          "enum": [
+            "host",
+            "member"
+          ]
+        },
+        "joined_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "Z$",
+          "description": "UTC ISO 8601 with Z; no local formatted dates."
+        }
+      },
+      "required": [
+        "membership_id",
+        "user_id",
+        "display_name",
+        "room_role",
+        "joined_at"
+      ],
+      "additionalProperties": false
+    },
+    "LeaveResult": {
+      "type": "object",
+      "properties": {
+        "room_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "membership_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "left_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "Z$",
+          "description": "UTC ISO 8601 with Z; no local formatted dates."
+        }
+      },
+      "required": [
+        "room_id",
+        "membership_id",
+        "left_at"
+      ],
+      "additionalProperties": false
+    },
+    "MeetingCredentials": {
+      "type": "object",
+      "properties": {
+        "meeting": {
+          "type": "object",
+          "required": [
+            "MeetingId",
+            "MediaPlacement"
+          ],
+          "properties": {
+            "MeetingId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "MediaRegion": {
+              "type": "string",
+              "minLength": 1
+            },
+            "MediaPlacement": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": true,
+          "description": "PROVISIONAL AWS passthrough casing, not a complete AWS SDK schema. Pin SDK and verify before implementation."
+        },
+        "attendee": {
+          "type": "object",
+          "required": [
+            "AttendeeId",
+            "ExternalUserId",
+            "JoinToken"
+          ],
+          "properties": {
+            "AttendeeId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "ExternalUserId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "JoinToken": {
+              "type": "string",
+              "minLength": 1,
+              "x-sensitive": true
+            }
+          },
+          "additionalProperties": true
+        },
+        "expires_at": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "Z$",
+              "description": "UTC ISO 8601 with Z; no local formatted dates."
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "meeting",
+        "attendee",
+        "expires_at"
+      ],
+      "additionalProperties": false
+    },
+    "HistoryItem": {
+      "type": "object",
+      "properties": {
+        "session_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "solo",
+            "group"
+          ]
+        },
+        "language": {
+          "type": "string",
+          "pattern": "^[a-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$",
+          "description": "Language code, not UI label. Accepted languages depend on configured capabilities / D01."
+        },
+        "started_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "Z$",
+          "description": "UTC ISO 8601 with Z; no local formatted dates."
+        },
+        "ended_at": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "Z$",
+              "description": "UTC ISO 8601 with Z; no local formatted dates."
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "duration_ms": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "saved_words_count": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "playback_state": {
+          "type": "string",
+          "enum": [
+            "unavailable",
+            "processing",
+            "ready",
+            "failed"
+          ]
+        }
+      },
+      "required": [
+        "session_id",
+        "title",
+        "mode",
+        "language",
+        "started_at",
+        "ended_at",
+        "duration_ms",
+        "saved_words_count",
+        "playback_state"
+      ],
+      "additionalProperties": false
+    },
+    "Stats": {
+      "type": "object",
+      "properties": {
+        "timezone": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sampled_at": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "Z$",
+              "description": "UTC ISO 8601 with Z; no local formatted dates."
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "study_duration_ms": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "saved_words_count": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "streak_days": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "weekly_sessions": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "weekly_goal": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "timezone",
+        "sampled_at",
+        "study_duration_ms",
+        "saved_words_count",
+        "streak_days",
+        "weekly_sessions",
+        "weekly_goal"
+      ],
+      "additionalProperties": false
+    },
+    "TimelineMapping": {
+      "type": "object",
+      "properties": {
+        "source_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "source_start_ms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "recording_start_ms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "duration_ms": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "source_id",
+        "source_start_ms",
+        "recording_start_ms",
+        "duration_ms"
+      ],
+      "additionalProperties": false
+    },
+    "Playback": {
+      "type": "object",
+      "properties": {
+        "session_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "state": {
+          "type": "string",
+          "enum": [
+            "unavailable",
+            "processing",
+            "ready",
+            "failed"
+          ]
+        },
+        "recording_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uuid"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "duration_ms": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "playback_url": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uri"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "expires_at": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "Z$",
+              "description": "UTC ISO 8601 with Z; no local formatted dates."
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "timeline": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TimelineMapping"
+          }
+        },
+        "error": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Error"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "session_id",
+        "state",
+        "recording_id",
+        "duration_ms",
+        "playback_url",
+        "expires_at",
+        "timeline",
+        "error"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "state": {
+                "const": "ready"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "recording_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "duration_ms": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "playback_url": {
+                "type": "string",
+                "format": "uri"
+              },
+              "expires_at": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "Z$",
+                "description": "UTC ISO 8601 with Z; no local formatted dates."
+              },
+              "error": {
+                "type": "null"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "playback_url": {
+                "type": "null"
+              },
+              "expires_at": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "state": {
+                "const": "failed"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "error": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "RealtimeTicket": {
+      "type": "object",
+      "properties": {
+        "ticket": {
+          "type": "string",
+          "minLength": 1,
+          "x-sensitive": true
+        },
+        "ws_url": {
+          "type": "string",
+          "format": "uri",
+          "pattern": "^wss?://",
+          "description": "Base WS URL WITHOUT a ticket query. Client appends ticket once, with URL encoding; redact in logs."
+        },
+        "expires_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "Z$",
+          "description": "UTC ISO 8601 with Z; no local formatted dates."
+        },
+        "connection_expires_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "Z$",
+          "description": "UTC ISO 8601 with Z; no local formatted dates."
+        }
+      },
+      "required": [
+        "ticket",
+        "ws_url",
+        "expires_at",
+        "connection_expires_at"
+      ],
+      "additionalProperties": false
+    },
+    "Actor": {
+      "type": "object",
+      "properties": {
+        "user_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "description": "Opaque Cognito sub, never validate as an app UUID."
+        },
+        "display_name": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "user_id",
+        "display_name"
+      ],
+      "additionalProperties": false
+    },
+    "AuditTarget": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "user",
+            "room",
+            "system",
+            "session",
+            "job"
+          ]
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "type",
+        "id",
+        "label"
+      ],
+      "additionalProperties": false
+    },
+    "AdminUser": {
+      "type": "object",
+      "properties": {
+        "user_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "description": "Opaque Cognito sub, never validate as an app UUID."
+        },
+        "display_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "user",
+              "admin"
+            ]
+          },
+          "minItems": 1
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "active",
+            "suspended",
+            "pending"
+          ]
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "Z$",
+          "description": "UTC ISO 8601 with Z; no local formatted dates."
+        },
+        "last_sign_in_at": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "Z$",
+              "description": "UTC ISO 8601 with Z; no local formatted dates."
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "sessions_count": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "saved_words_count": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "required": [
+        "user_id",
+        "display_name",
+        "email",
+        "roles",
+        "status",
+        "created_at",
+        "last_sign_in_at",
+        "sessions_count",
+        "saved_words_count",
+        "version"
+      ],
+      "additionalProperties": false
+    },
+    "AdminRoom": {
+      "type": "object",
+      "properties": {
+        "room_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "code": {
+          "type": "string",
+          "pattern": "^[A-HJ-NP-Z2-9]{8}$"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "language": {
+          "type": "string",
+          "pattern": "^[a-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$",
+          "description": "Language code, not UI label. Accepted languages depend on configured capabilities / D01."
+        },
+        "host_user_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "description": "Opaque Cognito sub, never validate as an app UUID."
+        },
+        "shared_session_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "shared_vocabulary_enabled": {
+          "type": "boolean"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "open",
+            "closed"
+          ]
+        },
+        "member_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "Z$",
+          "description": "UTC ISO 8601 with Z; no local formatted dates."
+        },
+        "closed_at": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "Z$",
+              "description": "UTC ISO 8601 with Z; no local formatted dates."
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "host_display_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "started_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "Z$",
+          "description": "UTC ISO 8601 with Z; no local formatted dates."
+        },
+        "ocr_jobs_count": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "room_id",
+        "code",
+        "title",
+        "language",
+        "host_user_id",
+        "shared_session_id",
+        "shared_vocabulary_enabled",
+        "status",
+        "member_count",
+        "version",
+        "created_at",
+        "closed_at",
+        "host_display_name",
+        "started_at",
+        "ocr_jobs_count"
+      ],
+      "additionalProperties": false
+    },
+    "AdminStatusPatch": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "active",
+            "suspended"
+          ]
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 300,
+          "pattern": "\\S",
+          "description": "Trim before validation; server records the actor, never accept client actor."
+        },
+        "expected_version": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "required": [
+        "status",
+        "reason",
+        "expected_version"
+      ],
+      "additionalProperties": false
+    },
+    "AdminReasonRequest": {
+      "type": "object",
+      "properties": {
+        "reason": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 300,
+          "pattern": "\\S",
+          "description": "Trim before validation; server records the actor, never accept client actor."
+        },
+        "expected_version": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "required": [
+        "reason",
+        "expected_version"
+      ],
+      "additionalProperties": false
+    },
+    "AdminAction": {
+      "type": "object",
+      "properties": {
+        "action_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "queued",
+            "running",
+            "succeeded",
+            "failed"
+          ]
+        },
+        "resource_type": {
+          "type": "string",
+          "enum": [
+            "user",
+            "room",
+            "system"
+          ]
+        },
+        "resource_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "Z$",
+          "description": "UTC ISO 8601 with Z; no local formatted dates."
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "Z$",
+          "description": "UTC ISO 8601 with Z; no local formatted dates."
+        },
+        "result": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "resource_type": {
+                  "type": "string",
+                  "enum": [
+                    "user",
+                    "room",
+                    "system"
+                  ]
+                },
+                "resource_id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              },
+              "required": [
+                "resource_type",
+                "resource_id",
+                "version"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "error": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Error"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "action_id",
+        "status",
+        "resource_type",
+        "resource_id",
+        "created_at",
+        "updated_at",
+        "result",
+        "error"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "succeeded"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "result": {
+                "type": "object",
+                "properties": {
+                  "resource_type": {
+                    "type": "string",
+                    "enum": [
+                      "user",
+                      "room",
+                      "system"
+                    ]
+                  },
+                  "resource_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "version": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                },
+                "required": [
+                  "resource_type",
+                  "resource_id",
+                  "version"
+                ],
+                "additionalProperties": false
+              },
+              "error": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "failed"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "error": {
+                "$ref": "#/definitions/Error"
+              },
+              "result": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "enum": [
+                  "queued",
+                  "running"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "error": {
+                "type": "null"
+              },
+              "result": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "AuditEvent": {
+      "type": "object",
+      "properties": {
+        "event_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "occurred_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "Z$",
+          "description": "UTC ISO 8601 with Z; no local formatted dates."
+        },
+        "level": {
+          "type": "string",
+          "enum": [
+            "success",
+            "warning",
+            "error"
+          ]
+        },
+        "outcome": {
+          "type": "string",
+          "enum": [
+            "requested",
+            "succeeded",
+            "failed",
+            "denied"
+          ]
+        },
+        "action": {
+          "type": "string",
+          "minLength": 1
+        },
+        "actor": {
+          "$ref": "#/definitions/Actor"
+        },
+        "target": {
+          "$ref": "#/definitions/AuditTarget"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 300,
+              "pattern": "\\S",
+              "description": "Trim before validation; server records the actor, never accept client actor."
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "detail": {
+          "type": "string",
+          "maxLength": 2000
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "action_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uuid"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "event_id",
+        "occurred_at",
+        "level",
+        "outcome",
+        "action",
+        "actor",
+        "target",
+        "reason",
+        "detail",
+        "request_id",
+        "action_id"
+      ],
+      "additionalProperties": false
+    },
+    "OcrConfig": {
+      "type": "object",
+      "properties": {
+        "provider": {
+          "type": "string",
+          "minLength": 1
+        },
+        "frame_interval_ms": {
+          "type": "integer",
+          "minimum": 500
+        },
+        "workers_per_instance": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "max_image_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1048576
+        },
+        "max_image_pixels": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 4000000
+        }
+      },
+      "required": [
+        "provider",
+        "frame_interval_ms",
+        "workers_per_instance",
+        "max_image_bytes",
+        "max_image_pixels"
+      ],
+      "additionalProperties": false
+    },
+    "MaintenanceConfig": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "message": {
+          "type": "string",
+          "maxLength": 500
+        }
+      },
+      "required": [
+        "enabled",
+        "message"
+      ],
+      "additionalProperties": false
+    },
+    "ConfigValues": {
+      "type": "object",
+      "properties": {
+        "ocr": {
+          "$ref": "#/definitions/OcrConfig"
+        },
+        "maintenance": {
+          "$ref": "#/definitions/MaintenanceConfig"
+        }
+      },
+      "required": [
+        "ocr",
+        "maintenance"
+      ],
+      "additionalProperties": false
+    },
+    "ConfigLimits": {
+      "type": "object",
+      "properties": {
+        "providers": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1
+        },
+        "frame_interval_min_ms": {
+          "type": "integer",
+          "minimum": 500
+        },
+        "frame_interval_max_ms": {
+          "type": "integer",
+          "minimum": 500
+        },
+        "frame_interval_step_ms": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "workers_per_instance_min": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "workers_per_instance_max": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "max_image_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1048576
+        },
+        "max_image_pixels": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 4000000
+        }
+      },
+      "required": [
+        "providers",
+        "frame_interval_min_ms",
+        "frame_interval_max_ms",
+        "frame_interval_step_ms",
+        "workers_per_instance_min",
+        "workers_per_instance_max",
+        "max_image_bytes",
+        "max_image_pixels"
+      ],
+      "additionalProperties": false
+    },
+    "AdminConfig": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "desired": {
+          "$ref": "#/definitions/ConfigValues"
+        },
+        "effective": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ConfigValues"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "effective_version": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "apply_status": {
+          "type": "string",
+          "enum": [
+            "applied",
+            "pending",
+            "failed"
+          ]
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "Z$",
+          "description": "UTC ISO 8601 with Z; no local formatted dates."
+        },
+        "updated_by": {
+          "$ref": "#/definitions/Actor"
+        },
+        "action_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uuid"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "limits": {
+          "$ref": "#/definitions/ConfigLimits"
+        }
+      },
+      "required": [
+        "version",
+        "desired",
+        "effective",
+        "effective_version",
+        "apply_status",
+        "updated_at",
+        "updated_by",
+        "action_id",
+        "limits"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "apply_status": {
+                "const": "applied"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "effective": {
+                "$ref": "#/definitions/ConfigValues"
+              },
+              "effective_version": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "AdminConfigPatch": {
+      "type": "object",
+      "properties": {
+        "expected_version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 300,
+          "pattern": "\\S",
+          "description": "Trim before validation; server records the actor, never accept client actor."
+        },
+        "changes": {
+          "type": "object",
+          "properties": {
+            "ocr": {
+              "type": "object",
+              "properties": {
+                "provider": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "frame_interval_ms": {
+                  "type": "integer",
+                  "minimum": 500
+                },
+                "workers_per_instance": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "max_image_bytes": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 1048576
+                },
+                "max_image_pixels": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 4000000
+                }
+              },
+              "required": [],
+              "additionalProperties": false,
+              "minProperties": 1
+            },
+            "maintenance": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean"
+                },
+                "message": {
+                  "type": "string",
+                  "maxLength": 500
+                }
+              },
+              "required": [],
+              "additionalProperties": false,
+              "minProperties": 1
+            }
+          },
+          "required": [],
+          "additionalProperties": false,
+          "minProperties": 1
+        }
+      },
+      "required": [
+        "expected_version",
+        "reason",
+        "changes"
+      ],
+      "additionalProperties": false
+    },
+    "HealthComponent": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "healthy",
+            "degraded",
+            "unavailable",
+            "unknown"
+          ]
+        },
+        "observed_at": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "Z$",
+              "description": "UTC ISO 8601 with Z; no local formatted dates."
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "detail": {
+          "type": "string",
+          "maxLength": 500
+        }
+      },
+      "required": [
+        "name",
+        "status",
+        "observed_at",
+        "detail"
+      ],
+      "additionalProperties": false
+    },
+    "AdminHealth": {
+      "type": "object",
+      "properties": {
+        "sampled_at": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "Z$",
+              "description": "UTC ISO 8601 with Z; no local formatted dates."
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "data_source": {
+          "type": "string",
+          "enum": [
+            "live",
+            "mock"
+          ]
+        },
+        "components": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/HealthComponent"
+          }
+        }
+      },
+      "required": [
+        "sampled_at",
+        "data_source",
+        "components"
+      ],
+      "additionalProperties": false
+    },
+    "AdminOverview": {
+      "type": "object",
+      "properties": {
+        "sampled_at": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "Z$",
+              "description": "UTC ISO 8601 with Z; no local formatted dates."
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "data_source": {
+          "type": "string",
+          "enum": [
+            "live",
+            "mock"
+          ]
+        },
+        "users_count": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "open_rooms_count": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "active_sessions_count": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "failed_jobs_count": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "sampled_at",
+        "data_source",
+        "users_count",
+        "open_rooms_count",
+        "active_sessions_count",
+        "failed_jobs_count"
+      ],
+      "additionalProperties": false
+    },
+    "AdminMetrics": {
+      "type": "object",
+      "properties": {
+        "sampled_at": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "Z$",
+              "description": "UTC ISO 8601 with Z; no local formatted dates."
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "data_source": {
+          "type": "string",
+          "enum": [
+            "live",
+            "mock"
+          ]
+        },
+        "window_start": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "Z$",
+              "description": "UTC ISO 8601 with Z; no local formatted dates."
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "window_end": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "Z$",
+              "description": "UTC ISO 8601 with Z; no local formatted dates."
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "jobs_count": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "ocr_scan_p95_ms": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "ocr_end_to_end_p95_ms": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "sampled_at",
+        "data_source",
+        "window_start",
+        "window_end",
+        "jobs_count",
+        "ocr_scan_p95_ms",
+        "ocr_end_to_end_p95_ms"
+      ],
+      "additionalProperties": false
+    },
+    "VocabularyPage": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/SavedWord"
+          }
+        },
+        "next_cursor": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "items",
+        "next_cursor"
+      ],
+      "additionalProperties": false
+    },
+    "CollectionPage": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Collection"
+          }
+        },
+        "next_cursor": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "items",
+        "next_cursor"
+      ],
+      "additionalProperties": false
+    },
+    "RoomMemberPage": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RoomMember"
+          }
+        },
+        "next_cursor": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "items",
+        "next_cursor"
+      ],
+      "additionalProperties": false
+    },
+    "HistoryPage": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/HistoryItem"
+          }
+        },
+        "next_cursor": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "items",
+        "next_cursor"
+      ],
+      "additionalProperties": false
+    },
+    "AdminUserPage": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AdminUser"
+          }
+        },
+        "next_cursor": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "items",
+        "next_cursor"
+      ],
+      "additionalProperties": false
+    },
+    "AdminRoomPage": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AdminRoom"
+          }
+        },
+        "next_cursor": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "items",
+        "next_cursor"
+      ],
+      "additionalProperties": false
+    },
+    "AuditPage": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AuditEvent"
+          }
+        },
+        "next_cursor": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "items",
+        "next_cursor"
+      ],
+      "additionalProperties": false
+    },
+    "CapabilitiesResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/Capabilities"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "data",
+        "request_id"
+      ],
+      "additionalProperties": false
+    },
+    "CaptureLimitsResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/CaptureLimits"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "data",
+        "request_id"
+      ],
+      "additionalProperties": false
+    },
+    "ProfileResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/Profile"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "data",
+        "request_id"
+      ],
+      "additionalProperties": false
+    },
+    "SessionResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/Session"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "data",
+        "request_id"
+      ],
+      "additionalProperties": false
+    },
+    "SourceResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/Source"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "data",
+        "request_id"
+      ],
+      "additionalProperties": false
+    },
+    "UploadTargetResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/UploadTarget"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "data",
+        "request_id"
+      ],
+      "additionalProperties": false
+    },
+    "UploadResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/Upload"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "data",
+        "request_id"
+      ],
+      "additionalProperties": false
+    },
+    "JobResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/Job"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "data",
+        "request_id"
+      ],
+      "additionalProperties": false
+    },
+    "NormalizedBoxResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/NormalizedBox"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "data",
+        "request_id"
+      ],
+      "additionalProperties": false
+    },
+    "PublicWordResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/PublicWord"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "data",
+        "request_id"
+      ],
+      "additionalProperties": false
+    },
+    "PublicParagraphResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/PublicParagraph"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "data",
+        "request_id"
+      ],
+      "additionalProperties": false
+    },
+    "PublicOcrResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/PublicOcr"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "data",
+        "request_id"
+      ],
+      "additionalProperties": false
+    },
+    "ResultManifestResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/ResultManifest"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "data",
+        "request_id"
+      ],
+      "additionalProperties": false
+    },
+    "PublicResultResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/PublicResult"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "data",
+        "request_id"
+      ],
+      "additionalProperties": false
+    },
+    "ResultPageResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/ResultPage"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "data",
+        "request_id"
+      ],
+      "additionalProperties": false
+    },
+    "LexiconDataResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/LexiconData"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "data",
+        "request_id"
+      ],
+      "additionalProperties": false
+    },
+    "TranslationResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/Translation"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "data",
+        "request_id"
+      ],
+      "additionalProperties": false
+    },
+    "OccurrenceResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/Occurrence"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "data",
+        "request_id"
+      ],
+      "additionalProperties": false
+    },
+    "SavedWordResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/SavedWord"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "data",
+        "request_id"
+      ],
+      "additionalProperties": false
+    },
+    "CollectionResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/Collection"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "data",
+        "request_id"
+      ],
+      "additionalProperties": false
+    },
+    "RoomResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/Room"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "data",
+        "request_id"
+      ],
+      "additionalProperties": false
+    },
+    "MembershipResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/Membership"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "data",
+        "request_id"
+      ],
+      "additionalProperties": false
+    },
+    "RoomSnapshotResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/RoomSnapshot"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "data",
+        "request_id"
+      ],
+      "additionalProperties": false
+    },
+    "RoomJoinResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/RoomJoin"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "data",
+        "request_id"
+      ],
+      "additionalProperties": false
+    },
+    "RoomMemberResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/RoomMember"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "data",
+        "request_id"
+      ],
+      "additionalProperties": false
+    },
+    "LeaveResultResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/LeaveResult"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "data",
+        "request_id"
+      ],
+      "additionalProperties": false
+    },
+    "MeetingCredentialsResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/MeetingCredentials"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "data",
+        "request_id"
+      ],
+      "additionalProperties": false
+    },
+    "HistoryItemResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/HistoryItem"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "data",
+        "request_id"
+      ],
+      "additionalProperties": false
+    },
+    "StatsResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/Stats"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "data",
+        "request_id"
+      ],
+      "additionalProperties": false
+    },
+    "TimelineMappingResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/TimelineMapping"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "data",
+        "request_id"
+      ],
+      "additionalProperties": false
+    },
+    "PlaybackResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/Playback"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "data",
+        "request_id"
+      ],
+      "additionalProperties": false
+    },
+    "RealtimeTicketResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/RealtimeTicket"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "data",
+        "request_id"
+      ],
+      "additionalProperties": false
+    },
+    "ActorResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/Actor"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "data",
+        "request_id"
+      ],
+      "additionalProperties": false
+    },
+    "AuditTargetResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/AuditTarget"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "data",
+        "request_id"
+      ],
+      "additionalProperties": false
+    },
+    "AdminUserResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/AdminUser"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "data",
+        "request_id"
+      ],
+      "additionalProperties": false
+    },
+    "AdminRoomResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/AdminRoom"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "data",
+        "request_id"
+      ],
+      "additionalProperties": false
+    },
+    "AdminActionResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/AdminAction"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "data",
+        "request_id"
+      ],
+      "additionalProperties": false
+    },
+    "AuditEventResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/AuditEvent"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "data",
+        "request_id"
+      ],
+      "additionalProperties": false
+    },
+    "OcrConfigResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/OcrConfig"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "data",
+        "request_id"
+      ],
+      "additionalProperties": false
+    },
+    "MaintenanceConfigResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/MaintenanceConfig"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "data",
+        "request_id"
+      ],
+      "additionalProperties": false
+    },
+    "ConfigValuesResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/ConfigValues"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "data",
+        "request_id"
+      ],
+      "additionalProperties": false
+    },
+    "ConfigLimitsResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/ConfigLimits"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "data",
+        "request_id"
+      ],
+      "additionalProperties": false
+    },
+    "AdminConfigResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/AdminConfig"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "data",
+        "request_id"
+      ],
+      "additionalProperties": false
+    },
+    "HealthComponentResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/HealthComponent"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "data",
+        "request_id"
+      ],
+      "additionalProperties": false
+    },
+    "AdminHealthResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/AdminHealth"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "data",
+        "request_id"
+      ],
+      "additionalProperties": false
+    },
+    "AdminOverviewResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/AdminOverview"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "data",
+        "request_id"
+      ],
+      "additionalProperties": false
+    },
+    "AdminMetricsResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/AdminMetrics"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "data",
+        "request_id"
+      ],
+      "additionalProperties": false
+    },
+    "VocabularyPageResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/VocabularyPage"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "data",
+        "request_id"
+      ],
+      "additionalProperties": false
+    },
+    "CollectionPageResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/CollectionPage"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "data",
+        "request_id"
+      ],
+      "additionalProperties": false
+    },
+    "RoomMemberPageResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/RoomMemberPage"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "data",
+        "request_id"
+      ],
+      "additionalProperties": false
+    },
+    "HistoryPageResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/HistoryPage"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "data",
+        "request_id"
+      ],
+      "additionalProperties": false
+    },
+    "AdminUserPageResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/AdminUserPage"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "data",
+        "request_id"
+      ],
+      "additionalProperties": false
+    },
+    "AdminRoomPageResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/AdminRoomPage"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "data",
+        "request_id"
+      ],
+      "additionalProperties": false
+    },
+    "AuditPageResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/AuditPage"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "data",
+        "request_id"
+      ],
+      "additionalProperties": false
+    },
+    "SharedWord": {
+      "type": "object",
+      "properties": {
+        "word_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "scope": {
+          "const": "room"
+        },
+        "owner_user_id": {
+          "type": "null"
+        },
+        "room_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "created_by": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "description": "Opaque Cognito sub, never validate as an app UUID."
+        },
+        "language": {
+          "type": "string",
+          "pattern": "^[a-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$",
+          "description": "Language code, not UI label. Accepted languages depend on configured capabilities / D01."
+        },
+        "entry_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sense_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "lemma": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "reading": {
+          "anyOf": [
+            {
+              "$ref": "lexicon.schema.json#/definitions/Reading"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "meanings": {
+          "type": "array",
+          "items": {
+            "$ref": "lexicon.schema.json#/definitions/Meaning"
+          },
+          "minItems": 1
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "Z$",
+          "description": "UTC ISO 8601 with Z; no local formatted dates."
+        }
+      },
+      "required": [
+        "word_id",
+        "scope",
+        "owner_user_id",
+        "room_id",
+        "created_by",
+        "language",
+        "entry_id",
+        "sense_id",
+        "lemma",
+        "reading",
+        "meanings",
+        "version",
+        "created_at"
+      ],
+      "additionalProperties": false
+    },
+    "SharedVocabularyPage": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/SharedWord"
+          }
+        },
+        "next_cursor": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "items",
+        "next_cursor"
+      ],
+      "additionalProperties": false
+    },
+    "SharedWordResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/SharedWord"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "data",
+        "request_id"
+      ],
+      "additionalProperties": false
+    },
+    "SharedVocabularyPageResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/SharedVocabularyPage"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "data",
+        "request_id"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "x-contract-status": "DRAFT",
+  "x-decisions": "../decisions.md"
+}

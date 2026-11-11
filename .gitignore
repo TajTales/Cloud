@@ -4,6 +4,9 @@ dist/
 build/
 .cache/
 .env*
+# CT-03: version only these reviewed, non-secret templates.
+!/.env.example
+!/meikipop-ocr-server/.env.example
 .vite/
 vite.config.*.timestamp-*
 *.tsbuildinfo

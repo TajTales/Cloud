@@ -1,0 +1,9 @@
+{
+  "expected_version": 1,
+  "reason": "SYNTHETIC config example reason",
+  "changes": {
+    "ocr": {
+      "frame_interval_ms": 2500
+    }
+  }
+}

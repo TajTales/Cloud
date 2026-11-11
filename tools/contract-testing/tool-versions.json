@@ -1,0 +1,10 @@
+{
+  "status": "TOOLING_ONLY",
+  "python": ">=3.10",
+  "node": "22",
+  "asyncapi_parser": "@asyncapi/parser@3.6.6",
+  "frameworks": ["Python unittest", "Node.js node:test"],
+  "application_dependencies_changed": false,
+  "ci_present_before_ct04": false,
+  "approval_policy": "Default validation and mock startup require an approved, pinned bundle; draft lint is a separate structural review command."
+}

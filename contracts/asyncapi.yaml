@@ -1,0 +1,777 @@
+asyncapi: 3.0.0
+info:
+  title: LinguaLive Application Realtime — DRAFT
+  version: 0.1.0-draft.1
+  description: 'Server/application viewpoint: receive commands, send events. Candidate D05 HTTP/S3 branch.
+    NO images or chat on this socket. One-use ticket from authenticated POST /api/v1/realtime/tickets, URL
+    query redacted. Protocol 1.0 is separate from contract package prerelease.'
+defaultContentType: application/json
+servers:
+  draft:
+    host: realtime.example.invalid
+    protocol: wss
+    description: Reserved invalid host, not a deployed Gateway.
+    security:
+    - $ref: '#/components/securitySchemes/RealtimeTicket'
+channels:
+  realtime:
+    address: /realtime
+    description: Single socket channel, action/type discriminates messages. Reconnect with fresh ticket, subscribe
+      again, resync via HTTP bounded through_seq.
+    servers:
+    - $ref: '#/servers/draft'
+    messages:
+      Command_session_subscribe:
+        $ref: '#/components/messages/Command_session_subscribe'
+      Command_session_unsubscribe:
+        $ref: '#/components/messages/Command_session_unsubscribe'
+      Command_room_subscribe:
+        $ref: '#/components/messages/Command_room_subscribe'
+      Command_room_unsubscribe:
+        $ref: '#/components/messages/Command_room_unsubscribe'
+      Command_app_ping:
+        $ref: '#/components/messages/Command_app_ping'
+      Event_session_subscribed:
+        $ref: '#/components/messages/Event_session_subscribed'
+      Event_session_unsubscribed:
+        $ref: '#/components/messages/Event_session_unsubscribed'
+      Event_room_snapshot:
+        $ref: '#/components/messages/Event_room_snapshot'
+      Event_room_unsubscribed:
+        $ref: '#/components/messages/Event_room_unsubscribed'
+      Event_ocr_result_available:
+        $ref: '#/components/messages/Event_ocr_result_available'
+      Event_ocr_job_failed:
+        $ref: '#/components/messages/Event_ocr_job_failed'
+      Event_session_source_changed:
+        $ref: '#/components/messages/Event_session_source_changed'
+      Event_session_ended:
+        $ref: '#/components/messages/Event_session_ended'
+      Event_room_member_joined:
+        $ref: '#/components/messages/Event_room_member_joined'
+      Event_room_member_left:
+        $ref: '#/components/messages/Event_room_member_left'
+      Event_room_closed:
+        $ref: '#/components/messages/Event_room_closed'
+      Event_request_failed:
+        $ref: '#/components/messages/Event_request_failed'
+      Event_app_pong:
+        $ref: '#/components/messages/Event_app_pong'
+operations:
+  receiveClientCommand:
+    action: receive
+    channel:
+      $ref: '#/channels/realtime'
+    messages:
+    - $ref: '#/channels/realtime/messages/Command_session_subscribe'
+    - $ref: '#/channels/realtime/messages/Command_session_unsubscribe'
+    - $ref: '#/channels/realtime/messages/Command_room_subscribe'
+    - $ref: '#/channels/realtime/messages/Command_room_unsubscribe'
+    - $ref: '#/channels/realtime/messages/Command_app_ping'
+    summary: Server receives validated authorized commands.
+  sendServerEvent:
+    action: send
+    channel:
+      $ref: '#/channels/realtime'
+    messages:
+    - $ref: '#/channels/realtime/messages/Event_session_subscribed'
+    - $ref: '#/channels/realtime/messages/Event_session_unsubscribed'
+    - $ref: '#/channels/realtime/messages/Event_room_snapshot'
+    - $ref: '#/channels/realtime/messages/Event_room_unsubscribed'
+    - $ref: '#/channels/realtime/messages/Event_ocr_result_available'
+    - $ref: '#/channels/realtime/messages/Event_ocr_job_failed'
+    - $ref: '#/channels/realtime/messages/Event_session_source_changed'
+    - $ref: '#/channels/realtime/messages/Event_session_ended'
+    - $ref: '#/channels/realtime/messages/Event_room_member_joined'
+    - $ref: '#/channels/realtime/messages/Event_room_member_left'
+    - $ref: '#/channels/realtime/messages/Event_room_closed'
+    - $ref: '#/channels/realtime/messages/Event_request_failed'
+    - $ref: '#/channels/realtime/messages/Event_app_pong'
+    summary: Server emits snapshots, manifests, errors and lifecycle events.
+components:
+  securitySchemes:
+    RealtimeTicket:
+      type: httpApiKey
+      name: ticket
+      in: query
+      description: DRAFT opaque one-use ticket, TTL proposed 60s, issued only via verified access-token HTTP
+        request. This is NOT a JWT login issuer.
+  messages:
+    Command_session_subscribe:
+      name: session.subscribe
+      title: session.subscribe
+      summary: DRAFT synthetic client action
+      contentType: application/json
+      payload:
+        schemaFormat: application/schema+json;version=draft-07
+        schema:
+          $ref: ./schemas/realtime.schema.json#/definitions/Command_session_subscribe
+      examples:
+      - name: synthetic
+        summary: SYNTHETIC protocol fixture; not live traffic.
+        payload:
+          schema_version: '1.0'
+          action: session.subscribe
+          request_id: req-ws-synthetic-001
+          payload:
+            session_id: 00000000-0000-4000-8000-000000000001
+            after_seq: 0
+      x-contract-status: DRAFT
+      x-decision-dependencies:
+      - D03
+      - D05
+      - D08
+      - D14
+      - D15
+      correlationId:
+        description: Correlation only, not identity/authorization.
+        location: $message.payload#/request_id
+    Command_session_unsubscribe:
+      name: session.unsubscribe
+      title: session.unsubscribe
+      summary: DRAFT synthetic client action
+      contentType: application/json
+      payload:
+        schemaFormat: application/schema+json;version=draft-07
+        schema:
+          $ref: ./schemas/realtime.schema.json#/definitions/Command_session_unsubscribe
+      examples:
+      - name: synthetic
+        summary: SYNTHETIC protocol fixture; not live traffic.
+        payload:
+          schema_version: '1.0'
+          action: session.unsubscribe
+          request_id: req-ws-synthetic-001
+          payload:
+            session_id: 00000000-0000-4000-8000-000000000001
+      x-contract-status: DRAFT
+      x-decision-dependencies:
+      - D03
+      - D05
+      - D08
+      - D14
+      - D15
+      correlationId:
+        description: Correlation only, not identity/authorization.
+        location: $message.payload#/request_id
+    Command_room_subscribe:
+      name: room.subscribe
+      title: room.subscribe
+      summary: DRAFT synthetic client action
+      contentType: application/json
+      payload:
+        schemaFormat: application/schema+json;version=draft-07
+        schema:
+          $ref: ./schemas/realtime.schema.json#/definitions/Command_room_subscribe
+      examples:
+      - name: synthetic
+        summary: SYNTHETIC protocol fixture; not live traffic.
+        payload:
+          schema_version: '1.0'
+          action: room.subscribe
+          request_id: req-ws-synthetic-001
+          payload:
+            room_id: 00000000-0000-4000-8000-000000000010
+      x-contract-status: DRAFT
+      x-decision-dependencies:
+      - D03
+      - D05
+      - D08
+      - D14
+      - D15
+      correlationId:
+        description: Correlation only, not identity/authorization.
+        location: $message.payload#/request_id
+    Command_room_unsubscribe:
+      name: room.unsubscribe
+      title: room.unsubscribe
+      summary: DRAFT synthetic client action
+      contentType: application/json
+      payload:
+        schemaFormat: application/schema+json;version=draft-07
+        schema:
+          $ref: ./schemas/realtime.schema.json#/definitions/Command_room_unsubscribe
+      examples:
+      - name: synthetic
+        summary: SYNTHETIC protocol fixture; not live traffic.
+        payload:
+          schema_version: '1.0'
+          action: room.unsubscribe
+          request_id: req-ws-synthetic-001
+          payload:
+            room_id: 00000000-0000-4000-8000-000000000010
+      x-contract-status: DRAFT
+      x-decision-dependencies:
+      - D03
+      - D05
+      - D08
+      - D14
+      - D15
+      correlationId:
+        description: Correlation only, not identity/authorization.
+        location: $message.payload#/request_id
+    Command_app_ping:
+      name: app.ping
+      title: app.ping
+      summary: DRAFT synthetic client action
+      contentType: application/json
+      payload:
+        schemaFormat: application/schema+json;version=draft-07
+        schema:
+          $ref: ./schemas/realtime.schema.json#/definitions/Command_app_ping
+      examples:
+      - name: synthetic
+        summary: SYNTHETIC protocol fixture; not live traffic.
+        payload:
+          schema_version: '1.0'
+          action: app.ping
+          request_id: req-ws-synthetic-001
+          payload:
+            client_time: '2026-11-11T14:30:00.000Z'
+      x-contract-status: DRAFT
+      x-decision-dependencies:
+      - D03
+      - D05
+      - D08
+      - D14
+      - D15
+      correlationId:
+        description: Correlation only, not identity/authorization.
+        location: $message.payload#/request_id
+    Event_session_subscribed:
+      name: session.subscribed
+      title: session.subscribed
+      summary: DRAFT synthetic server event
+      contentType: application/json
+      payload:
+        schemaFormat: application/schema+json;version=draft-07
+        schema:
+          $ref: ./schemas/realtime.schema.json#/definitions/Event_session_subscribed
+      examples:
+      - name: synthetic
+        summary: SYNTHETIC protocol fixture; not live traffic.
+        payload:
+          schema_version: '1.0'
+          type: session.subscribed
+          event_id: 00000000-0000-4000-8000-000000000100
+          request_id: req-ws-synthetic-001
+          seq: null
+          occurred_at: '2026-11-11T14:30:01.000Z'
+          session_id: 00000000-0000-4000-8000-000000000001
+          room_id: null
+          data:
+            session:
+              session_id: 00000000-0000-4000-8000-000000000001
+              mode: solo
+              owner_user_id: synthetic-user-a
+              room_id: null
+              status: active
+              title: SYNTHETIC solo example
+              language: ja
+              current_source_id: 00000000-0000-4000-8000-000000000002
+              current_source:
+                source_id: 00000000-0000-4000-8000-000000000002
+                session_id: 00000000-0000-4000-8000-000000000001
+                kind: local_video
+                source_index: 0
+                started_at: '2026-11-11T14:30:00.000Z'
+                timeline_origin_ms: 0
+                width_px: 1280
+                height_px: 720
+                duration_ms: 120000
+                session_version: 2
+              started_at: '2026-11-11T14:30:00.000Z'
+              ended_at: null
+              version: 2
+              latest_seq: 2
+              capabilities:
+                can_share_source: true
+                can_send_ocr: true
+                can_close_room: false
+                can_record: true
+              capture_limits:
+                version: 1
+                max_image_bytes: 1048576
+                max_image_pixels: 4000000
+                max_long_edge_px: 1600
+                frame_interval_ms: 2000
+                max_in_flight: 1
+                content_types:
+                - image/jpeg
+                - image/png
+            latest_seq: 2
+            resync_required: true
+      x-contract-status: DRAFT
+      x-decision-dependencies:
+      - D03
+      - D05
+      - D08
+      - D14
+      - D15
+      correlationId:
+        description: Correlation only, not identity/authorization.
+        location: $message.payload#/request_id
+    Event_session_unsubscribed:
+      name: session.unsubscribed
+      title: session.unsubscribed
+      summary: DRAFT synthetic server event
+      contentType: application/json
+      payload:
+        schemaFormat: application/schema+json;version=draft-07
+        schema:
+          $ref: ./schemas/realtime.schema.json#/definitions/Event_session_unsubscribed
+      examples:
+      - name: synthetic
+        summary: SYNTHETIC protocol fixture; not live traffic.
+        payload:
+          schema_version: '1.0'
+          type: session.unsubscribed
+          event_id: 00000000-0000-4000-8000-000000000101
+          request_id: req-ws-synthetic-001
+          seq: null
+          occurred_at: '2026-11-11T14:30:01.000Z'
+          session_id: 00000000-0000-4000-8000-000000000001
+          room_id: null
+          data:
+            session_id: 00000000-0000-4000-8000-000000000001
+      x-contract-status: DRAFT
+      x-decision-dependencies:
+      - D03
+      - D05
+      - D08
+      - D14
+      - D15
+      correlationId:
+        description: Correlation only, not identity/authorization.
+        location: $message.payload#/request_id
+    Event_room_snapshot:
+      name: room.snapshot
+      title: room.snapshot
+      summary: DRAFT synthetic server event
+      contentType: application/json
+      payload:
+        schemaFormat: application/schema+json;version=draft-07
+        schema:
+          $ref: ./schemas/realtime.schema.json#/definitions/Event_room_snapshot
+      examples:
+      - name: synthetic
+        summary: SYNTHETIC protocol fixture; not live traffic.
+        payload:
+          schema_version: '1.0'
+          type: room.snapshot
+          event_id: 00000000-0000-4000-8000-000000000102
+          request_id: req-ws-synthetic-001
+          seq: null
+          occurred_at: '2026-11-11T14:30:01.000Z'
+          session_id: null
+          room_id: 00000000-0000-4000-8000-000000000010
+          data:
+            room:
+              room_id: 00000000-0000-4000-8000-000000000010
+              code: AB7K9M2Q
+              title: SYNTHETIC room
+              language: ja
+              host_user_id: synthetic-user-a
+              shared_session_id: 00000000-0000-4000-8000-000000000011
+              shared_vocabulary_enabled: true
+              status: open
+              member_count: 1
+              version: 1
+              created_at: '2026-11-11T14:30:00.000Z'
+              closed_at: null
+            membership:
+              membership_id: 00000000-0000-4000-8000-000000000012
+              room_id: 00000000-0000-4000-8000-000000000010
+              user_id: synthetic-user-a
+              room_role: host
+              capabilities:
+                can_share_source: true
+                can_send_ocr: true
+                can_close_room: true
+                can_record: true
+              joined_at: '2026-11-11T14:30:00.000Z'
+              left_at: null
+            room_version: 1
+      x-contract-status: DRAFT
+      x-decision-dependencies:
+      - D03
+      - D05
+      - D08
+      - D14
+      - D15
+      correlationId:
+        description: Correlation only, not identity/authorization.
+        location: $message.payload#/request_id
+    Event_room_unsubscribed:
+      name: room.unsubscribed
+      title: room.unsubscribed
+      summary: DRAFT synthetic server event
+      contentType: application/json
+      payload:
+        schemaFormat: application/schema+json;version=draft-07
+        schema:
+          $ref: ./schemas/realtime.schema.json#/definitions/Event_room_unsubscribed
+      examples:
+      - name: synthetic
+        summary: SYNTHETIC protocol fixture; not live traffic.
+        payload:
+          schema_version: '1.0'
+          type: room.unsubscribed
+          event_id: 00000000-0000-4000-8000-000000000103
+          request_id: req-ws-synthetic-001
+          seq: null
+          occurred_at: '2026-11-11T14:30:01.000Z'
+          session_id: null
+          room_id: 00000000-0000-4000-8000-000000000010
+          data:
+            room_id: 00000000-0000-4000-8000-000000000010
+      x-contract-status: DRAFT
+      x-decision-dependencies:
+      - D03
+      - D05
+      - D08
+      - D14
+      - D15
+      correlationId:
+        description: Correlation only, not identity/authorization.
+        location: $message.payload#/request_id
+    Event_ocr_result_available:
+      name: ocr.result_available
+      title: ocr.result_available
+      summary: DRAFT synthetic server event
+      contentType: application/json
+      payload:
+        schemaFormat: application/schema+json;version=draft-07
+        schema:
+          $ref: ./schemas/realtime.schema.json#/definitions/Event_ocr_result_available
+      examples:
+      - name: synthetic
+        summary: SYNTHETIC protocol fixture; not live traffic.
+        payload:
+          schema_version: '1.0'
+          type: ocr.result_available
+          event_id: 00000000-0000-4000-8000-000000000104
+          request_id: null
+          seq: 2
+          occurred_at: '2026-11-11T14:30:01.000Z'
+          session_id: 00000000-0000-4000-8000-000000000001
+          room_id: null
+          data:
+            result_id: 00000000-0000-4000-8000-000000000006
+            job_id: 00000000-0000-4000-8000-000000000005
+            session_id: 00000000-0000-4000-8000-000000000001
+            source_id: 00000000-0000-4000-8000-000000000002
+            frame_id: 00000000-0000-4000-8000-000000000003
+            frame_index: 17
+            media_time_ms: 102000
+            seq: 2
+            created_at: '2026-11-11T14:30:01.000Z'
+      x-contract-status: DRAFT
+      x-decision-dependencies:
+      - D03
+      - D05
+      - D08
+      - D14
+      - D15
+    Event_ocr_job_failed:
+      name: ocr.job_failed
+      title: ocr.job_failed
+      summary: DRAFT synthetic server event
+      contentType: application/json
+      payload:
+        schemaFormat: application/schema+json;version=draft-07
+        schema:
+          $ref: ./schemas/realtime.schema.json#/definitions/Event_ocr_job_failed
+      examples:
+      - name: synthetic
+        summary: SYNTHETIC protocol fixture; not live traffic.
+        payload:
+          schema_version: '1.0'
+          type: ocr.job_failed
+          event_id: 00000000-0000-4000-8000-000000000105
+          request_id: null
+          seq: 3
+          occurred_at: '2026-11-11T14:30:01.000Z'
+          session_id: 00000000-0000-4000-8000-000000000001
+          room_id: null
+          data:
+            job_id: 00000000-0000-4000-8000-000000000005
+            source_id: 00000000-0000-4000-8000-000000000002
+            frame_id: 00000000-0000-4000-8000-000000000003
+            frame_index: 17
+            error:
+              code: OCR_TIMEOUT
+              message: SYNTHETIC provider timeout
+              details: {}
+              retryable: true
+      x-contract-status: DRAFT
+      x-decision-dependencies:
+      - D03
+      - D05
+      - D08
+      - D14
+      - D15
+    Event_session_source_changed:
+      name: session.source_changed
+      title: session.source_changed
+      summary: DRAFT synthetic server event
+      contentType: application/json
+      payload:
+        schemaFormat: application/schema+json;version=draft-07
+        schema:
+          $ref: ./schemas/realtime.schema.json#/definitions/Event_session_source_changed
+      examples:
+      - name: synthetic
+        summary: SYNTHETIC protocol fixture; not live traffic.
+        payload:
+          schema_version: '1.0'
+          type: session.source_changed
+          event_id: 00000000-0000-4000-8000-000000000106
+          request_id: null
+          seq: 1
+          occurred_at: '2026-11-11T14:30:01.000Z'
+          session_id: 00000000-0000-4000-8000-000000000001
+          room_id: null
+          data:
+            source:
+              source_id: 00000000-0000-4000-8000-000000000002
+              session_id: 00000000-0000-4000-8000-000000000001
+              kind: local_video
+              source_index: 0
+              started_at: '2026-11-11T14:30:00.000Z'
+              timeline_origin_ms: 0
+              width_px: 1280
+              height_px: 720
+              duration_ms: 120000
+              session_version: 2
+            session_version: 2
+      x-contract-status: DRAFT
+      x-decision-dependencies:
+      - D03
+      - D05
+      - D08
+      - D14
+      - D15
+    Event_session_ended:
+      name: session.ended
+      title: session.ended
+      summary: DRAFT synthetic server event
+      contentType: application/json
+      payload:
+        schemaFormat: application/schema+json;version=draft-07
+        schema:
+          $ref: ./schemas/realtime.schema.json#/definitions/Event_session_ended
+      examples:
+      - name: synthetic
+        summary: SYNTHETIC protocol fixture; not live traffic.
+        payload:
+          schema_version: '1.0'
+          type: session.ended
+          event_id: 00000000-0000-4000-8000-000000000107
+          request_id: null
+          seq: 4
+          occurred_at: '2026-11-11T14:30:01.000Z'
+          session_id: 00000000-0000-4000-8000-000000000001
+          room_id: null
+          data:
+            status: ended
+            ended_at: '2026-11-11T14:30:01.000Z'
+            session_version: 3
+      x-contract-status: DRAFT
+      x-decision-dependencies:
+      - D03
+      - D05
+      - D08
+      - D14
+      - D15
+    Event_room_member_joined:
+      name: room.member_joined
+      title: room.member_joined
+      summary: DRAFT synthetic server event
+      contentType: application/json
+      payload:
+        schemaFormat: application/schema+json;version=draft-07
+        schema:
+          $ref: ./schemas/realtime.schema.json#/definitions/Event_room_member_joined
+      examples:
+      - name: synthetic
+        summary: SYNTHETIC protocol fixture; not live traffic.
+        payload:
+          schema_version: '1.0'
+          type: room.member_joined
+          event_id: 00000000-0000-4000-8000-000000000108
+          request_id: null
+          seq: null
+          occurred_at: '2026-11-11T14:30:01.000Z'
+          session_id: null
+          room_id: 00000000-0000-4000-8000-000000000010
+          data:
+            room_id: 00000000-0000-4000-8000-000000000010
+            room_version: 2
+            membership_id: 00000000-0000-4000-8000-000000000013
+            user_id: synthetic-user-b
+            room_role: member
+            member_count: 2
+      x-contract-status: DRAFT
+      x-decision-dependencies:
+      - D03
+      - D05
+      - D08
+      - D14
+      - D15
+    Event_room_member_left:
+      name: room.member_left
+      title: room.member_left
+      summary: DRAFT synthetic server event
+      contentType: application/json
+      payload:
+        schemaFormat: application/schema+json;version=draft-07
+        schema:
+          $ref: ./schemas/realtime.schema.json#/definitions/Event_room_member_left
+      examples:
+      - name: synthetic
+        summary: SYNTHETIC protocol fixture; not live traffic.
+        payload:
+          schema_version: '1.0'
+          type: room.member_left
+          event_id: 00000000-0000-4000-8000-000000000109
+          request_id: null
+          seq: null
+          occurred_at: '2026-11-11T14:30:01.000Z'
+          session_id: null
+          room_id: 00000000-0000-4000-8000-000000000010
+          data:
+            room_id: 00000000-0000-4000-8000-000000000010
+            room_version: 3
+            membership_id: 00000000-0000-4000-8000-000000000013
+            user_id: synthetic-user-b
+            room_role: member
+            member_count: 1
+      x-contract-status: DRAFT
+      x-decision-dependencies:
+      - D03
+      - D05
+      - D08
+      - D14
+      - D15
+    Event_room_closed:
+      name: room.closed
+      title: room.closed
+      summary: DRAFT synthetic server event
+      contentType: application/json
+      payload:
+        schemaFormat: application/schema+json;version=draft-07
+        schema:
+          $ref: ./schemas/realtime.schema.json#/definitions/Event_room_closed
+      examples:
+      - name: synthetic
+        summary: SYNTHETIC protocol fixture; not live traffic.
+        payload:
+          schema_version: '1.0'
+          type: room.closed
+          event_id: 00000000-0000-4000-8000-000000000110
+          request_id: null
+          seq: null
+          occurred_at: '2026-11-11T14:30:01.000Z'
+          session_id: null
+          room_id: 00000000-0000-4000-8000-000000000010
+          data:
+            room_id: 00000000-0000-4000-8000-000000000010
+            room_version: 4
+            closed_at: '2026-11-11T14:30:01.000Z'
+      x-contract-status: DRAFT
+      x-decision-dependencies:
+      - D03
+      - D05
+      - D08
+      - D14
+      - D15
+    Event_request_failed:
+      name: request.failed
+      title: request.failed
+      summary: DRAFT synthetic server event
+      contentType: application/json
+      payload:
+        schemaFormat: application/schema+json;version=draft-07
+        schema:
+          $ref: ./schemas/realtime.schema.json#/definitions/Event_request_failed
+      examples:
+      - name: synthetic
+        summary: SYNTHETIC protocol fixture; not live traffic.
+        payload:
+          schema_version: '1.0'
+          type: request.failed
+          event_id: 00000000-0000-4000-8000-000000000111
+          request_id: null
+          seq: null
+          occurred_at: '2026-11-11T14:30:01.000Z'
+          session_id: null
+          room_id: null
+          data:
+            error:
+              code: FORBIDDEN
+              message: SYNTHETIC forbidden subscription
+              details: {}
+              retryable: false
+      x-contract-status: DRAFT
+      x-decision-dependencies:
+      - D03
+      - D05
+      - D08
+      - D14
+      - D15
+    Event_app_pong:
+      name: app.pong
+      title: app.pong
+      summary: DRAFT synthetic server event
+      contentType: application/json
+      payload:
+        schemaFormat: application/schema+json;version=draft-07
+        schema:
+          $ref: ./schemas/realtime.schema.json#/definitions/Event_app_pong
+      examples:
+      - name: synthetic
+        summary: SYNTHETIC protocol fixture; not live traffic.
+        payload:
+          schema_version: '1.0'
+          type: app.pong
+          event_id: 00000000-0000-4000-8000-000000000112
+          request_id: req-ws-synthetic-001
+          seq: null
+          occurred_at: '2026-11-11T14:30:01.000Z'
+          session_id: null
+          room_id: null
+          data:
+            client_time: '2026-11-11T14:30:00.000Z'
+            server_time: '2026-11-11T14:30:01.000Z'
+      x-contract-status: DRAFT
+      x-decision-dependencies:
+      - D03
+      - D05
+      - D08
+      - D14
+      - D15
+      correlationId:
+        description: Correlation only, not identity/authorization.
+        location: $message.payload#/request_id
+x-contract-status: DRAFT
+x-approval-evidence: []
+x-decision-source: decisions.md
+x-protocol-policy:
+  authorization: 'Connect authorization is insufficient: validate scope/membership/account on every action
+    and routing/push; connection_expires_at bounds session.'
+  delivery: At least duplicate delivery possible; no exactly-once or total ordering claim. Commit result/job
+    before notification.
+  sequence: seq belongs to session domain events only; control ACK/pong/error and room events use null; room_version
+    orders room snapshots/events.
+  resync: after_seq hints, no event replay retention promised. Ack carries latest_seq; resync_required=true
+    if catch-up cannot be proven. GET session plus result manifests through_seq=snapshot.latest_seq; buffer
+    newer events.
+  stale_source: Dedup event_id/result_id; ignore older source or lower frame_index within current source. Never
+    compare frame_index across sources.
+  heartbeat: App ping/pong every proposed 30s, two missed responses -> reconnect; not native WS control ping.
+  reconnect: Backoff 1/2/4/8... up to 30s with jitter; request fresh ticket, reauthorize and subscribe, HTTP
+    polling fallback.
+  max_utf8_bytes: 24576
+  binary_images: Forbidden in this D05 draft branch; PUT HTTP/S3 only.
+  chat: D06 candidate Chime chat_v1 defined separately in schemas/chime-chat.schema.json; no WS chat action.

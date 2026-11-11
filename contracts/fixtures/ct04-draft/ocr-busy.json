@@ -1,0 +1,9 @@
+{
+  "error": {
+    "code": "OCR_BUSY",
+    "message": "SYNTHETIC provider is busy",
+    "details": {},
+    "retryable": true
+  },
+  "request_id": "req-ct04-synthetic"
+}
