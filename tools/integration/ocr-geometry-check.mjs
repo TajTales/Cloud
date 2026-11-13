@@ -1,0 +1,14 @@
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import ts from "typescript";
+const code = ts.transpileModule(readFileSync(new URL("../../src/api/ocrGeometry.ts", import.meta.url), "utf8"), { compilerOptions: { target: ts.ScriptTarget.ES2020, module: ts.ModuleKind.ESNext } }).outputText;
+const { containedRect, boxRect, captureSize } = await import("data:text/javascript;base64," + Buffer.from(code).toString("base64"));
+const checks = [];
+assert.deepEqual(containedRect(1000, 1000, 1600, 900), { left: 0, top: 218.75, width: 1000, height: 562.5 }); checks.push("landscape_letterbox");
+assert.deepEqual(containedRect(1000, 500, 500, 1000), { left: 375, top: 0, width: 250, height: 500 }); checks.push("portrait_pillarbox");
+assert.deepEqual(boxRect({ center_x: .5, center_y: .5, width: .5, height: .5 }, containedRect(1000, 1000, 1600, 900)), { left: 250, top: 359.375, width: 500, height: 281.25 }); checks.push("normalized_box_inside_content");
+assert.equal(containedRect(0, 1, 1, 1), null); checks.push("unready_video_no_overlay");
+assert.deepEqual(captureSize(3840, 2160), { width: 1600, height: 900 }); checks.push("resize_4k_preserves_aspect");
+assert.deepEqual(captureSize(640, 360), { width: 640, height: 360 }); checks.push("small_frame_not_upscaled");
+assert.throws(() => captureSize(NaN, 100)); checks.push("invalid_dimensions_rejected");
+console.log(JSON.stringify({ status: "PASS", checks, browser_dom_tested: false }));

@@ -1,5 +1,7 @@
 # meikipop-ocr-server
 
+**LinguaLive local update, 13/11/2026:** use `../scripts/dev-ocr` for Japanese/MeikiOCR on 8080 and `../scripts/dev-ocr-zh` for Chinese/RapidOCR on 8083, invoked from the repository root as `./scripts/...`. Setup uses separate locked virtual environments and verified model bytes; no Docker/AWS or external OCR image API is needed. The original raw success schema below is preserved. The server now enforces bounded inputs, single-provider admission, timeout, cleanup and safe errors; the static demo reads the actual field names. [Setup, actual tests and limitations](../docs/GROUP-05-OCR-PIPELINE.md). The original Google Lens/Docker/cloud instructions below describe other deployment options; they were not certified by the local tests, and those optional providers are not all installed in the minimal local venvs.
+
 Standalone OCR HTTP + WebSocket server extracted from [meikipop](https://github.com/rtr46/meikipop). Provides Japanese OCR capabilities via an interactive Web UI, REST API, and persistent WebSocket streaming.
 
 ## Features

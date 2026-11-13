@@ -1,0 +1,18 @@
+#!/bin/sh
+set -eu
+db_repo_dir=$(CDPATH= cd "$(dirname "$0")/.." && pwd)
+db_tools_dir="$db_repo_dir/application-backend/.local-tools/dynamodb"
+db_data_dir="${DYNAMODB_DATA_DIR:-$db_repo_dir/application-backend/.local-data/dynamodb}"
+db_port="${DYNAMODB_PORT:-8000}"
+if [ ! -f "$db_tools_dir/DynamoDBLocal.jar" ]; then
+  echo 'DynamoDB Local is missing. Run scripts/setup-local-db first.' >&2
+  exit 3
+fi
+case "$db_port" in ''|*[!0-9]*) echo 'DYNAMODB_PORT must be an integer.' >&2; exit 2;; esac
+if [ "$db_port" -lt 1 ] || [ "$db_port" -gt 65535 ]; then
+  echo 'DYNAMODB_PORT must be between 1 and 65535.' >&2
+  exit 2
+fi
+mkdir -p "$db_data_dir"
+chmod 700 "$db_data_dir"
+exec java -Djava.library.path="$db_tools_dir/DynamoDBLocal_lib" --class-path "$db_tools_dir/DynamoDBLocal.jar:$db_tools_dir/DynamoDBLocal_lib/*" "$db_repo_dir/tools/local-dynamodb/LoopbackDynamo.java" -sharedDb -dbPath "$db_data_dir" -port "$db_port" -disableTelemetry -cors "http://127.0.0.1:$db_port"

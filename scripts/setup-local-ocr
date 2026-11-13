@@ -1,0 +1,11 @@
+#!/bin/sh
+set -eu
+ocr_setup_root=$(CDPATH= cd "$(dirname "$0")/.." && pwd)
+ocr_setup_python="${LINGUALIVE_PYTHON:-$ocr_setup_root/application-backend/.venv/bin/python}"
+if [ ! -x "$ocr_setup_root/meikipop-ocr-server/.venv/bin/python" ]; then
+  "$ocr_setup_python" -m venv "$ocr_setup_root/meikipop-ocr-server/.venv"
+fi
+"$ocr_setup_root/meikipop-ocr-server/.venv/bin/python" -m pip install -r "$ocr_setup_root/meikipop-ocr-server/requirements-local.lock"
+export HF_HOME="$ocr_setup_root/meikipop-ocr-server/.local-models"
+export HF_HUB_OFFLINE=0
+exec "$ocr_setup_root/meikipop-ocr-server/.venv/bin/python" -B "$ocr_setup_root/tools/integration/prepare_ocr_models.py"

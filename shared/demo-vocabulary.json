@@ -1,0 +1,146 @@
+{
+  "status": "SAMPLE_ONLY",
+  "source": "Existing LinguaLive demo transcript and video labels; not live lexicon or OCR",
+  "entries": [
+    {
+      "entry_id": "sample:v1:%E3%81%99%E3%81%BF%E3%81%BE%E3%81%9B%E3%82%93",
+      "word": "すみません",
+      "reading": "すみません",
+      "romaji": "sumimasen",
+      "meaning": "Xin lỗi; làm phiền một chút."
+    },
+    {
+      "entry_id": "sample:v1:%E3%81%93%E3%81%AE",
+      "word": "この",
+      "reading": "この",
+      "romaji": "kono",
+      "meaning": "Này; cái này (đứng trước danh từ)."
+    },
+    {
+      "entry_id": "sample:v1:%E8%BF%91%E3%81%8F",
+      "word": "近く",
+      "reading": "ちかく",
+      "romaji": "chikaku",
+      "meaning": "Gần; khu vực lân cận."
+    },
+    {
+      "entry_id": "sample:v1:%E3%81%AB",
+      "word": "に",
+      "reading": "に",
+      "romaji": "ni",
+      "meaning": "Ở; tại (trong ngữ cảnh này)."
+    },
+    {
+      "entry_id": "sample:v1:%E3%81%8A%E3%81%99%E3%81%99%E3%82%81",
+      "word": "おすすめ",
+      "reading": "おすすめ",
+      "romaji": "osusume",
+      "meaning": "Sự giới thiệu; điều được đề xuất."
+    },
+    {
+      "entry_id": "sample:v1:%E3%81%AE",
+      "word": "の",
+      "reading": "の",
+      "romaji": "no",
+      "meaning": "Nối danh từ; bổ nghĩa cho danh từ phía sau."
+    },
+    {
+      "entry_id": "sample:v1:%E3%82%AB%E3%83%95%E3%82%A7",
+      "word": "カフェ",
+      "reading": "カフェ",
+      "romaji": "kafe",
+      "meaning": "Quán cà phê."
+    },
+    {
+      "entry_id": "sample:v1:%E3%81%AF",
+      "word": "は",
+      "reading": "わ",
+      "romaji": "wa",
+      "meaning": "Nêu chủ đề đang được nói tới."
+    },
+    {
+      "entry_id": "sample:v1:%E3%81%82%E3%82%8B",
+      "word": "ある",
+      "reading": "ある",
+      "romaji": null,
+      "meaning": "Có; tồn tại (đồ vật hoặc địa điểm)."
+    },
+    {
+      "entry_id": "sample:v1:%E3%81%8B",
+      "word": "か",
+      "reading": "か",
+      "romaji": "ka",
+      "meaning": "Đánh dấu câu hỏi."
+    },
+    {
+      "entry_id": "sample:v1:%E3%81%AF%E3%81%84",
+      "word": "はい",
+      "reading": "はい",
+      "romaji": "hai",
+      "meaning": "Vâng; có."
+    },
+    {
+      "entry_id": "sample:v1:%E8%A7%92",
+      "word": "角",
+      "reading": "かど",
+      "romaji": "kado",
+      "meaning": "Góc; góc đường."
+    },
+    {
+      "entry_id": "sample:v1:%E3%82%92",
+      "word": "を",
+      "reading": "お",
+      "romaji": "o",
+      "meaning": "Đánh dấu đối tượng hoặc nơi đi qua."
+    },
+    {
+      "entry_id": "sample:v1:%E6%9B%B2%E3%81%8C%E3%82%8B",
+      "word": "曲がる",
+      "reading": "まがる",
+      "romaji": null,
+      "meaning": "Rẽ; quẹo."
+    },
+    {
+      "entry_id": "sample:v1:%E3%81%A8%E3%81%93%E3%82%8D",
+      "word": "ところ",
+      "reading": "ところ",
+      "romaji": "tokoro",
+      "meaning": "Chỗ; nơi; địa điểm."
+    },
+    {
+      "entry_id": "sample:v1:%E9%9D%99%E3%81%8B",
+      "word": "静か",
+      "reading": "しずか",
+      "romaji": null,
+      "meaning": "Yên tĩnh; êm ả."
+    },
+    {
+      "entry_id": "sample:v1:%E5%96%AB%E8%8C%B6%E5%BA%97",
+      "word": "喫茶店",
+      "reading": "きっさてん",
+      "romaji": "kissaten",
+      "meaning": "Quán cà phê; quán giải khát."
+    },
+    {
+      "entry_id": "sample:v1:%E3%81%8C",
+      "word": "が",
+      "reading": "が",
+      "romaji": "ga",
+      "meaning": "Đánh dấu chủ ngữ của câu."
+    },
+    {
+      "entry_id": "sample:v1:%E5%B1%85%E9%85%92%E5%B1%8B",
+      "word": "居酒屋",
+      "reading": "いざかや",
+      "meaning": "quán nhậu",
+      "romaji": null
+    },
+    {
+      "entry_id": "sample:v1:%E5%96%B6%E6%A5%AD%E4%B8%AD",
+      "word": "営業中",
+      "reading": "えいぎょうちゅう",
+      "meaning": "đang mở cửa",
+      "romaji": null
+    }
+  ]
+}

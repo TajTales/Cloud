@@ -1,0 +1,9 @@
+{
+  "provider": "meikiocr",
+  "package_version": "0.3.5",
+  "models": [
+    {"repo_id": "rtr46/meiki.text.detect.v0", "revision": "a9cffa4f60cbf72ddb87edf19c6f98a01cd042e6", "filename": "meiki.text.detect.v0.1.960x544.onnx", "size_bytes": 14503825, "sha256": "40b6a016667745cae7d3055929ae3b8b1e7716aac795f5904cd3c2c7c3b8404b"},
+    {"repo_id": "rtr46/meiki.txt.recognition.v0", "revision": "a28cf5874dc2438ebb1c86336be26bcec51e3375", "filename": "meiki.text.rec.v0.960x32.onnx", "size_bytes": 18593254, "sha256": "3e96bc772fbee9717e536a6353032bb944c3382dd2f6960ef4890decda43b000"},
+    {"repo_id": "rtr46/meiki.txt.recognition.v0", "revision": "a28cf5874dc2438ebb1c86336be26bcec51e3375", "filename": "meiki.text.rec.v0.vertical.32x480.onnx", "size_bytes": 12872961, "sha256": "2c2a83a23bc3b7e6c63962175f507ecc6c5e85cc174f17bdec37d9bbd0bf895a"}
+  ]
+}

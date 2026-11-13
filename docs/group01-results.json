@@ -1,0 +1,498 @@
+{
+  "task": "GROUP-01-BACKEND-FOUNDATION",
+  "client_date": "2026-11-12",
+  "recorded_at_utc": "2026-11-12T16:39:01.154464+00:00",
+  "status": "LOCAL_FOUNDATION_COMPLETE",
+  "next_group": "Database and storage implementation",
+  "business_services_ready": false,
+  "implemented_business_operations": 0,
+  "system_integrated": false,
+  "docker_used": false,
+  "aws_called": false,
+  "branch": "main",
+  "source_head": "84606206d7c32b1c110065fdcc915a3d8b2ad8c6",
+  "working_tree_changes_not_committed": true,
+  "contract_version": "0.1.0-draft.1",
+  "contract_status": "DRAFT",
+  "contract_commit_sha": null,
+  "bundle_sha256": "bcfd39b6a2fd85d74cd5efd53e7a6bff753f60bf7e286246c27ef696c1c6bfd2",
+  "approval_policy": {
+    "policy_id": "single-owner-2026-11-12",
+    "required_approvers": [
+      "Nguyễn Tài Đức"
+    ],
+    "sha256": "4eb23cd7e71d25ea32a03c5cebcb47c744397182edf55f53062b99e641887a5b",
+    "path": "contracts/approval-policy.json"
+  },
+  "runtime": "Python 3.12.16",
+  "installed_runtime_packages": {
+    "aiohappyeyeballs": "2.7.1",
+    "aiohttp": "3.14.5",
+    "aiosignal": "1.4.0",
+    "attrs": "26.1.0",
+    "frozenlist": "1.8.0",
+    "idna": "3.20",
+    "jsonschema": "4.26.0",
+    "jsonschema-specifications": "2025.9.1",
+    "multidict": "7.2.1",
+    "propcache": "0.5.4",
+    "PyYAML": "6.0.3",
+    "referencing": "0.36.2",
+    "rfc3339-validator": "0.1.4",
+    "rfc3986-validator": "0.1.1",
+    "rpds-py": "2026.9.1",
+    "six": "1.17.0",
+    "typing_extensions": "4.16.0",
+    "yarl": "1.25.1"
+  },
+  "runtime_dependency_versions_pinned": 18,
+  "results": [
+    {
+      "name": "config-check",
+      "command": [
+        "./scripts/dev-api",
+        "--check"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "expectation_met": true,
+      "report": {
+        "status": "FOUNDATION_CONFIG_VALID",
+        "environment": "local",
+        "host": "127.0.0.1",
+        "port": 8081,
+        "contract_version": "0.1.0-draft.1",
+        "contract_status": "DRAFT",
+        "bundle_sha256": "bcfd39b6a2fd85d74cd5efd53e7a6bff753f60bf7e286246c27ef696c1c6bfd2",
+        "declared_operations": 50,
+        "implemented_business_operations": 0,
+        "business_services_ready": false
+      }
+    },
+    {
+      "name": "dependency-check",
+      "command": [
+        "application-backend/.venv/bin/python",
+        "-m",
+        "pip",
+        "check"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "expectation_met": true,
+      "environment_override": {
+        "PIP_CACHE_DIR": "/private/tmp/lingualive-group01-pip-cache"
+      },
+      "output_summary": "No broken requirements found."
+    },
+    {
+      "name": "contract-approved-gate",
+      "command": [
+        "./scripts/validate-contracts"
+      ],
+      "exit_code": 2,
+      "expected_exit_code": 2,
+      "expectation_met": true,
+      "report": {
+        "tool": "CT-04",
+        "conformance": "PENDING",
+        "runtime_integration": "NOT_RUN",
+        "errors": [],
+        "contract_version": "0.1.0-draft.1",
+        "contract_status": "DRAFT",
+        "bundle_sha256": "bcfd39b6a2fd85d74cd5efd53e7a6bff753f60bf7e286246c27ef696c1c6bfd2",
+        "contract_commit_sha": null,
+        "approval_policy": {
+          "policy_id": "single-owner-2026-11-12",
+          "required_approvers": [
+            "Nguyễn Tài Đức"
+          ],
+          "sha256": "4eb23cd7e71d25ea32a03c5cebcb47c744397182edf55f53062b99e641887a5b",
+          "path": "contracts/approval-policy.json"
+        },
+        "approval_pending": [
+          "contract_status=DRAFT; approved contract required",
+          "required approvals with evidence are missing: Nguyễn Tài Đức",
+          "current approval policy must be pinned in a new contract release before approval",
+          "contract_commit_sha is not pinned",
+          "HTTP/WS document status is not approved",
+          "one or more application operations remain draft",
+          "document remains draft: application.schema.json",
+          "document remains draft: chime-chat.schema.json",
+          "document remains draft: realtime.schema.json",
+          "document remains draft: openapi.yaml",
+          "document remains draft: asyncapi.yaml",
+          "fixture manifest remains draft: fixtures/manifest.json",
+          "fixture manifest remains draft: fixtures/ct04-draft/manifest.json",
+          "fixture set is not included in pinned bundle: fixtures/ct04-draft/manifest.json"
+        ],
+        "mode": "APPROVED_CONTRACT_REQUIRED",
+        "lint": {
+          "errors": [],
+          "bundle_files": 159,
+          "local_references": 908,
+          "json_schemas": 5,
+          "asyncapi": {
+            "document_created": true,
+            "errors": [],
+            "warnings": [],
+            "information": [
+              {
+                "code": "asyncapi-latest-version",
+                "message": "The latest version of AsyncAPi is not used. It is recommended update to the \"3.1.0\" version.",
+                "path": [
+                  "asyncapi"
+                ],
+                "severity": 2,
+                "source": "/Users/ducen/VScode/Video Stream Language Learning/contracts/asyncapi.yaml",
+                "range": {
+                  "start": {
+                    "line": 0,
+                    "character": 10
+                  },
+                  "end": {
+                    "line": 0,
+                    "character": 15
+                  }
+                }
+              }
+            ]
+          },
+          "fixtures": {
+            "positive": 141,
+            "negative_schema": 11,
+            "negative_semantic": 5
+          },
+          "examples": {
+            "request_examples": 21,
+            "parameter_examples": 67,
+            "success_examples": 59,
+            "error_examples": 396,
+            "ws_examples": 18,
+            "operations": 50
+          },
+          "correlations": {
+            "reference_groups": 7,
+            "scenario_coverage": 24
+          },
+          "raw_shape": {
+            "status": "EVIDENCED_SHAPE_ONLY",
+            "classes": 3,
+            "real_provider_tested": false
+          }
+        },
+        "status": "PENDING_APPROVAL",
+        "tools": {
+          "jsonschema": "4.26.0",
+          "PyYAML": "6.0.3",
+          "openapi-spec-validator": "0.7.2",
+          "referencing": "0.36.2"
+        },
+        "exit_code": 2
+      }
+    },
+    {
+      "name": "mock-approved-gate",
+      "command": [
+        "./scripts/mock-contracts",
+        "--mode",
+        "mock"
+      ],
+      "exit_code": 2,
+      "expected_exit_code": 2,
+      "expectation_met": true,
+      "output_summary": "PENDING_APPROVAL: mock NOT started; contract_status=DRAFT; approved contract required; required approvals with evidence are missing: Nguyễn Tài Đức; current approval policy must be pinned in a new contract release before approval; contract_commit_sha is not pinned; HTTP/WS document status is not approved; one or more application operations remain draft; document remains draft: application.schema.json; document remains draft: chime-chat.schema.json; document remains draft: realtime.schema.json; document remains draft: openapi.yaml; document remains draft: asyncapi.yaml; fixture manifest remains draft: fixtures/manifest.json; fixture manifest remains draft: fixtures/ct04-draft/manifest.json; fixture set is not included in pinned bundle: fixtures/ct04-draft/manifest.json"
+    },
+    {
+      "name": "invalid-public-bind-config",
+      "command": [
+        "./scripts/dev-api",
+        "--check"
+      ],
+      "exit_code": 2,
+      "expected_exit_code": 2,
+      "expectation_met": true,
+      "environment_override": {
+        "APP_HOST": "0.0.0.0"
+      },
+      "output_summary": "STARTUP_FAILED: Local foundation must bind to a loopback host"
+    },
+    {
+      "name": "shell-syntax",
+      "command": [
+        "sh",
+        "-n",
+        "scripts/dev-api",
+        "scripts/test-api"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "expectation_met": true,
+      "output_summary": ""
+    },
+    {
+      "name": "git-diff-check",
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "expectation_met": true,
+      "output_summary": ""
+    },
+    {
+      "name": "backend-tests",
+      "command": [
+        "./scripts/test-api"
+      ],
+      "exit_code": 0,
+      "python_tests": 32,
+      "real_loopback_http_tests": 20,
+      "data_mode": "synthetic-identities-in-tests-only",
+      "log_sha256": "a06c1e6a9943099422294f1c802859f13805fb85c127f763fb7828798d9b5bd4"
+    },
+    {
+      "name": "contract-tool-tests",
+      "command": [
+        "./scripts/test-contract-tools"
+      ],
+      "exit_code": 0,
+      "python_tests": 26,
+      "node_tests": 8,
+      "data_mode": "synthetic-fixtures",
+      "log_sha256": "ede4dabd58955dc5ddc111d2bbd4744cfbaf5628a7a533be6805eb2f91476599"
+    },
+    {
+      "name": "contract-draft-lint",
+      "command": [
+        "./scripts/validate-contracts",
+        "--lint-draft"
+      ],
+      "exit_code": 0,
+      "report": {
+        "tool": "CT-04",
+        "conformance": "PENDING",
+        "runtime_integration": "NOT_RUN",
+        "errors": [],
+        "contract_version": "0.1.0-draft.1",
+        "contract_status": "DRAFT",
+        "bundle_sha256": "bcfd39b6a2fd85d74cd5efd53e7a6bff753f60bf7e286246c27ef696c1c6bfd2",
+        "contract_commit_sha": null,
+        "approval_policy": {
+          "policy_id": "single-owner-2026-11-12",
+          "required_approvers": [
+            "Nguyễn Tài Đức"
+          ],
+          "sha256": "4eb23cd7e71d25ea32a03c5cebcb47c744397182edf55f53062b99e641887a5b",
+          "path": "contracts/approval-policy.json"
+        },
+        "approval_pending": [
+          "contract_status=DRAFT; approved contract required",
+          "required approvals with evidence are missing: Nguyễn Tài Đức",
+          "current approval policy must be pinned in a new contract release before approval",
+          "contract_commit_sha is not pinned",
+          "HTTP/WS document status is not approved",
+          "one or more application operations remain draft",
+          "document remains draft: application.schema.json",
+          "document remains draft: chime-chat.schema.json",
+          "document remains draft: realtime.schema.json",
+          "document remains draft: openapi.yaml",
+          "document remains draft: asyncapi.yaml",
+          "fixture manifest remains draft: fixtures/manifest.json",
+          "fixture manifest remains draft: fixtures/ct04-draft/manifest.json",
+          "fixture set is not included in pinned bundle: fixtures/ct04-draft/manifest.json"
+        ],
+        "mode": "DRAFT_LINT",
+        "lint": {
+          "errors": [],
+          "bundle_files": 159,
+          "local_references": 908,
+          "json_schemas": 5,
+          "asyncapi": {
+            "document_created": true,
+            "errors": [],
+            "warnings": [],
+            "information": [
+              {
+                "code": "asyncapi-latest-version",
+                "message": "The latest version of AsyncAPi is not used. It is recommended update to the \"3.1.0\" version.",
+                "path": [
+                  "asyncapi"
+                ],
+                "severity": 2,
+                "source": "/Users/ducen/VScode/Video Stream Language Learning/contracts/asyncapi.yaml",
+                "range": {
+                  "start": {
+                    "line": 0,
+                    "character": 10
+                  },
+                  "end": {
+                    "line": 0,
+                    "character": 15
+                  }
+                }
+              }
+            ]
+          },
+          "fixtures": {
+            "positive": 141,
+            "negative_schema": 11,
+            "negative_semantic": 5
+          },
+          "examples": {
+            "request_examples": 21,
+            "parameter_examples": 67,
+            "success_examples": 59,
+            "error_examples": 396,
+            "ws_examples": 18,
+            "operations": 50
+          },
+          "correlations": {
+            "reference_groups": 7,
+            "scenario_coverage": 24
+          },
+          "raw_shape": {
+            "status": "EVIDENCED_SHAPE_ONLY",
+            "classes": 3,
+            "real_provider_tested": false
+          }
+        },
+        "status": "STRUCTURE_VALID",
+        "tools": {
+          "jsonschema": "4.26.0",
+          "PyYAML": "6.0.3",
+          "openapi-spec-validator": "0.7.2",
+          "referencing": "0.36.2"
+        },
+        "exit_code": 0
+      }
+    }
+  ],
+  "standalone_http_smoke": [
+    {
+      "path": "/health/live",
+      "actual_http_status": 200,
+      "expected_http_status": 200,
+      "data_mode": "real",
+      "contract_status": "DRAFT",
+      "body": {
+        "data": {
+          "status": "alive",
+          "stage": "foundation",
+          "environment": "local"
+        },
+        "request_id": "8a38a99f-4fa2-4280-9fec-00259bef26c7"
+      }
+    },
+    {
+      "path": "/health/ready",
+      "actual_http_status": 503,
+      "expected_http_status": 503,
+      "data_mode": "real",
+      "contract_status": "DRAFT",
+      "body": {
+        "error": {
+          "code": "FEATURE_NOT_CONFIGURED",
+          "message": "Application services are not ready.",
+          "details": {
+            "stage": "foundation",
+            "business_services_ready": false
+          },
+          "retryable": false
+        },
+        "request_id": "eb40163e-19c3-45f5-9d25-1b4c058e6d07"
+      }
+    },
+    {
+      "path": "/api/v1/me",
+      "actual_http_status": 401,
+      "expected_http_status": 401,
+      "data_mode": "real",
+      "contract_status": "DRAFT",
+      "body": {
+        "error": {
+          "code": "AUTH_REQUIRED",
+          "message": "An access token is required.",
+          "details": {},
+          "retryable": false
+        },
+        "request_id": "d23753fc-297e-4693-99ca-b3383d8609ec"
+      }
+    },
+    {
+      "path": "/api/v1/me",
+      "actual_http_status": 503,
+      "expected_http_status": 503,
+      "data_mode": "real",
+      "contract_status": "DRAFT",
+      "body": {
+        "error": {
+          "code": "FEATURE_NOT_CONFIGURED",
+          "message": "This feature is not configured yet.",
+          "details": {},
+          "retryable": false
+        },
+        "request_id": "2c8f45a9-0975-4efa-9159-94bcec46b91e"
+      }
+    }
+  ],
+  "graceful_shutdown_verified": {
+    "method": "SIGTERM of own standalone API process",
+    "exit_code": 0,
+    "restarted_with_current_source": true
+  },
+  "scope": {
+    "baseline_files": 328,
+    "existing_files_modified": [
+      "docs/ACCEPTANCE.md",
+      "docs/CONTRACT-TESTING.md",
+      "docs/GIT-WORKFLOW.md",
+      "docs/LOCAL-SETUP.md",
+      "docs/OWNERSHIP.md",
+      "docs/env/application.env.example",
+      "tools/contract-testing/contracts_core.py",
+      "tools/contract-testing/requirements.txt",
+      "tools/contract-testing/tests/test_contract_tools.py",
+      "tools/contract-testing/validate.py"
+    ],
+    "existing_files_unchanged": 318,
+    "new_files": [
+      "application-backend/.env.example",
+      "application-backend/.gitignore",
+      "application-backend/README.md",
+      "application-backend/pyproject.toml",
+      "application-backend/requirements.lock",
+      "application-backend/src/lingualive_api/__init__.py",
+      "application-backend/src/lingualive_api/__main__.py",
+      "application-backend/src/lingualive_api/app.py",
+      "application-backend/src/lingualive_api/auth.py",
+      "application-backend/src/lingualive_api/config.py",
+      "application-backend/src/lingualive_api/contracts.py",
+      "application-backend/src/lingualive_api/errors.py",
+      "application-backend/tests/test_foundation.py",
+      "contracts/approval-policy.json",
+      "docs/GROUP-01-BACKEND-FOUNDATION.md",
+      "docs/group01-results.json",
+      "scripts/dev-api",
+      "scripts/test-api"
+    ],
+    "old_contract_bundle_files_unchanged": 159,
+    "frontend_ocr_assets_runtime_manifests_unchanged": true,
+    "trailing_whitespace": [],
+    "broken_new_document_links": []
+  },
+  "limitations": [
+    "Original contract package remains DRAFT and unapproved",
+    "Cognito and all business handlers are unconfigured; fail closed",
+    "Database/storage/OCR jobs/lexicon/realtime/media and FE API integration are later groups",
+    "No cloud/model/container/end-to-end production acceptance",
+    "Runtime lock pins versions, not artifact hashes; Linux target must be validated separately"
+  ],
+  "earlier_attempts": [
+    "Initial sandbox test attempt: exit 1, loopback bind denied",
+    "Initial permitted HTTP test run: exit 1 with two failures; request context and routing fixed",
+    "Final backend test run: exit 0; no schema/fixture weakened to pass"
+  ]
+}

@@ -1,0 +1,300 @@
+{
+  "tasks": [
+    "GROUP-04-APPLICATION-API",
+    "GROUP-05-OCR-PIPELINE"
+  ],
+  "date": "2026-11-13",
+  "owner": "Nguyen Tai Duc",
+  "status": "LOCAL_IMPLEMENTED_READY_FOR_MANUAL_REVIEW",
+  "source_head": "84606206d7c32b1c110065fdcc915a3d8b2ad8c6",
+  "working_tree_required": true,
+  "committed_or_pushed": false,
+  "contract": {
+    "version": "0.1.0-draft.1",
+    "status": "DRAFT",
+    "bundle_sha256": "bcfd39b6a2fd85d74cd5efd53e7a6bff753f60bf7e286246c27ef696c1c6bfd2",
+    "original_bundle_files": 159,
+    "original_bundle_changed": false,
+    "public_handlers": 26,
+    "declared_public_operations": 50,
+    "local_auth_overlay_routes": 16,
+    "new_local_upload_routes": 1
+  },
+  "dependencies": {
+    "frontend_changes": [],
+    "backend_added": [
+      "Pillow==13.0.0"
+    ],
+    "backend_locked_packages": 25,
+    "japanese_runtime": "meikipop-ocr-server/requirements-local.lock",
+    "japanese_locked_packages": 30,
+    "chinese_runtime": "meikipop-ocr-server/requirements-zh.lock",
+    "chinese_locked_packages": 23,
+    "model_locks": [
+      "meikipop-ocr-server/models.lock.json",
+      "meikipop-ocr-server/models-zh.lock.json"
+    ],
+    "model_files_verified": 6,
+    "global_python_or_pnpm_changed": false
+  },
+  "checks": [
+    {
+      "command": "./scripts/test-api",
+      "exit_code": 0,
+      "tests": 137,
+      "old_regressions": 114,
+      "new_tests": 23,
+      "producer": "synthetic_test_only_for_protocol_and_fault_cases",
+      "storage": "real_dynamodb_local_isolated_tables"
+    },
+    {
+      "command": "./scripts/test-real-ocr",
+      "exit_code": 0,
+      "real_model_cases": 5,
+      "input": "original_rendered_text_fixtures",
+      "provider": "real_cpu_meikiocr_and_rapidocr",
+      "storage": "real_dynamodb_local_isolated_tables"
+    },
+    {
+      "command": "node node_modules/typescript/bin/tsc --noEmit --ignoreDeprecations 5.0",
+      "exit_code": 0
+    },
+    {
+      "command": "node node_modules/vite/bin/vite.js build",
+      "exit_code": 0
+    },
+    {
+      "command": "prepare_ocr_models.py --offline",
+      "exit_code": 0,
+      "models": 3
+    },
+    {
+      "command": "verify_ocr_zh_models.py",
+      "exit_code": 0,
+      "models": 3
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0
+    }
+  ],
+  "consumer_checks": {
+    "production_ocr_client_real_http": 8,
+    "production_geometry": 7,
+    "old_learning_client": 13,
+    "old_auth_client": 6,
+    "browser_dom_tested": false,
+    "screen_capture_permission_tested": false
+  },
+  "real_model_cases": [
+    "horizontal",
+    "vertical",
+    "empty",
+    "zh_horizontal",
+    "zh_vertical"
+  ],
+  "test_environment": {
+    "dynamodb": "127.0.0.1:8000",
+    "japanese_ocr": "127.0.0.1:8080",
+    "chinese_ocr": "127.0.0.1:8083",
+    "test_table_prefix": "lingualive-test-",
+    "test_accounts_seeded_into_application_table": false,
+    "application_user_data_reset": false,
+    "native_java_reinstalled": false
+  },
+  "local_smoke": {
+    "web": {
+      "url": "http://127.0.0.1:8443",
+      "status": 200
+    },
+    "api_liveness": "alive",
+    "japanese_provider_ready": true,
+    "chinese_provider_ready": true,
+    "unauthenticated_me_via_vite": 401,
+    "upload_without_capability_via_vite": 403,
+    "application_records_written": false
+  },
+  "file_changes": {
+    "created": [
+      "application-backend/src/lingualive_api/images.py",
+      "application-backend/src/lingualive_api/media.py",
+      "application-backend/src/lingualive_api/ocr_worker.py",
+      "application-backend/src/lingualive_api/rooms.py",
+      "application-backend/src/lingualive_api/collections.py",
+      "application-backend/tests/test_business_integration.py",
+      "application-backend/tests/test_media_integration.py",
+      "application-backend/tests/test_ocr_protocol.py",
+      "application-backend/tests/test_ocr_geometry.py",
+      "meikipop-ocr-server/.gitignore",
+      "meikipop-ocr-server/requirements-local.lock",
+      "meikipop-ocr-server/requirements-zh.lock",
+      "meikipop-ocr-server/models.lock.json",
+      "meikipop-ocr-server/models-zh.lock.json",
+      "meikipop-ocr-server/src/meikipop_ocr_server/ocr/providers/rapidocr/__init__.py",
+      "meikipop-ocr-server/src/meikipop_ocr_server/ocr/providers/rapidocr/provider.py",
+      "scripts/dev-ocr",
+      "scripts/dev-ocr-zh",
+      "scripts/setup-local-ocr",
+      "scripts/setup-local-ocr-zh",
+      "scripts/test-real-ocr",
+      "src/api/ocrGeometry.ts",
+      "src/hooks/useOcrCapture.ts",
+      "src/components/OcrContent.tsx",
+      "src/components/OcrContent.css",
+      "tools/integration/ocr-client-check.mjs",
+      "tools/integration/ocr-geometry-check.mjs",
+      "tools/integration/prepare_ocr_fixtures.py",
+      "tools/integration/real_ocr_acceptance.py",
+      "tools/integration/prepare_ocr_models.py",
+      "tools/integration/verify_ocr_zh_models.py",
+      "tools/integration/make_ocr_demo.py",
+      "docs/GROUP-04-APPLICATION-API.md",
+      "docs/GROUP-05-OCR-PIPELINE.md",
+      "docs/group04-05-results.json"
+    ],
+    "updated": [
+      "application-backend/src/lingualive_api/config.py",
+      "application-backend/src/lingualive_api/app.py",
+      "application-backend/src/lingualive_api/learning.py",
+      "application-backend/src/lingualive_api/local_integration.py",
+      "application-backend/src/lingualive_api/persistence/idempotency.py",
+      "application-backend/tests/test_learning_integration.py",
+      "application-backend/pyproject.toml",
+      "application-backend/requirements.lock",
+      "application-backend/.env.example",
+      "application-backend/README.md",
+      "meikipop-ocr-server/src/meikipop_ocr_server/server.py",
+      "meikipop-ocr-server/src/meikipop_ocr_server/ocr/providers/meikiocr/provider.py",
+      "meikipop-ocr-server/src/meikipop_ocr_server/static/index.html",
+      "meikipop-ocr-server/README.md",
+      "scripts/dev-local-api",
+      "scripts/test-api",
+      "src/api/learning.ts",
+      "src/hooks/useRoomMedia.ts",
+      "src/App.tsx",
+      "vite.config.ts",
+      "docs/LOCAL-SETUP.md",
+      "docs/ACCEPTANCE.md",
+      "docs/FE-DB-INTEGRATION-TESTS.md",
+      "docs/TIEN-DO-VA-KE-HOACH-HOAN-THANH.md",
+      "docs/DANH-GIA-OCR.md"
+    ],
+    "private_ignored_directories": [
+      "meikipop-ocr-server/.venv",
+      "meikipop-ocr-server/.venv-zh",
+      "meikipop-ocr-server/.local-models",
+      "application-backend/.local-data/ocr-acceptance"
+    ],
+    "note": "Only this task's changes; pre-existing dirty files from groups 1-3 were preserved. Private model binaries, venvs, user data and raw logs are not deliverable source."
+  },
+  "coverage": [
+    "source_version_and_idempotency",
+    "upload_image_signature_type_size_pixels_metadata",
+    "job_result_frame_source_consistency",
+    "no_text_is_success",
+    "invalid_provider_busy_timeout",
+    "old_source_drop",
+    "out_of_order_frame",
+    "bounded_session_queue",
+    "duplicate_job_single_inference",
+    "snapshot_cursor_binding",
+    "worker_lease_recovery_and_fencing",
+    "expired_upload_and_ended_session",
+    "private_owner_member_scope",
+    "browser_admin_does_not_inherit_worker_authority",
+    "room_create_join_leave_rejoin_close_metadata",
+    "collections_version_scope_actual_word_count",
+    "internal_raw_http_and_ws_protocol"
+  ],
+  "not_implemented_or_not_accepted": [
+    "Cognito/cloud authentication",
+    "real lexicon/readings/translation/ASR and saving OCR words through dictionary identities",
+    "shared vocabulary API",
+    "Chime/meeting/camera/microphone/group content sharing/chat/presence",
+    "application realtime/Gateway WebSocket",
+    "video recording/playback",
+    "custom collections UI",
+    "full public business Admin endpoints",
+    "streak/weekly goals and exact multi-rejoin study accounting",
+    "raw frame/orphan/TTL physical cleanup and retention",
+    "large accuracy corpus and sustained multi-user load",
+    "AWS infrastructure/deployment"
+  ],
+  "developing_failures_corrected": [
+    "TestClient relative-path helper was incorrectly used for the contract absolute upload URL; switched to its actual HTTP session.",
+    "PNG getexif can load image data before verify; verification now runs first, metadata/full decode on a second open.",
+    "Room members initially used internal Membership fields instead of original RoomMember DTO; corrected producer mapping.",
+    "Consumer initially used /ocr-results; corrected all clients and tests to original /results path.",
+    "Large raw-byte test payload triggered aiohttp ResourceWarning with -W error; test now streams BytesIO without suppressing warnings.",
+    "Expiry test initially changed only one row or the separate administration client clock; corrected it to advance the actual application storage clock for row and reference expiry together."
+  ],
+  "aws_called": false,
+  "docker_used": false,
+  "external_ocr_image_api_used": false,
+  "deployed": false,
+  "actual_real_model_run": {
+    "status": "PASS",
+    "cases": [
+      {
+        "case": "horizontal",
+        "pass": true,
+        "expected": "日本語を勉強しています。東京へ旅行に行きます。",
+        "actual": "日本語を勉強しています。東京へ旅行に行きます。",
+        "provider": "meikiocr (local)",
+        "ocr_elapsed_ms": 78.1,
+        "total_ms": 347,
+        "vertical_detected": false,
+        "public_schema_validated_by_api": true
+      },
+      {
+        "case": "vertical",
+        "pass": true,
+        "expected": "日本語の勉強",
+        "actual": "日本語の勉強",
+        "provider": "meikiocr (local)",
+        "ocr_elapsed_ms": 42.4,
+        "total_ms": 334,
+        "vertical_detected": true,
+        "public_schema_validated_by_api": true
+      },
+      {
+        "case": "empty",
+        "pass": true,
+        "expected": "",
+        "actual": "",
+        "provider": "meikiocr (local)",
+        "ocr_elapsed_ms": 33.9,
+        "total_ms": 330,
+        "vertical_detected": false,
+        "public_schema_validated_by_api": true
+      },
+      {
+        "case": "zh_horizontal",
+        "pass": true,
+        "expected": "欢迎来到北京。我们一起学习中文。",
+        "actual": "欢迎来到北京。我们一起学习中文。",
+        "provider": "rapidocr-ppocr (local Chinese)",
+        "ocr_elapsed_ms": 192,
+        "total_ms": 596,
+        "vertical_detected": false,
+        "public_schema_validated_by_api": true
+      },
+      {
+        "case": "zh_vertical",
+        "pass": true,
+        "expected": "欢迎来到北京",
+        "actual": "欢迎来到北京",
+        "provider": "rapidocr-ppocr (local Chinese)",
+        "ocr_elapsed_ms": 127.8,
+        "total_ms": 333,
+        "vertical_detected": true,
+        "public_schema_validated_by_api": true
+      }
+    ],
+    "real_model": true,
+    "input_is_rendered_test_fixture": true,
+    "browser_dom_tested": false,
+    "isolated_table_deleted_after_run": true,
+    "application_user_data_seeded": false
+  }
+}

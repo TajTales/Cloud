@@ -15,7 +15,7 @@ from referencing import Registry, Resource
 from referencing.jsonschema import DRAFT7
 
 REPO = Path(__file__).resolve().parents[2]
-MEMBERS = {"Nguyễn Tài Đức", "Nguyễn Hoàng Bảo", "Trần Nguyên Bảo Anh"}
+LEGACY_MEMBERS = {"Nguyễn Tài Đức", "Nguyễn Hoàng Bảo", "Trần Nguyên Bảo Anh"}
 ANNOTATIONS = {"description", "title", "examples", "example", "$comment", "x-owner"}
 
 
@@ -60,6 +60,29 @@ def load(path):
     if path.suffix in {".yaml", ".yml"}:
         return yaml.load(path.read_text(), Loader=UniqueLoader)
     return decode_json(path.read_text())
+
+
+def approval_policy(root):
+    path = Path(root) / "contracts/approval-policy.json"
+    if not path.exists():
+        return {"policy_id": "legacy-three-members", "required_approvers": sorted(LEGACY_MEMBERS),
+                "sha256": None, "path": None}
+    value = load(path)
+    schema = {"type": "object", "required": ["policy_version", "policy_id", "required_approvers", "require_evidence", "authorization", "contract_wire_changes"],
+              "properties": {"policy_version": {"const": 1}, "policy_id": {"type": "string", "minLength": 1},
+                             "required_approvers": {"type": "array", "minItems": 1, "uniqueItems": True, "items": {"type": "string", "minLength": 1}},
+                             "require_evidence": {"const": True}, "authorization": {"type": "string", "minLength": 1},
+                             "contract_wire_changes": {"const": False}}, "additionalProperties": False}
+    if list(Draft7Validator(schema).iter_errors(value)):
+        raise ContractError("Invalid approval policy; evidence and an explicit approver set are required")
+    return {"policy_id": value["policy_id"], "required_approvers": value["required_approvers"],
+            "sha256": hashlib.sha256(path.read_bytes()).hexdigest(), "path": "contracts/approval-policy.json"}
+
+
+def missing_approvals(records, policy):
+    names = {item.get("name") for item in records if isinstance(item, dict)
+             and isinstance(item.get("name"), str) and isinstance(item.get("evidence"), str) and item["evidence"].strip()}
+    return sorted(set(policy["required_approvers"]) - names)
 
 
 def semantic_issues(value):
@@ -125,8 +148,11 @@ def semantic_issues(value):
 class ContractStore:
     def __init__(self, root=REPO):
         self.root = Path(root).resolve()
+        if not {"date-time", "uri", "email", "uuid"} <= FormatChecker().checkers.keys():
+            raise ModuleNotFoundError("required JSON Schema format validators; install tools/contract-testing/requirements.txt")
         self.contracts = self.root / "contracts"
         self.version = load(self.contracts / "contract-version.json")
+        self.approval_policy = approval_policy(self.root)
         self.openapi = load(self.contracts / "openapi.yaml")
         self.asyncapi = load(self.contracts / "asyncapi.yaml")
         paths = sorted((self.contracts / "schemas").glob("*.json")) + [
@@ -241,13 +267,12 @@ class ContractStore:
         reasons = []
         if self.version.get("status") != "APPROVED":
             reasons.append(f"contract_status={self.version.get('status')}; approved contract required")
-        records = self.version.get("approved_by", [])
-        names = {
-            item.get("name") for item in records
-            if isinstance(item, dict) and item.get("evidence")
-        }
-        if not MEMBERS <= names:
-            reasons.append("three named member approvals with evidence are missing")
+        missing = missing_approvals(self.version.get("approved_by", []), self.approval_policy)
+        if missing:
+            reasons.append("required approvals with evidence are missing: " + ", ".join(missing))
+        policy_path = self.approval_policy["path"]
+        if policy_path and policy_path not in self.version["files"]:
+            reasons.append("current approval policy must be pinned in a new contract release before approval")
         if not re.fullmatch(r"[0-9a-f]{40}", self.version.get("contract_commit_sha") or ""):
             reasons.append("contract_commit_sha is not pinned")
         if self.openapi.get("x-contract-status") != "APPROVED" or self.asyncapi.get("x-contract-status") != "APPROVED":

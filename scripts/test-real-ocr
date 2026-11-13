@@ -1,0 +1,5 @@
+#!/bin/sh
+set -eu
+ocr_test_root=$(CDPATH= cd "$(dirname "$0")/.." && pwd)
+export PYTHONPATH="$ocr_test_root/application-backend/src${PYTHONPATH:+:$PYTHONPATH}"
+exec "$ocr_test_root/application-backend/.venv/bin/python" -B "$ocr_test_root/tools/integration/real_ocr_acceptance.py"

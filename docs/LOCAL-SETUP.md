@@ -1,5 +1,31 @@
 # CT-03 — Môi trường local và tích hợp
 
+**Nhóm 4–5, 13/11/2026:** thêm hai provider OCR CPU: Nhật 8080 và Trung 8083, mỗi provider có venv/lock riêng; API 8081 có 26 handlers + durable worker; FE 8443 đã nối chụp frame/upload/job/polling/overlay/history. [Hướng dẫn cài/chạy/kiểm thử hiện tại](GROUP-05-OCR-PIPELINE.md), [phạm vi API](GROUP-04-APPLICATION-API.md). Không cần Docker/AWS; không reset DB, không auto fallback mock. Các mô tả thiếu API/OCR integration phía dưới là bản ghi lịch sử.
+
+**Nhóm 3, 13/11/2026:** local auth đã có mã xác nhận qua mailbox trên máy, reset/change password/email, refresh/revoke và quyền Admin server-controlled. Không cần SMTP/Docker/AWS hoặc dependency mới. Chạy service như hướng dẫn local bên dưới; [hướng dẫn đầy đủ và lệnh auth-admin](GROUP-03-AUTH-AND-AUTHORIZATION.md). Cognito/email internet/realtime chưa nghiệm thu.
+
+**Tích hợp FE local 13/11/2026:** bật DB bằng `./scripts/dev-db`; init nếu là checkout mới; chạy `./scripts/dev-local-api` thay cho foundation API; FE tại `http://127.0.0.1:8443` mặc định gọi API thật qua Vite proxy. Không chạy hai API trên cùng cổng. Đăng ký tài khoản local trên web, không dùng login demo cũ. [Các ca thử và giới hạn hiện tại](FE-DB-INTEGRATION-TESTS.md). Những nhận xét “chưa có FE client/proxy” trong các mốc lịch sử bên dưới không còn mô tả trạng thái mới này.
+
+**Cập nhật 13/11/2026 — nhóm 2:** storage local đã triển khai bằng DynamoDB Local 3.3.2 (Java 21 có sẵn, loopback 8000, telemetry tắt) và local object store. Chạy `./scripts/dev-db`, `./scripts/db-admin init`, rồi `PERSISTENCE_ENABLED=1 ./scripts/dev-api`. Test backend hiện cần DB đang chạy; chỉ tạo/xóa bảng test riêng. Config, private data directories, dependencies SDK local, backup và giới hạn ở [nhóm 2](GROUP-02-DATABASE-AND-STORAGE.md). Không cần Docker/AWS account; chưa có cloud deployment.
+
+**Cập nhật 12/11/2026 — nhóm 1 chạy trực tiếp, không cần Docker/AWS.** Application backend hiện có ở `application-backend/`, venv Python 3.12 riêng tại `.venv` bên trong module. Không thay venv OCR/Python toàn máy/pnpm/frontend.
+
+Từ root repo, trên workspace đã cài dependencies:
+
+```bash
+./scripts/dev-api --check
+./scripts/test-api
+./scripts/dev-api
+```
+
+Checkout mới: `python3.12 -m venv application-backend/.venv`, rồi `application-backend/.venv/bin/python -m pip install -r application-backend/requirements.lock`. Config chỉ từ environment export, mẫu ở [backend .env.example](../application-backend/.env.example), không tự load dotenv. Chi tiết ở [backend README](../application-backend/README.md).
+
+API bind `127.0.0.1:8081`; `GET /health/live` 200, `/health/ready` 503 khi nghiệp vụ chưa cấu hình; public API thiếu token 401, token bất kỳ không được cấp quyền. Hai health routes nằm ngoài public contract. Đây là foundation thật, **0 business handlers**; database, Cognito, OCR jobs, realtime/media và FE integration chưa triển khai trong nhóm 1. Header contract vẫn DRAFT. Đổi port bằng `APP_PORT=8082 ./scripts/dev-api` khi cần, không kill service khác.
+
+Frontend tiếp tục preview 8443, raw OCR giữ cấu hình 8080. Không có Docker/AWS/database/model nào cần chạy để kiểm nền tảng. Các hướng dẫn container/AWS ở bản ghi CT-03 dưới đây là tùy chọn cho bước sau.
+
+## Bản ghi môi trường CT-03 ngày 11/11/2026
+
 **DRAFT — ready_for_review, 11/11/2026.** Tài liệu mô tả cấu hình hiện hữu và cách chuẩn bị bước tích hợp; không khẳng định stack đầy đủ đã chạy. CT-03 không cài lại môi trường, đổi dependency/runtime, khởi động service, deploy, migration, commit hoặc push.
 
 Đọc cùng [ownership](OWNERSHIP.md), [Git workflow](GIT-WORKFLOW.md), [CT-01 audit](G0-CURRENT-STATE.md), [CT-02 contract](../contracts/README.md) và [hướng dẫn adapter](CT-02-INTEGRATION-GUIDE.md). Lệnh ở các mục cài/chạy là hướng dẫn **chưa thực thi trong CT-03**; các lệnh thực sự đã chạy được ghi riêng ở mục 10.

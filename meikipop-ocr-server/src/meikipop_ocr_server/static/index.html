@@ -734,7 +734,7 @@
       clearOverlays();
 
       paragraphs.forEach((p, index) => {
-        const box = p.bounding_box;
+        const box = p.box;
         if (!box) return;
 
         const left = (box.center_x - box.width / 2) * 100;
@@ -749,7 +749,7 @@
         div.style.top = `${top}%`;
         div.style.width = `${width}%`;
         div.style.height = `${height}%`;
-        div.title = p.text;
+        div.title = p.full_text;
 
         div.addEventListener('mouseenter', () => highlightItem(index));
         div.addEventListener('mouseleave', () => unhighlightItem(index));
@@ -779,12 +779,12 @@
         meta.className = 'card-meta';
         meta.innerHTML = `
           <span class="card-index">#${index + 1}</span>
-          <span class="card-direction">${p.direction || 'Horizontal'}</span>
+          <span class="card-direction">${p.is_vertical ? 'Vertical' : 'Horizontal'}</span>
         `;
 
         const text = document.createElement('div');
         text.className = 'card-text';
-        text.textContent = p.text;
+        text.textContent = p.full_text;
 
         card.appendChild(meta);
         card.appendChild(text);
@@ -804,7 +804,7 @@
         card.addEventListener('mouseenter', () => highlightItem(index));
         card.addEventListener('mouseleave', () => unhighlightItem(index));
         card.addEventListener('click', () => {
-          navigator.clipboard.writeText(p.text);
+          navigator.clipboard.writeText(p.full_text);
           showToast(`Copied #${index + 1}!`);
         });
 
@@ -824,7 +824,7 @@
 
     function copyAllText() {
       if (!lastResults || !lastResults.paragraphs) return;
-      const allText = lastResults.paragraphs.map(p => p.text).join('\n');
+      const allText = lastResults.paragraphs.map(p => p.full_text).join('\n');
       navigator.clipboard.writeText(allText);
       showToast('All text copied to clipboard!');
     }

@@ -207,6 +207,7 @@ def main(argv=None):
         store = ContractStore()
         report.update(contract_version=store.version["contract_version"], contract_status=store.version["status"],
                       bundle_sha256=store.version["bundle_sha256"], contract_commit_sha=store.version.get("contract_commit_sha"),
+                      approval_policy=store.approval_policy,
                       approval_pending=store.approval_reasons(), mode="DRAFT_LINT" if args.lint_draft else "APPROVED_CONTRACT_REQUIRED")
         store.verify_bundle()
         if args.message:

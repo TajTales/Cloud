@@ -1,0 +1,4 @@
+#!/bin/sh
+set -eu
+db_repo_dir=$(CDPATH= cd "$(dirname "$0")/.." && pwd)
+exec "${LINGUALIVE_SETUP_PYTHON:-python3.12}" -B "$db_repo_dir/tools/local-dynamodb/setup.py"

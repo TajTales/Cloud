@@ -1,0 +1,203 @@
+{
+  "task": "LOCAL-FE-DB-INTEGRATION",
+  "status": "READY_FOR_MANUAL_REVIEW",
+  "client_date": "2026-11-13",
+  "recorded_at_utc": "2026-11-13T08:25:26.827225Z",
+  "source_head": "84606206d7c32b1c110065fdcc915a3d8b2ad8c6",
+  "changes_committed": false,
+  "contract_version": "0.1.0-draft.1",
+  "contract_status": "DRAFT",
+  "original_bundle_sha256": "bcfd39b6a2fd85d74cd5efd53e7a6bff753f60bf7e286246c27ef696c1c6bfd2",
+  "original_bundle_files_verified": 159,
+  "local_auth_provider": "local_password",
+  "cognito_integrated": false,
+  "docker_used": false,
+  "aws_cloud_resources_used": false,
+  "implemented_business_operations": [
+    "getMe",
+    "patchMe",
+    "listVocabulary",
+    "saveVocabulary",
+    "deleteVocabulary",
+    "reviewVocabulary",
+    "createSession",
+    "getSession",
+    "endSession",
+    "listHistory",
+    "getStats"
+  ],
+  "validation": [
+    {
+      "command": "./scripts/test-api",
+      "exit_code": 0,
+      "tests": 94,
+      "existing_tests": 79,
+      "new_integration_tests": 15,
+      "duration_s": 14.627,
+      "log_sha256": "281f1680288b7890a83fa8ed425bfd85dad3e0167547d6cca67c237e8489b959",
+      "database": "real DynamoDB Local; isolated disposable test tables",
+      "http": "real aiohttp loopback"
+    },
+    {
+      "command": "node node_modules/typescript/bin/tsc --noEmit --ignoreDeprecations 5.0",
+      "exit_code": 0
+    },
+    {
+      "command": "node node_modules/vite/bin/vite.js build",
+      "exit_code": 0
+    },
+    {
+      "command": "./scripts/dev-local-api --check",
+      "exit_code": 0,
+      "operations": 11
+    },
+    {
+      "command": "./scripts/db-admin inspect",
+      "exit_code": 0,
+      "auth_and_idempotency_rows_hidden": true
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0
+    }
+  ],
+  "frontend_consumer_test": {
+    "source": "src/api/learning.ts",
+    "harness": "tools/integration/learning-client-check.mjs",
+    "checks": 13,
+    "status": "PASS",
+    "calls_real_api_and_database": true,
+    "node_cookie_and_timer_adapter": true,
+    "browser_dom_tested": false
+  },
+  "standalone_smoke": {
+    "status": "PASS",
+    "checks": [
+      {
+        "path": "/",
+        "status": 200,
+        "kind": "vite_http_module"
+      },
+      {
+        "path": "/src/App.tsx",
+        "status": 200,
+        "kind": "vite_http_module"
+      },
+      {
+        "path": "/src/api/learning.ts",
+        "status": 200,
+        "kind": "vite_http_module"
+      },
+      {
+        "path": "/src/hooks/useLearningApi.ts",
+        "status": 200,
+        "kind": "vite_http_module"
+      },
+      {
+        "path": "/src/components/AccountPanels.tsx",
+        "status": 200,
+        "kind": "vite_http_module"
+      },
+      {
+        "path": "/src/components/ReviewCards.tsx",
+        "status": 200,
+        "kind": "vite_http_module"
+      },
+      {
+        "path": "/api/v1/me",
+        "status": 401,
+        "expected": 401,
+        "kind": "real_vite_api_proxy",
+        "code": "AUTH_REQUIRED"
+      },
+      {
+        "path": "/local-auth/session",
+        "status": 401,
+        "expected": 401,
+        "kind": "real_vite_api_proxy",
+        "code": "AUTH_REQUIRED"
+      },
+      {
+        "path": "/health/ready",
+        "status": 503,
+        "expected": 503,
+        "dependencies": {
+          "database": "ready",
+          "object_storage": "ready",
+          "authentication": "local_password_ready",
+          "ocr": "not_connected",
+          "cognito": "not_configured"
+        },
+        "operations": 11
+      }
+    ],
+    "browser_dom_tested": false
+  },
+  "manual_ui_cases": {
+    "count": 15,
+    "status": "MANUAL_PENDING",
+    "guide": "docs/FE-DB-INTEGRATION-TESTS.md"
+  },
+  "data_provenance": {
+    "application_seeded_by_agent": false,
+    "test_accounts_only_in_disposable_tables": true,
+    "lexicon_source": "existing demo content; origin=fixture; sample:v1 entry IDs",
+    "ocr_results_fabricated": false
+  },
+  "dependencies_added": [],
+  "scope": {
+    "new_files": [
+      "application-backend/src/lingualive_api/local_auth.py",
+      "application-backend/src/lingualive_api/learning.py",
+      "application-backend/src/lingualive_api/local_integration.py",
+      "application-backend/tests/test_learning_integration.py",
+      "src/api/learning.ts",
+      "src/hooks/useLearningApi.ts",
+      "scripts/dev-local-api",
+      "shared/demo-vocabulary.json",
+      "tools/integration/learning-client-check.mjs",
+      "docs/LOCAL-AUTH-DRAFT.md",
+      "docs/FE-DB-INTEGRATION-TESTS.md",
+      "docs/fe-db-integration-results.json"
+    ],
+    "existing_files_modified_in_this_task": [
+      "src/App.tsx",
+      "src/components/AccountPanels.tsx",
+      "src/components/ReviewCards.tsx",
+      "vite.config.ts",
+      ".env.example",
+      "application-backend/src/lingualive_api/app.py",
+      "application-backend/src/lingualive_api/config.py",
+      "application-backend/src/lingualive_api/__main__.py",
+      "application-backend/src/lingualive_api/persistence/__main__.py",
+      "application-backend/.env.example",
+      "application-backend/README.md",
+      "docs/LOCAL-SETUP.md",
+      "docs/GROUP-02-DATABASE-AND-STORAGE.md",
+      "docs/ACCEPTANCE.md"
+    ],
+    "other_dirty_files_pre_existed": true,
+    "frontend_design_and_effects_preserved": true,
+    "production_ocr_provider_unchanged": true
+  },
+  "earlier_attempts": [
+    {
+      "command": "tsc --noEmit",
+      "result": "TS5103 from pre-existing ignoreDeprecations=6.0; compiler check uses 5.0 override, no config/dependency downgrade"
+    },
+    {
+      "tests": 92,
+      "failed": 5,
+      "cause": "New save handler passed uniqueness row rather than its two-key projection to DynamoDB GetItem",
+      "resolution": "Fixed application key projection; kept schemas/fixtures; final 94 tests pass"
+    }
+  ],
+  "limitations": [
+    "Cognito/PKCE/account linking to AWS pending; local user IDs are not Cognito subs",
+    "Browser DOM/click tests not run; manual cases pending",
+    "OCR/lexicon provider, Group/Chime/realtime/recording/Admin remain unconnected",
+    "No cloud conformance or full-system readiness; /health/ready intentionally returns 503",
+    "Session metadata/history persist; video/frame content remains browser-only",
+    "Original CT-01/02 decisions and contract approval remain DRAFT"
+  ]
+}

@@ -1,0 +1,6 @@
+.live-ocr-overlay { position: absolute; inset: 0; z-index: 3; pointer-events: none; overflow: hidden; }
+.live-ocr-box { position: absolute; border: 1px solid #ffcc96; border-radius: 3px; box-shadow: 0 0 0 1px #10272c66; }
+.live-ocr-box > span { position: absolute; left: 0; bottom: 100%; max-width: min(380px,60vw); padding: 3px 6px; background: #10272ce6; color: #fff5e5; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-radius: 3px; }
+.live-ocr-transcript h3 { overflow-wrap: anywhere; line-height: 1.8; }
+.live-ocr-transcript .app-muted { font-size: 12px; line-height: 1.8; }
+.live-ocr-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }

@@ -1,0 +1,9 @@
+#!/bin/sh
+set -eu
+ocr_repo_dir=$(CDPATH= cd "$(dirname "$0")/.." && pwd)
+export PYTHONPATH="$ocr_repo_dir/meikipop-ocr-server/src${PYTHONPATH:+:$PYTHONPATH}"
+export HF_HOME="$ocr_repo_dir/meikipop-ocr-server/.local-models"
+# Download models explicitly during setup; the running service stays offline.
+export HF_HUB_OFFLINE=1
+"$ocr_repo_dir/meikipop-ocr-server/.venv/bin/python" -B "$ocr_repo_dir/tools/integration/prepare_ocr_models.py" --offline
+exec "$ocr_repo_dir/meikipop-ocr-server/.venv/bin/python" -B -m meikipop_ocr_server.server --provider meikiocr --host 127.0.0.1 --port 8080 --workers 1 "$@"

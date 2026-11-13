@@ -1,0 +1,8 @@
+.venv/
+.venv-zh/
+.local-data/
+.local-models/
+__pycache__/
+*.py[cod]
+.env
+.env.local

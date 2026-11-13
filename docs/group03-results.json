@@ -1,0 +1,86 @@
+{
+  "task": "GROUP-03-AUTH-AND-AUTHORIZATION",
+  "date": "2026-11-13",
+  "owner": "Nguyen Tai Duc",
+  "status": "LOCAL_IMPLEMENTED_MANUAL_ACCEPTANCE_PENDING",
+  "source_head": "84606206d7c32b1c110065fdcc915a3d8b2ad8c6",
+  "working_tree_required": true,
+  "committed": false,
+  "contract": {
+    "version": "0.1.0-draft.1",
+    "status": "DRAFT",
+    "bundle_sha256": "bcfd39b6a2fd85d74cd5efd53e7a6bff753f60bf7e286246c27ef696c1c6bfd2",
+    "original_bundle_changed": false,
+    "local_overlay_revision": "local-auth-draft.2",
+    "local_overlay_routes": 16
+  },
+  "dependency_changes": [],
+  "new_files": [
+    "application-backend/src/lingualive_api/local_mail.py",
+    "application-backend/src/lingualive_api/local_admin.py",
+    "application-backend/src/lingualive_api/auth_admin.py",
+    "application-backend/tests/test_auth_integration.py",
+    "src/admin/LocalAdminWorkspace.tsx",
+    "tools/integration/auth-client-check.mjs",
+    "scripts/auth-admin",
+    "docs/GROUP-03-AUTH-AND-AUTHORIZATION.md",
+    "docs/group03-results.json"
+  ],
+  "updated_files": [
+    "application-backend/src/lingualive_api/local_auth.py",
+    "application-backend/src/lingualive_api/local_integration.py",
+    "application-backend/tests/test_learning_integration.py",
+    "application-backend/README.md",
+    "application-backend/.env.example",
+    "application-backend/pyproject.toml",
+    "src/api/learning.ts",
+    "src/hooks/useLearningApi.ts",
+    "src/components/AccountPanels.tsx",
+    "src/App.tsx",
+    "docs/LOCAL-AUTH-DRAFT.md",
+    "docs/LOCAL-SETUP.md",
+    "docs/FE-DB-INTEGRATION-TESTS.md",
+    "docs/TIEN-DO-VA-KE-HOACH-HOAN-THANH.md",
+    "docs/ACCEPTANCE.md"
+  ],
+  "checks": [
+    {"command": "./scripts/test-api", "exit_code": 0, "tests": 114, "new_group03_tests": 20, "old_regression_tests": 94, "storage": "real_dynamodb_local", "accounts": "synthetic_isolated_test_tables", "mail_delivery": "private_temporary_local_mailbox"},
+    {"command": "node node_modules/typescript/bin/tsc --noEmit --ignoreDeprecations 5.0", "exit_code": 0},
+    {"command": "node node_modules/vite/bin/vite.js build", "exit_code": 0},
+    {"command": "./scripts/auth-admin --help", "exit_code": 0},
+    {"command": "git diff --check", "exit_code": 0}
+  ],
+  "frontend_consumer": {"production_client_executed": true, "real_http": true, "auth_checks": 6, "learning_regression_checks": 13, "browser_dom_tested": false, "web_locks_cross_tab_browser_tested": false},
+  "local_smoke": {
+    "frontend_url": "http://127.0.0.1:8443",
+    "frontend_http_status": 200,
+    "api_liveness": "alive",
+    "auth_session_via_vite_without_cookie": 401,
+    "me_via_vite_without_bearer": 401,
+    "application_accounts_or_words_created_by_smoke": false,
+    "services_started": ["./scripts/dev-db", "./scripts/dev-local-api", "node node_modules/vite/bin/vite.js --host 127.0.0.1 --port 8443 --strictPort"],
+    "note": "Expected unauthorized responses prove proxy routing and fail-closed behavior, not authenticated browser acceptance."
+  },
+  "development_failures_corrected": [
+    "Test initially read a path-scoped cookie at / instead of /local-auth/session; corrected the test URL.",
+    "TypeScript rejected an unreachable session comparison after early return; removed redundant comparison.",
+    "TypeScript Web Locks declaration inferred nested Promise; awaited callback result explicitly.",
+    "First redirected test command used a missing .cache directory; actual suite log moved to existing ignored private data directory."
+  ],
+  "pending_or_blocked": [
+    "Manual browser acceptance AUTH-UI-01 through AUTH-UI-12",
+    "Cognito user pool, approved auth flow, SDK and JWT verifier implementation",
+    "Actual external email delivery and proof of external mailbox ownership",
+    "HTTP and WebSocket authorization in actual AWS/dev environment",
+    "Local identity to Cognito ownership mapping and migration plan",
+    "Room/meeting/Chime service and host/member realtime integration",
+    "Production HTTPS/cookies/secret management/distributed rate limits/retention",
+    "Public business Admin endpoints; local account overlay does not implement them"
+  ],
+  "production_users_seeded": false,
+  "existing_user_data_reset": false,
+  "real_user_admin_granted": false,
+  "aws_called": false,
+  "docker_used": false,
+  "deployed": false
+}

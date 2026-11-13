@@ -1,0 +1,8 @@
+#!/bin/sh
+set -eu
+local_api_root=$(CDPATH= cd "$(dirname "$0")/.." && pwd)
+export PERSISTENCE_ENABLED=1
+export LOCAL_AUTH_ENABLED=1
+export OCR_ENABLED="${OCR_ENABLED:-1}"
+export OCR_CHINESE_SERVICE_URL="${OCR_CHINESE_SERVICE_URL:-http://127.0.0.1:8083}"
+exec "$local_api_root/scripts/dev-api" "$@"

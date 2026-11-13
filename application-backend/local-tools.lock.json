@@ -1,0 +1,8 @@
+{
+  "dynamodb_local_version": "3.3.2",
+  "archive_url": "https://d1ni2b6xgvw0s0.cloudfront.net/v2.x/dynamodb_local_latest.tar.gz",
+  "archive_sha256": "7a94eb65f81aee270738751a4e5e3e6a7ad02a5d25194f55b83e08ec2ba6342b",
+  "archive_bytes": 42685155,
+  "jar_sha256": "65efdd850c9ace57e7ae11909701e96acdd26ecfe435f3741cc2ad82ed0bbc0c",
+  "note": "Official download URL is labeled v2.x, but the downloaded JAR reports 3.3.2. Pin checksum/version; do not silently update latest."
+}

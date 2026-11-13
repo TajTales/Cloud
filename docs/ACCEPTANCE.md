@@ -1,5 +1,15 @@
 # CT-04 — Biên bản kiểm tra và điều kiện nghiệm thu
 
+**Nhóm 4–5 local, 13/11/2026:** [report mới](group04-05-results.json) ghi **137/137 tests** API/DB/protocol/consumer và **5/5 model smoke cases** Nhật/Trung ngang/dọc/no-text. Tách producer synthetic trong regression khỏi model thực trong acceptance. [Hướng dẫn nghiệm thu UI](GROUP-05-OCR-PIPELINE.md) vẫn MANUAL_PENDING; chưa xác nhận browser DOM, meeting/media/WS cloud/ASR/lexicon hoặc AWS. Không nâng nghiệm thu CT-04/contract DRAFT từ các kết quả này.
+
+**Nhóm 3 local, 13/11/2026:** có [biên bản tài khoản/phân quyền](GROUP-03-AUTH-AND-AUTHORIZATION.md) và [kết quả kiểm tra](group03-results.json) riêng. Xác thực/password/email qua mailbox, token rotation/revoke và Admin account management được kiểm trên HTTP + DynamoDB thật; UI thủ công, Cognito, email internet và WS/AWS vẫn pending. Không thay nghiệm thu CT-04 lịch sử bằng kết quả này.
+
+**Tích hợp FE local 13/11/2026:** 94 tests backend đạt, gồm 15 tests mới và 13 bước của production API client qua HTTP thật/DynamoDB Local. [Các ca thao tác UI](FE-DB-INTEGRATION-TESTS.md) vẫn MANUAL_PENDING; không báo browser click, Cognito, OCR/provider, Group/Chime hoặc AWS pass. [Report hiện tại](fe-db-integration-results.json) ghi riêng, không sửa nghiệm thu CT-04 cũ hoặc approve contract.
+
+**Ghi chú 13/11/2026:** persistence local nhóm 2 có biên bản riêng tại [GROUP-02-DATABASE-AND-STORAGE.md](GROUP-02-DATABASE-AND-STORAGE.md) và [group02-results.json](group02-results.json). Không nâng kết quả CT-04 cũ thành integration/cloud pass.
+
+**Ghi chú 12/11/2026:** biên bản dưới đây giữ nguyên kết quả CT-04 ngày 11/11, khi quy trình còn ba thành viên. Ownership hiện là một người theo [policy mới](../contracts/approval-policy.json). Kết quả backend nền tảng và contract gate hiện tại được ghi riêng ở [nhóm 1](GROUP-01-BACKEND-FOUNDATION.md) và [group01-results.json](group01-results.json); không sửa kết quả lịch sử để giả rằng cloud/business đã chạy.
+
 **DRAFT — ready_for_review, 11/11/2026. Chưa ready_for_integration; chưa integrated.** Công cụ QA đã chạy được. Contract `0.1.0-draft.1` và fixtures vẫn DRAFT, chưa có xác nhận ba thành viên; mock bị chặn trước khi mở cổng. Không có consumer/producer thật được chứng nhận bởi CT-04.
 
 Đọc [hướng dẫn tái chạy](CONTRACT-TESTING.md), [kết quả JSON thực chạy](ct04-results.json), [decisions](../contracts/decisions.md) và [CT-03 local setup](LOCAL-SETUP.md). CT-04 không sửa UI, OCR provider, backend, database hoặc AWS. Không commit/push/deploy/migration.

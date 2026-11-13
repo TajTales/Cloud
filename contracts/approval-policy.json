@@ -1,0 +1,8 @@
+{
+  "policy_version": 1,
+  "policy_id": "single-owner-2026-11-12",
+  "required_approvers": ["Nguyễn Tài Đức"],
+  "require_evidence": true,
+  "authorization": "Project owner instructed that they now perform all three members' work and retain existing functional/API/schema conventions.",
+  "contract_wire_changes": false
+}

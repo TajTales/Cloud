@@ -1,0 +1,6 @@
+#!/bin/sh
+set -eu
+ocr_zh_root=$(CDPATH= cd "$(dirname "$0")/.." && pwd)
+export PYTHONPATH="$ocr_zh_root/meikipop-ocr-server/src${PYTHONPATH:+:$PYTHONPATH}"
+"$ocr_zh_root/meikipop-ocr-server/.venv-zh/bin/python" -B "$ocr_zh_root/tools/integration/verify_ocr_zh_models.py"
+exec "$ocr_zh_root/meikipop-ocr-server/.venv-zh/bin/python" -B -m meikipop_ocr_server.server --provider rapidocr --host 127.0.0.1 --port 8083 --workers 1 "$@"

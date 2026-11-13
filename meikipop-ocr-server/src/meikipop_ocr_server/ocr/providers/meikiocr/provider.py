@@ -40,8 +40,9 @@ class MeikiOcrProvider(OcrProvider):
             self.ocr_client = MeikiOCR()
             logger.info(f"{self.NAME} initialized successfully, running on: {self.ocr_client.active_provider}")
 
-        except Exception as e:
-            logger.error(f"failed to initialize {self.NAME}: {e}", exc_info=True)
+        except Exception:
+            logger.exception("MeikiOCR model initialization failed")
+            raise RuntimeError("MeikiOCR models could not be initialized") from None
 
     def scan(self, image: Image.Image) -> Optional[List[Paragraph]]:
         """
@@ -52,8 +53,9 @@ class MeikiOcrProvider(OcrProvider):
             return None
 
         try:
-            image_np_rgb = np.array(image.convert("RGB"))
-            img_height, img_width = image_np_rgb.shape[:2]
+            # MeikiOCR.run_ocr documents and consumes OpenCV BGR input.
+            image_np_bgr = np.array(image.convert("RGB"))[:, :, ::-1].copy()
+            img_height, img_width = image_np_bgr.shape[:2]
 
             if img_width == 0 or img_height == 0:
                 logger.error("invalid image dimensions received.")
@@ -61,7 +63,7 @@ class MeikiOcrProvider(OcrProvider):
 
             # --- 1. Run the entire OCR pipeline with a single library call ---
             ocr_results = self.ocr_client.run_ocr(
-                image_np_rgb,
+                image_np_bgr,
                 det_threshold=DET_CONFIDENCE_THRESHOLD,
                 rec_threshold=REC_CONFIDENCE_THRESHOLD,
                 punct_conf_factor=0.2
@@ -77,6 +79,10 @@ class MeikiOcrProvider(OcrProvider):
     def _to_normalized_bbox(self, bbox_pixels: list, img_width: int, img_height: int) -> BoundingBox:
         """converts an [x1, y1, x2, y2] pixel bbox to a normalized meikipop BoundingBox."""
         x1, y1, x2, y2 = bbox_pixels
+        x1, x2 = max(0, min(img_width, x1)), max(0, min(img_width, x2))
+        y1, y2 = max(0, min(img_height, y1)), max(0, min(img_height, y2))
+        if x2 < x1 or y2 < y1:
+            raise ValueError("OCR returned an inverted bounding box")
         box_w, box_h = x2 - x1, y2 - y1
 
         center_x = (x1 + box_w / 2) / img_width

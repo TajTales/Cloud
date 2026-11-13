@@ -1,0 +1,500 @@
+{
+  "task": "GROUP-02-DATABASE-AND-STORAGE",
+  "client_date": "2026-11-13",
+  "recorded_at_utc": "2026-11-12T17:42:27.662227+00:00",
+  "status": "LOCAL_PERSISTENCE_COMPLETE",
+  "next_group": "Authentication and authorization",
+  "business_services_ready": false,
+  "implemented_public_business_operations": 0,
+  "system_integrated": false,
+  "docker_used": false,
+  "aws_cloud_resources_used": false,
+  "runtime_database_endpoint": "http://127.0.0.1:8000",
+  "branch": "main",
+  "source_head": "84606206d7c32b1c110065fdcc915a3d8b2ad8c6",
+  "working_tree_changes_not_committed": true,
+  "contract_version": "0.1.0-draft.1",
+  "contract_status": "DRAFT",
+  "bundle_sha256": "bcfd39b6a2fd85d74cd5efd53e7a6bff753f60bf7e286246c27ef696c1c6bfd2",
+  "storage_model_version": 1,
+  "entity_types": [
+    "admin_action",
+    "audit",
+    "collection",
+    "config",
+    "connection",
+    "history",
+    "job",
+    "membership",
+    "object_ref",
+    "occurrence",
+    "profile",
+    "recording",
+    "result",
+    "room",
+    "session",
+    "shared_word",
+    "source",
+    "ticket",
+    "upload",
+    "word"
+  ],
+  "dynamodb_local": {
+    "dynamodb_local_version": "3.3.2",
+    "archive_url": "https://d1ni2b6xgvw0s0.cloudfront.net/v2.x/dynamodb_local_latest.tar.gz",
+    "archive_sha256": "7a94eb65f81aee270738751a4e5e3e6a7ad02a5d25194f55b83e08ec2ba6342b",
+    "archive_bytes": 42685155,
+    "jar_sha256": "65efdd850c9ace57e7ae11909701e96acdd26ecfe435f3741cc2ad82ed0bbc0c",
+    "note": "Official download URL is labeled v2.x, but the downloaded JAR reports 3.3.2. Pin checksum/version; do not silently update latest."
+  },
+  "java_version": "openjdk version \"21.0.12.1\" 2026-08-18 LTS\nOpenJDK Runtime Environment Temurin-21.0.12.1+1 (build 21.0.12.1+1-LTS)\nOpenJDK 64-Bit Server VM Temurin-21.0.12.1+1 (build 21.0.12.1+1-LTS, mixed mode, sharing)",
+  "installed_runtime_packages": {
+    "aiohappyeyeballs": "2.7.1",
+    "aiohttp": "3.14.5",
+    "aiosignal": "1.4.0",
+    "attrs": "26.1.0",
+    "boto3": "1.44.1",
+    "botocore": "1.44.1",
+    "frozenlist": "1.8.0",
+    "idna": "3.20",
+    "jmespath": "1.1.0",
+    "jsonschema": "4.26.0",
+    "jsonschema-specifications": "2025.9.1",
+    "multidict": "7.2.1",
+    "propcache": "0.5.4",
+    "PyYAML": "6.0.3",
+    "python-dateutil": "2.9.0.post0",
+    "referencing": "0.36.2",
+    "rfc3339-validator": "0.1.4",
+    "rfc3986-validator": "0.1.1",
+    "rpds-py": "2026.9.1",
+    "six": "1.17.0",
+    "s3transfer": "0.19.3",
+    "typing_extensions": "4.16.0",
+    "urllib3": "2.8.0",
+    "yarl": "1.25.1"
+  },
+  "runtime_dependency_versions_pinned": 24,
+  "results": [
+    {
+      "name": "db-init-repeatable",
+      "command": [
+        "./scripts/db-admin",
+        "init"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "expectation_met": true,
+      "report": {
+        "mode": "local",
+        "endpoint": "http://127.0.0.1:8000",
+        "table": "lingualive-local",
+        "model_version": 1,
+        "database": "ready",
+        "object_storage": "ready"
+      }
+    },
+    {
+      "name": "db-health",
+      "command": [
+        "./scripts/db-admin",
+        "check"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "expectation_met": true,
+      "report": {
+        "mode": "local",
+        "endpoint": "http://127.0.0.1:8000",
+        "table": "lingualive-local",
+        "model_version": 1,
+        "database": "ready",
+        "object_storage": "ready"
+      }
+    },
+    {
+      "name": "config-with-storage",
+      "command": [
+        "./scripts/dev-api",
+        "--check"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "expectation_met": true,
+      "environment_override": {
+        "PERSISTENCE_ENABLED": "1"
+      },
+      "report": {
+        "status": "FOUNDATION_CONFIG_VALID",
+        "environment": "local",
+        "host": "127.0.0.1",
+        "port": 8081,
+        "contract_version": "0.1.0-draft.1",
+        "contract_status": "DRAFT",
+        "bundle_sha256": "bcfd39b6a2fd85d74cd5efd53e7a6bff753f60bf7e286246c27ef696c1c6bfd2",
+        "declared_operations": 50,
+        "implemented_business_operations": 0,
+        "persistence_enabled": true,
+        "business_services_ready": false
+      }
+    },
+    {
+      "name": "reject-cloud-endpoint",
+      "command": [
+        "./scripts/db-admin",
+        "check"
+      ],
+      "exit_code": 2,
+      "expected_exit_code": 2,
+      "expectation_met": true,
+      "environment_override": {
+        "DYNAMODB_ENDPOINT": "https://dynamodb.ap-southeast-1.amazonaws.com"
+      },
+      "output_summary": "STORAGE_FAILED: ConfigurationError: This adapter requires an explicit HTTP loopback DynamoDB endpoint"
+    },
+    {
+      "name": "dependency-check",
+      "command": [
+        "application-backend/.venv/bin/python",
+        "-m",
+        "pip",
+        "check"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "expectation_met": true,
+      "environment_override": {
+        "PIP_CACHE_DIR": "/private/tmp/lingualive-group02-pip-cache"
+      },
+      "output_summary": "No broken requirements found."
+    },
+    {
+      "name": "pinned-local-tool",
+      "command": [
+        "./scripts/setup-local-db"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "expectation_met": true,
+      "output_summary": "DynamoDB Local is already installed and matches the pinned JAR."
+    },
+    {
+      "name": "shell-syntax",
+      "command": [
+        "sh",
+        "-n",
+        "scripts/dev-db",
+        "scripts/setup-local-db",
+        "scripts/db-admin",
+        "scripts/test-api"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "expectation_met": true,
+      "output_summary": ""
+    },
+    {
+      "name": "diff-check",
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "expectation_met": true,
+      "output_summary": ""
+    },
+    {
+      "name": "metadata-export",
+      "command": [
+        "./scripts/db-admin",
+        "export",
+        "--output",
+        "/Users/ducen/VScode/Video Stream Language Learning/application-backend/.local-data/backups/group02-20261112T174226987398.ndjson"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "expectation_met": true,
+      "report": {
+        "status": "EXPORTED",
+        "model_version": 1,
+        "items": 1,
+        "sha256": "106b7fbba9d62d674e46a87bc9358a6e0786c455e37bb811efe2383f0a266076",
+        "note": "Quiesce writes for a consistent multi-page snapshot. Object bodies are backed up separately."
+      }
+    },
+    {
+      "name": "backend-tests",
+      "command": [
+        "./scripts/test-api"
+      ],
+      "exit_code": 0,
+      "tests": 79,
+      "real_dynamodb_integration_tests": 33,
+      "real_persistence_http_tests": 1,
+      "foundation_tests": 32,
+      "object_cursor_config_tests": 12,
+      "data_mode": "Synthetic identities/DTOs in disposable local test tables only",
+      "log_sha256": "5c65f1034ad08a5f234f08c1fe2873d67be6b1defc14835b4cd4ebc80bfcb37e"
+    },
+    {
+      "name": "contract-tool-tests",
+      "command": [
+        "./scripts/test-contract-tools"
+      ],
+      "exit_code": 0,
+      "python_tests": 26,
+      "node_tests": 8,
+      "log_sha256": "53bd709baff18592cd0ed7a0daba49f78e16617469ce34c2457782bc7485d21b"
+    },
+    {
+      "name": "contract-draft-lint",
+      "command": [
+        "./scripts/validate-contracts",
+        "--lint-draft"
+      ],
+      "exit_code": 0,
+      "report": {
+        "tool": "CT-04",
+        "conformance": "PENDING",
+        "runtime_integration": "NOT_RUN",
+        "errors": [],
+        "contract_version": "0.1.0-draft.1",
+        "contract_status": "DRAFT",
+        "bundle_sha256": "bcfd39b6a2fd85d74cd5efd53e7a6bff753f60bf7e286246c27ef696c1c6bfd2",
+        "contract_commit_sha": null,
+        "approval_policy": {
+          "policy_id": "single-owner-2026-11-12",
+          "required_approvers": [
+            "Nguyễn Tài Đức"
+          ],
+          "sha256": "4eb23cd7e71d25ea32a03c5cebcb47c744397182edf55f53062b99e641887a5b",
+          "path": "contracts/approval-policy.json"
+        },
+        "approval_pending": [
+          "contract_status=DRAFT; approved contract required",
+          "required approvals with evidence are missing: Nguyễn Tài Đức",
+          "current approval policy must be pinned in a new contract release before approval",
+          "contract_commit_sha is not pinned",
+          "HTTP/WS document status is not approved",
+          "one or more application operations remain draft",
+          "document remains draft: application.schema.json",
+          "document remains draft: chime-chat.schema.json",
+          "document remains draft: realtime.schema.json",
+          "document remains draft: openapi.yaml",
+          "document remains draft: asyncapi.yaml",
+          "fixture manifest remains draft: fixtures/manifest.json",
+          "fixture manifest remains draft: fixtures/ct04-draft/manifest.json",
+          "fixture set is not included in pinned bundle: fixtures/ct04-draft/manifest.json"
+        ],
+        "mode": "DRAFT_LINT",
+        "lint": {
+          "errors": [],
+          "bundle_files": 159,
+          "local_references": 908,
+          "json_schemas": 5,
+          "asyncapi": {
+            "document_created": true,
+            "errors": [],
+            "warnings": [],
+            "information": [
+              {
+                "code": "asyncapi-latest-version",
+                "message": "The latest version of AsyncAPi is not used. It is recommended update to the \"3.1.0\" version.",
+                "path": [
+                  "asyncapi"
+                ],
+                "severity": 2,
+                "source": "/Users/ducen/VScode/Video Stream Language Learning/contracts/asyncapi.yaml",
+                "range": {
+                  "start": {
+                    "line": 0,
+                    "character": 10
+                  },
+                  "end": {
+                    "line": 0,
+                    "character": 15
+                  }
+                }
+              }
+            ]
+          },
+          "fixtures": {
+            "positive": 141,
+            "negative_schema": 11,
+            "negative_semantic": 5
+          },
+          "examples": {
+            "request_examples": 21,
+            "parameter_examples": 67,
+            "success_examples": 59,
+            "error_examples": 396,
+            "ws_examples": 18,
+            "operations": 50
+          },
+          "correlations": {
+            "reference_groups": 7,
+            "scenario_coverage": 24
+          },
+          "raw_shape": {
+            "status": "EVIDENCED_SHAPE_ONLY",
+            "classes": 3,
+            "real_provider_tested": false
+          }
+        },
+        "status": "STRUCTURE_VALID",
+        "tools": {
+          "jsonschema": "4.26.0",
+          "PyYAML": "6.0.3",
+          "openapi-spec-validator": "0.7.2",
+          "referencing": "0.36.2"
+        },
+        "exit_code": 0
+      }
+    }
+  ],
+  "standalone_http_smoke": [
+    {
+      "path": "/health/live",
+      "actual_status": 200,
+      "expected_status": 200,
+      "data_mode": "real",
+      "contract_status": "DRAFT",
+      "body": {
+        "data": {
+          "status": "alive",
+          "stage": "persistence",
+          "environment": "local"
+        },
+        "request_id": "061ef7ce-51d9-4607-8670-1c3738259e7e"
+      }
+    },
+    {
+      "path": "/health/ready",
+      "actual_status": 503,
+      "expected_status": 503,
+      "data_mode": "real",
+      "contract_status": "DRAFT",
+      "body": {
+        "error": {
+          "code": "FEATURE_NOT_CONFIGURED",
+          "message": "Application services are not ready.",
+          "details": {
+            "stage": "persistence",
+            "business_services_ready": false,
+            "dependencies": {
+              "database": "ready",
+              "object_storage": "ready",
+              "authentication": "not_configured"
+            }
+          },
+          "retryable": false
+        },
+        "request_id": "81b2870d-584b-479f-baad-97af1c639c6c"
+      }
+    },
+    {
+      "path": "/api/v1/me",
+      "actual_status": 401,
+      "expected_status": 401,
+      "data_mode": "real",
+      "contract_status": "DRAFT",
+      "body": {
+        "error": {
+          "code": "AUTH_REQUIRED",
+          "message": "An access token is required.",
+          "details": {},
+          "retryable": false
+        },
+        "request_id": "a7432990-332e-47fd-8759-14dcd9e2d183"
+      }
+    },
+    {
+      "path": "/api/v1/me",
+      "actual_status": 503,
+      "expected_status": 503,
+      "data_mode": "real",
+      "contract_status": "DRAFT",
+      "body": {
+        "error": {
+          "code": "FEATURE_NOT_CONFIGURED",
+          "message": "This feature is not configured yet.",
+          "details": {},
+          "retryable": false
+        },
+        "request_id": "a1457aeb-b551-40d2-a6ee-1e99a30bbc3b"
+      }
+    }
+  ],
+  "process_restart_durability": {
+    "status": "PASS",
+    "database_process_restarted": true,
+    "marker_survived": true,
+    "disposable_test_table_removed": true,
+    "prior_process_exit_code": 143
+  },
+  "database_listener": "127.0.0.1:8000 only",
+  "database_directory_private": true,
+  "scope": {
+    "baseline_files": 346,
+    "existing_files_modified": [
+      "application-backend/.env.example",
+      "application-backend/.gitignore",
+      "application-backend/README.md",
+      "application-backend/pyproject.toml",
+      "application-backend/requirements.lock",
+      "application-backend/src/lingualive_api/__main__.py",
+      "application-backend/src/lingualive_api/app.py",
+      "application-backend/src/lingualive_api/config.py",
+      "docs/ACCEPTANCE.md",
+      "docs/GROUP-01-BACKEND-FOUNDATION.md",
+      "docs/LOCAL-SETUP.md"
+    ],
+    "existing_files_unchanged": 335,
+    "new_source_files": [
+      "application-backend/local-tools.lock.json",
+      "application-backend/schema/dynamodb-v1.json",
+      "application-backend/src/lingualive_api/persistence/__init__.py",
+      "application-backend/src/lingualive_api/persistence/__main__.py",
+      "application-backend/src/lingualive_api/persistence/bundle.py",
+      "application-backend/src/lingualive_api/persistence/catalog.py",
+      "application-backend/src/lingualive_api/persistence/cursor.py",
+      "application-backend/src/lingualive_api/persistence/dynamo.py",
+      "application-backend/src/lingualive_api/persistence/errors.py",
+      "application-backend/src/lingualive_api/persistence/idempotency.py",
+      "application-backend/src/lingualive_api/persistence/objects.py",
+      "application-backend/src/lingualive_api/persistence/repository.py",
+      "application-backend/src/lingualive_api/persistence/settings.py",
+      "application-backend/tests/test_local_objects.py",
+      "application-backend/tests/test_persistence.py",
+      "application-backend/tests/test_persistence_http.py",
+      "docs/GROUP-02-DATABASE-AND-STORAGE.md",
+      "docs/group02-results.json",
+      "scripts/db-admin",
+      "scripts/dev-db",
+      "scripts/setup-local-db",
+      "tools/local-dynamodb/LoopbackDynamo.java",
+      "tools/local-dynamodb/setup.py"
+    ],
+    "private_runtime_data_and_vendor_binaries_excluded": true,
+    "old_contract_bundle_files_unchanged": 159,
+    "frontend_ocr_yomitan_assets_unchanged": true,
+    "trailing_whitespace": [],
+    "broken_links": []
+  },
+  "limitations": [
+    "No Cognito/JWT verification or public business handlers yet; HTTP remains fail closed",
+    "Local tests do not prove IAM, cloud throttling/transaction conflicts/GSI lag/TTL/lifecycle or AWS backup/restore",
+    "Worker lease execution/result-job-session completion/notification and domain lifecycle/counters are later service work",
+    "Filesystem and DynamoDB are not a distributed transaction; inaccessible orphan files need later lifecycle cleanup",
+    "Export scans are not an atomic multi-page snapshot; quiesce writes and back up object bodies separately",
+    "Test identities/OCR JSON/video bytes are synthetic; no OCR/meeting/recording accuracy or end-to-end UI acceptance"
+  ],
+  "earlier_attempts": [
+    "v3.x archive URL returned 403; the official v2.x download link delivered verified DynamoDB Local 3.3.2",
+    "Initial test data generator sometimes emitted disallowed room-code characters; fixed generator to the unchanged contract alphabet",
+    "Sandbox loopback access requires tool permission; no mock substitution used",
+    "Database SIGTERM produced expected exit 143 and a Log4j shutdown-hook warning; restart durability marker was verified afterwards"
+  ]
+}

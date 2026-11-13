@@ -12,7 +12,7 @@ from unittest.mock import patch
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from contracts_core import (
     ContractError, ContractStore, PendingApproval, REPO, compatibility_review, compare_contract_directories,
-    decode_json, load, semantic_issues,
+    decode_json, load, semantic_issues, approval_policy, missing_approvals,
 )
 from mock_server import FixturePlanner, make_handler, serve
 import validate
@@ -75,6 +75,28 @@ class ContractToolTests(unittest.TestCase):
         self.assertTrue(self.store.approval_reasons())
         with self.assertRaises(PendingApproval):
             self.store.require_approval()
+
+    def test_current_policy_requires_owner_evidence_not_three_members(self):
+        policy = self.store.approval_policy
+        self.assertEqual(policy["required_approvers"], ["Nguyễn Tài Đức"])
+        self.assertEqual(missing_approvals([], policy), ["Nguyễn Tài Đức"])
+        self.assertEqual(missing_approvals([{"name": "Nguyễn Tài Đức", "evidence": "unit-test-example-only"}], policy), [])
+        for evidence in [None, True, "", "   "]:
+            self.assertTrue(missing_approvals([{"name": "Nguyễn Tài Đức", "evidence": evidence}], policy))
+        self.assertTrue(self.store.approval_reasons())  # Policy does not approve this DRAFT package.
+
+    def test_invalid_policy_cannot_disable_evidence_or_approvers(self):
+        with tempfile.TemporaryDirectory() as directory:
+            folder = Path(directory) / "contracts"
+            folder.mkdir()
+            self.assertEqual(len(approval_policy(directory)["required_approvers"]), 3)
+            (folder / "approval-policy.json").write_text('{"required_approvers":[],"require_evidence":false}')
+            with self.assertRaises(ContractError):
+                approval_policy(directory)
+
+    def test_required_datetime_and_uri_formats_are_really_checked(self):
+        for kind, value in [("date-time", "2026-99-99T14:30:01.000Z"), ("uri", "not a valid uri")]:
+            self.assertTrue(self.store.schema_errors(value, {"type": "string", "format": kind}))
 
     def test_mock_refuses_before_socket_creation(self):
         with patch("mock_server.ThreadingHTTPServer") as server:

@@ -1,0 +1,9 @@
+#!/bin/sh
+set -eu
+zh_setup_root=$(CDPATH= cd "$(dirname "$0")/.." && pwd)
+zh_setup_python="${LINGUALIVE_PYTHON:-$zh_setup_root/application-backend/.venv/bin/python}"
+if [ ! -x "$zh_setup_root/meikipop-ocr-server/.venv-zh/bin/python" ]; then
+  "$zh_setup_python" -m venv "$zh_setup_root/meikipop-ocr-server/.venv-zh"
+fi
+"$zh_setup_root/meikipop-ocr-server/.venv-zh/bin/python" -m pip install -r "$zh_setup_root/meikipop-ocr-server/requirements-zh.lock"
+exec "$zh_setup_root/meikipop-ocr-server/.venv-zh/bin/python" -B "$zh_setup_root/tools/integration/verify_ocr_zh_models.py"

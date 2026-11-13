@@ -1,5 +1,7 @@
 # Đánh giá OCR và hợp đồng tích hợp với LinguaLive
 
+**Triển khai tiếp theo, 13/11/2026:** task nhóm backend 4–5 đã cho phép thực hiện OCR. [Bản bàn giao mới](GROUP-05-OCR-PIPELINE.md) ghi source/upload/job/result, provider CPU Nhật/Trung, giới hạn/admission/timeout/cleanup/errors/readiness và static field mapping đã sửa; raw field shape giữ nguyên. Các nhận xét và hướng dẫn “không sửa server” bên dưới là phạm vi lượt review 11/11, không phải kết quả sau implementation. Docker/nginx/AWS/Gateway/Chime chưa nghiệm thu; không coi mọi đề xuất lịch sử đều đã hoàn tất.
+
 Cập nhật: 11/11/2026. Chỉ đánh giá và đề xuất; **không sửa bất kỳ tệp nào trong `meikipop-ocr-server/`**.
 
 ## 1. Kết luận và giao diện cần phục vụ

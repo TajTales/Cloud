@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools==80.9.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lingualive-application-api"
+version = "0.2.0"
+description = "Local application API, authentication and persistence; cloud integration pending."
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "aiohttp==3.14.5",
+    "jsonschema==4.26.0",
+    "referencing==0.36.2",
+    "PyYAML==6.0.3",
+    "rfc3339-validator==0.1.4",
+    "rfc3986-validator==0.1.1",
+    "boto3==1.44.1",
+    "botocore==1.44.1",
+    "Pillow==13.0.0",
+]
+
+[project.scripts]
+lingualive-api = "lingualive_api.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,7 @@
+{
+  "java.project.referencedLibraries": [
+    "lib/**/*.jar",
+    "application-backend/.local-tools/dynamodb/DynamoDBLocal.jar",
+    "application-backend/.local-tools/dynamodb/DynamoDBLocal_lib/*.jar"
+  ]
+}

@@ -1,5 +1,23 @@
 # CT-03 — Ownership và ranh giới module
 
+**Cập nhật áp dụng từ 12/11/2026 — một người phụ trách.** Theo chỉ đạo mới của chủ dự án, **Nguyễn Tài Đức** phụ trách frontend, application backend, auth/database/storage, OCR/worker/lexicon, kiểm thử, tích hợp và triển khai. Codex hỗ trợ thực hiện trong phạm vi từng task. Không còn yêu cầu Hoàng Bảo/Bảo Anh duyệt hoặc có ba chữ ký để tiếp tục công việc.
+
+| Phần | Phạm vi hiện tại | Người chốt |
+| --- | --- | --- |
+| Frontend | `src/`, assets, API/media adapters; giao diện giữ như đã chốt | Nguyễn Tài Đức |
+| App backend | `application-backend/` — foundation Python 3.12/aiohttp, auth boundary, handler/contract adapters | Nguyễn Tài Đức |
+| OCR/worker/lexicon | `meikipop-ocr-server/` hiện có; worker/lexicon thật triển khai ở nhóm sau | Nguyễn Tài Đức |
+| Contract/QA | `contracts/`, `tools/contract-testing/`, `scripts/`, test/acceptance docs | Nguyễn Tài Đức |
+| Database/AWS/deploy | Theo kiến trúc đã dự thảo; chưa thao tác ở nhóm 1 | Nguyễn Tài Đức |
+
+Quy trình xác nhận máy đọc được ở [approval-policy.json](../contracts/approval-policy.json), report có hash policy riêng. Vẫn cần evidence của owner, version/hash/SHA và kiểm thử tương ứng; đổi ownership không tự phê duyệt decisions/schema DRAFT. Policy phải được pin trong release contract mới trước gate approved. Không sửa bundle CT-02 cũ để thay người ký. Giữ quy tắc một task viết một file chung tại một thời điểm.
+
+Application backend được tạo thật trong nhóm 1 theo task mới; repo backend ngoài nếu có vẫn NOT_ACCESSIBLE cho đến khi cung cấp source. Kết quả hiện tại và cách chạy ở [nhóm 1](GROUP-01-BACKEND-FOUNDATION.md), [backend README](../application-backend/README.md). Không có CODEOWNERS/branch protection mới được tạo.
+
+## Bản ghi CT-03 ngày 11/11/2026
+
+Phần dưới lưu bối cảnh phân công ba người ban đầu. Khi có khác biệt về người phụ trách/phê duyệt, quy định một người ngày 12/11/2026 ở trên được áp dụng; các ranh giới kỹ thuật/API/schema vẫn giữ.
+
 **DRAFT — ready_for_review, 11/11/2026.** Bảng này đề xuất người giao việc/review và ranh giới cho Codex, chưa là xác nhận của cả ba thành viên. Quyền và phạm vi trong nhiệm vụ cụ thể của người dùng vẫn được ưu tiên; ownership không tự tạo thêm thủ tục xin phép cho công việc đã được giao.
 
 Đọc cùng [Git workflow](GIT-WORKFLOW.md), [local setup](LOCAL-SETUP.md), [CT-01](G0-CURRENT-STATE.md) và [CT-02](../contracts/README.md). Không có CODEOWNERS được tạo vì GitHub usernames chưa được xác nhận. Tên owner của remote không đủ để suy ra tài khoản GitHub của từng người.

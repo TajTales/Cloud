@@ -1,6 +1,9 @@
-# Isolated QA tooling only; these exact versions were already used in CT-02.
+# Isolated QA tooling only; core validator versions were already used in CT-02.
 # No application dependency or production runtime change.
 openapi-spec-validator==0.7.2
 jsonschema==4.26.0
 referencing==0.36.2
 PyYAML==6.0.3
+# Group 1: explicit optional format validators prevent silent date-time/URI skips.
+rfc3339-validator==0.1.4
+rfc3986-validator==0.1.1

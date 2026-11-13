@@ -72,10 +72,15 @@ body, [data-theme="dark"] body {
 .lobby-hero h1 { font-size: clamp(34px, 3.5vw, 48px); line-height: 1.15; letter-spacing: -1.9px; max-width: 710px; }
 .lobby-hero > div:first-child > p { max-width: 610px; color: var(--muted); font-size: 15px; line-height: 1.75; }
 .eyebrow { color: var(--coral); font-size: 10px; letter-spacing: 1.7px; }
-.weekly-card { min-width: 270px; padding: 20px; border-radius: 16px; box-shadow: 0 8px 22px #17392e08; }
-.weekly-card > div:last-child strong { font-size: 14px; }
-.weekly-card > div:last-child small, .weekly-card > div:last-child span { color: var(--muted); font-size: 10px; }
-.weekly-ring { width: 60px; height: 60px; animation: none; }
+.weekly-card { min-width: 316px; padding: 22px; gap: 18px; border-radius: 16px; box-shadow: 0 8px 22px #17392e08; }
+.weekly-card > div:last-child { min-width: 0; gap: 3px; }
+.weekly-card > div:last-child strong { font-size: 15px; line-height: 1.5; }
+.weekly-card > div:last-child small, .weekly-card > div:last-child span { color: var(--muted); font-size: 11px; line-height: 1.5; }
+.weekly-ring { width: 88px; height: 88px; flex-shrink: 0; animation: none; }
+.weekly-ring::before { inset: 7px; }
+.weekly-ring strong, .weekly-ring span { position: relative; }
+.weekly-ring strong { font-size: 26px; line-height: 1.2; }
+.weekly-ring span { font-size: 9px; line-height: 1.4; white-space: nowrap; margin-top: 4px; }
 .mode-grid { gap: 18px; }
 .mode-card, [data-theme="dark"] .mode-card:not(.featured) {
   isolation: isolate;
@@ -263,7 +268,7 @@ button:focus-visible, a:focus-visible, select:focus-visible { outline: 2px solid
   .main-nav button { padding: 12px; }
   .lobby-hero { min-height: 0; padding: 28px 0; }
   .lobby-hero h1 { font-size: 38px; }
-  .weekly-card { width: 100%; }
+  .weekly-card { width: 100%; min-width: 0; }
   .mode-card { min-height: 395px; }
   .mode-card .last-session { top: 147px; }
   .video-frame { min-height: clamp(340px,65vw,520px); }

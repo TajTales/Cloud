@@ -1,0 +1,233 @@
+{
+  "model_version": 1,
+  "table_definition": {
+    "BillingMode": "PAY_PER_REQUEST",
+    "AttributeDefinitions": [
+      {
+        "AttributeName": "pk",
+        "AttributeType": "S"
+      },
+      {
+        "AttributeName": "sk",
+        "AttributeType": "S"
+      },
+      {
+        "AttributeName": "gsi_pk",
+        "AttributeType": "S"
+      },
+      {
+        "AttributeName": "gsi_sk",
+        "AttributeType": "S"
+      }
+    ],
+    "KeySchema": [
+      {
+        "AttributeName": "pk",
+        "KeyType": "HASH"
+      },
+      {
+        "AttributeName": "sk",
+        "KeyType": "RANGE"
+      }
+    ],
+    "GlobalSecondaryIndexes": [
+      {
+        "IndexName": "gsi1",
+        "KeySchema": [
+          {
+            "AttributeName": "gsi_pk",
+            "KeyType": "HASH"
+          },
+          {
+            "AttributeName": "gsi_sk",
+            "KeyType": "RANGE"
+          }
+        ],
+        "Projection": {
+          "ProjectionType": "ALL"
+        }
+      }
+    ]
+  },
+  "logical_expiration_attribute": "expires_at_s",
+  "note": "Internal persistence model, not a public API/schema release. Native TTL is not relied upon for authorization.",
+  "entities": {
+    "profile": {
+      "public_schema": "Profile",
+      "id_field": "user_id",
+      "scopes": [
+        "user"
+      ],
+      "excluded_public_fields": []
+    },
+    "session": {
+      "public_schema": "Session",
+      "id_field": "session_id",
+      "scopes": [
+        "session"
+      ],
+      "excluded_public_fields": [
+        "capabilities",
+        "current_source",
+        "capture_limits"
+      ]
+    },
+    "source": {
+      "public_schema": "Source",
+      "id_field": "source_id",
+      "scopes": [
+        "session"
+      ],
+      "excluded_public_fields": []
+    },
+    "upload": {
+      "public_schema": "Upload",
+      "id_field": "upload_id",
+      "scopes": [
+        "session"
+      ],
+      "excluded_public_fields": [
+        "upload"
+      ]
+    },
+    "job": {
+      "public_schema": "Job",
+      "id_field": "job_id",
+      "scopes": [
+        "session"
+      ],
+      "excluded_public_fields": [
+        "poll_after_ms"
+      ]
+    },
+    "result": {
+      "public_schema": "ResultManifest",
+      "id_field": "result_id",
+      "scopes": [
+        "session"
+      ],
+      "excluded_public_fields": []
+    },
+    "room": {
+      "public_schema": "Room",
+      "id_field": "room_id",
+      "scopes": [
+        "room"
+      ],
+      "excluded_public_fields": [
+        "member_count"
+      ]
+    },
+    "membership": {
+      "public_schema": "Membership",
+      "id_field": "membership_id",
+      "scopes": [
+        "room"
+      ],
+      "excluded_public_fields": []
+    },
+    "word": {
+      "public_schema": "SavedWord",
+      "id_field": "word_id",
+      "scopes": [
+        "user"
+      ],
+      "excluded_public_fields": []
+    },
+    "shared_word": {
+      "public_schema": "SharedWord",
+      "id_field": "word_id",
+      "scopes": [
+        "room"
+      ],
+      "excluded_public_fields": []
+    },
+    "collection": {
+      "public_schema": "Collection",
+      "id_field": "collection_id",
+      "scopes": [
+        "user"
+      ],
+      "excluded_public_fields": [
+        "word_count"
+      ]
+    },
+    "history": {
+      "public_schema": "HistoryItem",
+      "id_field": "session_id",
+      "scopes": [
+        "user"
+      ],
+      "excluded_public_fields": [
+        "duration_ms",
+        "saved_words_count",
+        "playback_state"
+      ]
+    },
+    "occurrence": {
+      "public_schema": "Occurrence",
+      "id_field": "occurrence_id",
+      "scopes": [
+        "user",
+        "room"
+      ],
+      "excluded_public_fields": []
+    },
+    "recording": {
+      "public_schema": null,
+      "id_field": "recording_id",
+      "scopes": [
+        "session"
+      ],
+      "excluded_public_fields": []
+    },
+    "object_ref": {
+      "public_schema": null,
+      "id_field": "object_key",
+      "scopes": [
+        "session"
+      ],
+      "excluded_public_fields": []
+    },
+    "audit": {
+      "public_schema": "AuditEvent",
+      "id_field": "event_id",
+      "scopes": [
+        "system"
+      ],
+      "excluded_public_fields": []
+    },
+    "config": {
+      "public_schema": "AdminConfig",
+      "id_field": "version",
+      "scopes": [
+        "system"
+      ],
+      "excluded_public_fields": []
+    },
+    "admin_action": {
+      "public_schema": "AdminAction",
+      "id_field": "action_id",
+      "scopes": [
+        "system"
+      ],
+      "excluded_public_fields": []
+    },
+    "connection": {
+      "public_schema": null,
+      "id_field": "connection_id",
+      "scopes": [
+        "system"
+      ],
+      "excluded_public_fields": []
+    },
+    "ticket": {
+      "public_schema": null,
+      "id_field": "ticket_hash",
+      "scopes": [
+        "system"
+      ],
+      "excluded_public_fields": []
+    }
+  }
+}

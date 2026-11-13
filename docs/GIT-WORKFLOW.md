@@ -1,5 +1,16 @@
 # CT-03 — Git workflow và quy trình tích hợp
 
+**Cập nhật 12/11/2026 — quy trình một người.** Nguyễn Tài Đức là owner và người xác nhận của tất cả module, theo [ownership hiện hành](OWNERSHIP.md). Codex review diff/test trong phạm vi task; peer review là tùy chọn, không còn bắt buộc ba thành viên hoặc reviewer khác tác giả. Các quy ước branch theo task, contract-first, pin SHA, version/hash, test và rollback ở CT-03 tiếp tục dùng.
+
+- Mỗi task giữ phạm vi riêng; làm lần lượt khi đụng App.tsx/schema/lockfile. Không cần tạo ba luồng code cho ba người.
+- Owner chốt thay đổi nền tảng/breaking, có evidence theo [approval policy](../contracts/approval-policy.json). Không ghi chữ ký thay hai thành viên cũ và không đổi trạng thái DRAFT chỉ từ việc thay ownership.
+- Trước nghiệm thu ghi source SHA thực, working-tree diff, contract version/bundle/policy hash, commands/exit và mode local/mock/real. Contract SHA vẫn null cho đến khi có commit thật chứa package tương ứng.
+- Commit/push/PR/merge/deploy chỉ thực hiện khi task đã giao cho phép; nhóm 1 hiện chỉ sửa source/docs và kiểm thử local. Không dùng thay đổi governance để cấp quyền thao tác remote.
+
+## Bản ghi CT-03 ngày 11/11/2026
+
+Phần dưới lưu workflow khi dự án còn phân công ba người; các yêu cầu reviewer/ba xác nhận được thay bằng quy trình một người ở trên. Những giới hạn được ghi riêng cho CT-03 là lịch sử task đó, không cấm implementation đã được chủ dự án giao ở nhóm 1.
+
 **DRAFT — ready_for_review, 11/11/2026.** Đây là quy trình đề xuất cho ba thành viên dùng Codex. Không branch/worktree/PR/commit/push hoặc cấu hình remote nào được tạo bởi CT-03. [Ownership](OWNERSHIP.md) xác định owner/reviewer; [local setup](LOCAL-SETUP.md) ghi môi trường thực tế.
 
 ## 1. Trạng thái repo cần giữ

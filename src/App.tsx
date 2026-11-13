@@ -1,10 +1,16 @@
 import { useEffect, useState } from "react";
 import TranscriptVocabulary from "./components/TranscriptVocabulary";
 import AdminWorkspace from "./admin/AdminWorkspace";
+import LocalAdminWorkspace from "./admin/LocalAdminWorkspace";
 import AppDialog from "./components/AppDialog";
 import AccountPanels, { type AccountView, type UserProfile } from "./components/AccountPanels";
 import ReviewCards from "./components/ReviewCards";
+import SavedVocabulary from "./components/SavedVocabulary";
 import useRoomMedia from "./hooks/useRoomMedia";
+import useLearningApi from "./hooks/useLearningApi";
+import useOcrCapture from "./hooks/useOcrCapture";
+import { OcrOverlay, OcrTranscript, OcrHistory } from "./components/OcrContent";
+import { REAL_API } from "./api/learning";
 import "./userFeatures.css";
 
 type IconName =
@@ -282,6 +288,7 @@ const previousSessions = [
 ];
 
 type Language = "vi" | "en";
+type HistoryRow = { date: string; title: string; language: string; duration: string; words: number | string; session_id?: string; ended_at?: string | null };
 
 const copy = {
   vi: {
@@ -361,17 +368,21 @@ const copy = {
 };
 
 export default function App() {
-  const [authenticated, setAuthenticated] = useState(() => localStorage.getItem("lingualive-auth") === "true");
-  const [role, setRole] = useState<"user" | "admin">(() => import.meta.env.DEV && sessionStorage.getItem("lingualive-preview-role") === "admin" ? "admin" : "user");
-  const [profile, setProfile] = useState<UserProfile>(() => {
+  const api = useLearningApi(REAL_API);
+  const [previewAuthenticated, setAuthenticated] = useState(() => !REAL_API && localStorage.getItem("lingualive-auth") === "true");
+  const authenticated = REAL_API ? !!api.profile : previewAuthenticated;
+  const [role, setRole] = useState<"user" | "admin">(() => !REAL_API && import.meta.env.DEV && sessionStorage.getItem("lingualive-preview-role") === "admin" ? "admin" : "user");
+  const [previewProfile, setProfile] = useState<UserProfile>(() => {
     const fallback = { name: "Mai Anh", email: "mai.anh@example.com", timezone: "Asia/Ho_Chi_Minh", learningLanguage: "ja" };
     try { const saved = JSON.parse(localStorage.getItem("lingualive-demo-profile") || "null"); return saved && typeof saved.name === "string" && typeof saved.email === "string" ? { ...fallback, ...saved } : fallback; } catch { return fallback; }
   });
+  const profile: UserProfile = REAL_API ? { name: api.profile?.display_name || "Người học", email: api.profile?.email || "", timezone: api.profile?.timezone || "Asia/Ho_Chi_Minh", learningLanguage: api.profile?.learning_language || "ja" } : previewProfile;
   const [accountView, setAccountView] = useState<AccountView | null>(null);
+  const [showAdmin, setShowAdmin] = useState(false);
   const [roomRole, setRoomRole] = useState<"host" | "member">("host");
   const [roomTool, setRoomTool] = useState<"source" | "participants" | null>(null);
   const [review, setReview] = useState<"ja" | "fr" | "en" | null>(null);
-  const [historyDetail, setHistoryDetail] = useState<(typeof previousSessions)[number] | null>(null);
+  const [historyDetail, setHistoryDetail] = useState<HistoryRow | null>(null);
   const [chatDraft, setChatDraft] = useState("");
   const [localMessages, setLocalMessages] = useState<{ id: string; text: string; time: string }[]>([]);
   const [copyError, setCopyError] = useState("");
@@ -389,7 +400,9 @@ export default function App() {
   const [joinCode, setJoinCode] = useState("");
   const [playing, setPlaying] = useState(false);
   const [panel, setPanel] = useState<"transcript" | "chat">("transcript");
-  const [savedWords, setSavedWords] = useState(words);
+  const [previewSavedWords, setSavedWords] = useState(words);
+  const savedWords = REAL_API ? api.words.map(item => ({ word: item.lemma, reading: item.reading?.kana || item.reading?.pinyin || item.reading?.romaji || "", meaning: item.meanings.map(value => value.text).join("; "), color: "coral" })) : previewSavedWords;
+  const sessionHistory: HistoryRow[] = REAL_API ? api.history.map(item => ({ session_id: item.session_id, ended_at: item.ended_at, date: new Date(item.started_at).toLocaleString(language === "vi" ? "vi-VN" : "en-US"), title: item.title, language: item.language === "ja" ? "Tiếng Nhật" : "Tiếng Trung", duration: item.duration_ms === null ? "Đang học" : `${Math.round(item.duration_ms / 1000)} giây`, words: item.saved_words_count ?? "—" })) : previousSessions;
   const [selectedWord, setSelectedWord] = useState<string | null>(null);
   const [cameraOn, setCameraOn] = useState(true);
   const [micOn, setMicOn] = useState(true);
@@ -399,10 +412,26 @@ export default function App() {
   const [loginStatus, setLoginStatus] = useState<"idle" | "loading" | "done">("idle");
   const [tipIndex, setTipIndex] = useState(0);
   const media = useRoomMedia(authenticated && role === "user" && screen === "room");
+  const ocr = useOcrCapture({ enabled: REAL_API && authenticated && screen === "room", session: api.active, source: media.source, sourceToken: media.sourceToken, videoRef: media.videoRef, onAuthError: () => { void api.refresh().catch(() => undefined); } });
   const roomCode = roomRole === "member" && joinCode.trim() ? joinCode.trim() : "LINGO-3821";
   const text = copy[language];
-  const saveProfile = (next: UserProfile) => { setProfile(next); localStorage.setItem("lingualive-demo-profile", JSON.stringify(next)); };
+  const saveProfile = async (next: UserProfile) => {
+    if (REAL_API && api.profile) { await api.updateProfile({ display_name: next.name, timezone: next.timezone, learning_language: next.learningLanguage, expected_version: api.profile.version }); return; }
+    setProfile(next); localStorage.setItem("lingualive-demo-profile", JSON.stringify(next));
+  };
+  const uiAction = (work: Promise<unknown>) => { void work.catch(() => undefined); };
+  const saveWord = (word: { word: string; reading: string; meaning: string; color: string }) => {
+    if (REAL_API) { uiAction(api.saveWord(word.word)); return; }
+    setSavedWords(current => current.some(item => item.word === word.word) ? current : [...current, word]);
+  };
+  const removeWord = (word: string) => { if (REAL_API) uiAction(api.deleteWord(word)); else setSavedWords(current => current.filter(item => item.word !== word)); };
   const inspectedWord = [...detectedWords, ...savedWords].find(item => item.word === selectedWord);
+
+  useEffect(() => {
+    if (!REAL_API) return;
+    setScreen("lobby"); setAccountView(null); setAccountMenu(false); setShowAdmin(false);
+    setHistoryDetail(null); setReview(null); setSelectedWord(null);
+  }, [api.profile?.user_id]);
 
   useEffect(() => {
     document.documentElement.dataset.theme = darkMode ? "dark" : "light";
@@ -447,14 +476,26 @@ export default function App() {
     catch { setCopyError("Chưa sao chép được. Bạn có thể chọn mã phòng và chép thủ công."); }
   };
 
-  const goTo = (next: typeof screen) => {
+  const goTo = async (next: typeof screen) => {
+    if (next !== "room") ocr.stop();
+    if (REAL_API && api.active && screen === "room" && next !== "room") {
+      try { await api.endSession(); } catch { return; }
+    }
     setAccountMenu(false);
     setRoomTool(null);
     setScreen(next);
     setMobileNav(false);
   };
 
-  const enterRoom = (mode: "solo" | "group", title = "Khám phá Tokyo về đêm", participantRole: "host" | "member" = "host") => {
+  const enterRoom = async (mode: "solo" | "group", title = "Khám phá Tokyo về đêm", participantRole: "host" | "member" = "host", resumeId?: string) => {
+    if (REAL_API) {
+      if (mode === "group") { api.setError("Phòng học nhóm chưa sẵn sàng. Bạn có thể học cá nhân và lưu từ vựng."); setDialog(null); return; }
+      try {
+        if (api.active) { api.setError("Hãy kết thúc buổi học hiện tại trước khi tạo phiên mới."); return; }
+        if (resumeId) await api.resumeSession(resumeId);
+        else await api.startSession(title, profile.learningLanguage);
+      } catch { return; }
+    }
     setSelectedWord(null);
     media.stop();
     setRoomRole(participantRole);
@@ -470,8 +511,16 @@ export default function App() {
     setScreen("room");
   };
 
-  const login = (event: React.FormEvent<HTMLFormElement>) => {
+  const login = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (REAL_API) {
+      const values = new FormData(event.currentTarget);
+      setLoginStatus("loading");
+      try { await api.login(email, String(values.get("password"))); setRole("user"); }
+      catch { /* API error is rendered below the form. */ }
+      finally { setLoginStatus("idle"); }
+      return;
+    }
     setLoginStatus("loading");
     window.setTimeout(() => {
       setLoginStatus("done");
@@ -481,7 +530,10 @@ export default function App() {
     }, 760);
   };
 
-  const logout = () => {
+  const logout = async () => {
+    ocr.stop();
+    media.stop();
+    if (REAL_API) { try { await api.logout(); } catch { return; } }
     media.stop();
     sessionStorage.removeItem("lingualive-preview-role");
     setRole("user");
@@ -541,39 +593,41 @@ export default function App() {
             <div className="login-eyebrow">{text.loginEyebrow}</div>
             <h1><SplitText>{text.loginTitle}</SplitText></h1>
             <p>{text.loginSubtitle}</p>
-            {import.meta.env.DEV && <div className="demo-role-picker"><span>VAI TRÒ XEM TRƯỚC</span><div role="group" aria-label="Chọn giao diện dùng thử"><button type="button" aria-pressed={role === "user"} className={role === "user" ? "active" : ""} onClick={() => setRole("user")}><Icon name="user" size={16} /> Người học</button><button type="button" aria-pressed={role === "admin"} className={role === "admin" ? "active" : ""} onClick={() => setRole("admin")}><Icon name="settings" size={16} /> Quản trị viên</button></div><small>Chế độ phát triển · Chưa xác thực quyền thật.</small></div>}
+            {import.meta.env.DEV && !REAL_API && <div className="demo-role-picker"><span>VAI TRÒ XEM TRƯỚC</span><div role="group" aria-label="Chọn giao diện dùng thử"><button type="button" aria-pressed={role === "user"} className={role === "user" ? "active" : ""} onClick={() => setRole("user")}><Icon name="user" size={16} /> Người học</button><button type="button" aria-pressed={role === "admin"} className={role === "admin" ? "active" : ""} onClick={() => setRole("admin")}><Icon name="settings" size={16} /> Quản trị viên</button></div><small>Chế độ phát triển · Chưa xác thực quyền thật.</small></div>}
 
+            {REAL_API && api.error && <p className="app-inline-error" role="alert">{api.error}</p>}
             <form onSubmit={login}>
               <label>{text.email}
                 <div className={`login-input ${email.includes("@") ? "valid" : ""}`}><span>@</span><input type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="mai@example.com" required /><i>✓</i></div>
               </label>
               <label>{text.password}
-                <div className="login-input"><Icon name="clock" size={17} /><input type={showPassword ? "text" : "password"} placeholder="••••••••" minLength={6} required /><button type="button" onClick={() => setShowPassword(!showPassword)}>{showPassword ? (language === "vi" ? "Ẩn" : "Hide") : (language === "vi" ? "Hiện" : "Show")}</button></div>
+                <div className="login-input"><Icon name="clock" size={17} /><input name="password" autoComplete="current-password" type={showPassword ? "text" : "password"} placeholder="••••••••" minLength={REAL_API ? 8 : 6} maxLength={128} required /><button type="button" onClick={() => setShowPassword(!showPassword)}>{showPassword ? (language === "vi" ? "Ẩn" : "Hide") : (language === "vi" ? "Hiện" : "Show")}</button></div>
               </label>
               <div className="login-options">
-                <label><input type="checkbox" defaultChecked /> {text.remember}</label>
+                <label>{REAL_API ? "Phiên đăng nhập tối đa 8 giờ" : <><input type="checkbox" defaultChecked /> {text.remember}</>}</label>
                 <button type="button" onClick={() => setAccountView("reset-password")}>{text.forgot}</button>
               </div>
-              <MotionButton magnetic className={`login-submit spark-action ${loginStatus}`} type="submit" disabled={loginStatus !== "idle"}>
+              <MotionButton magnetic className={`login-submit spark-action ${loginStatus}`} type="submit" disabled={loginStatus !== "idle" || (REAL_API && api.busy)}>
                 <span>{loginStatus === "idle" ? text.login : loginStatus === "loading" ? "Đang đăng nhập" : "Hoàn tất"}</span>
                 {loginStatus === "loading" ? <i className="spinner" /> : loginStatus === "done" ? <i className="checkmark">✓</i> : <Icon name="chevron" size={17} />}
               </MotionButton>
             </form>
             <div className="login-divider"><span>{text.or}</span></div>
             <div className="social-logins">
-              <button><b>G</b> Google</button>
-              <button><b>f</b> Facebook</button>
+              <button disabled={REAL_API} title={REAL_API ? "Chưa cấu hình đăng nhập Google" : undefined}><b>G</b> Google</button>
+              <button disabled={REAL_API} title={REAL_API ? "Chưa cấu hình đăng nhập Facebook" : undefined}><b>f</b> Facebook</button>
             </div>
             <p className="signup-prompt">{text.noAccount} <button onClick={() => setAccountView("signup")}>{text.signup}</button></p>
           </div>
           <footer>© 2025 LinguaLive <span>{language === "vi" ? "Quyền riêng tư" : "Privacy"}</span><span>{language === "vi" ? "Điều khoản" : "Terms"}</span></footer>
         </section>
-        {accountView && <AccountPanels key={accountView} view={accountView} profile={profile} onSave={saveProfile} onClose={() => setAccountView(null)} />}
+        {accountView && <AccountPanels key={accountView} view={accountView} profile={profile} onSave={saveProfile} connected={REAL_API} onRegister={api.register} onAuthAction={api.authAction} onNavigate={setAccountView} onClose={() => setAccountView(null)} />}
       </main>
     );
   }
 
-  if (import.meta.env.DEV && role === "admin") return <AdminWorkspace darkMode={darkMode} onToggleTheme={() => setDarkMode(value => !value)} onLogout={logout} onExit={() => { sessionStorage.removeItem("lingualive-preview-role"); setRole("user"); setScreen("lobby"); }} />;
+  if (!REAL_API && import.meta.env.DEV && role === "admin") return <AdminWorkspace darkMode={darkMode} onToggleTheme={() => setDarkMode(value => !value)} onLogout={logout} onExit={() => { sessionStorage.removeItem("lingualive-preview-role"); setRole("user"); setScreen("lobby"); }} />;
+  if (REAL_API && showAdmin && api.profile?.roles.includes("admin") && api.profile.email_verified) return <LocalAdminWorkspace profile={api.profile} darkMode={darkMode} onToggleTheme={() => setDarkMode(value => !value)} onLogout={logout} onExit={() => setShowAdmin(false)} onCheckSession={() => uiAction(api.refresh())} />;
 
   return (
     <div className="app-shell">
@@ -592,7 +646,7 @@ export default function App() {
           <button className={screen === "history" ? "active" : ""} onClick={() => goTo("history")}><Icon name="history" size={18} /> {text.history}</button>
         </nav>
         <div className="header-actions">
-          <button className="streak-pill"><span>12</span> {text.streak}</button>
+          <button className="streak-pill"><span>{REAL_API ? api.stats?.streak_days ?? "—" : 12}</span> {text.streak}</button>
           <ThemeToggle darkMode={darkMode} onToggle={toggleTheme} label={darkMode ? text.light : text.dark} />
           <div className="account-wrap">
             <button className={`avatar ${accountMenu ? "active" : ""}`} aria-label="Tài khoản người học" aria-expanded={accountMenu} onClick={() => setAccountMenu(!accountMenu)}>{profile.name.trim().split(/\s+/).map(part => part[0]).slice(-2).join("") || "B"}</button>
@@ -603,6 +657,7 @@ export default function App() {
                   <div><strong>{profile.name}</strong><small>{profile.email}</small></div>
                 </div>
                 <div className="account-links">
+                  {REAL_API && api.profile?.roles.includes("admin") && api.profile.email_verified && <button onClick={async () => { if (api.active) { try { await api.endSession(); } catch { return; } } media.stop(); setScreen("lobby"); setAccountMenu(false); setShowAdmin(true); }}><Icon name="settings" size={17} /><span>Quản trị tài khoản<small>Người dùng và phân quyền</small></span><Icon name="chevron" size={15} /></button>}
                   <button onClick={() => { setAccountMenu(false); setAccountView("profile"); }}><Icon name="user" size={17} /><span>{text.profile}<small>{language === "vi" ? "Xem và chỉnh sửa thông tin" : "View and edit your details"}</small></span><Icon name="chevron" size={15} /></button>
                   <button onClick={() => { setAccountMenu(false); setAccountView("settings"); }}><Icon name="settings" size={17} /><span>{text.settings}<small>{language === "vi" ? "Bảo mật và thông báo" : "Security and notifications"}</small></span><Icon name="chevron" size={15} /></button>
                 </div>
@@ -620,7 +675,7 @@ export default function App() {
                     <button className={language === "en" ? "active" : ""} onClick={() => setLanguage("en")}>EN</button>
                   </div>
                 </div>
-                <button className="logout-button" onClick={logout}><Icon name="logout" size={17} /> {text.logout}</button>
+                <button className="logout-button" onClick={logout} disabled={REAL_API && api.busy}><Icon name="logout" size={17} /> {text.logout}</button>
               </div>
             )}
           </div>
@@ -629,6 +684,7 @@ export default function App() {
           </button>
         </div>
       </header>
+      {REAL_API && api.error && <p className="app-notice app-inline-error" role="alert">{api.error}</p>}
 
       {screen === "lobby" ? (
         <main className="workspace lobby-workspace">
@@ -639,8 +695,8 @@ export default function App() {
               <p>{text.heroText}</p>
             </div>
             <div className="weekly-card">
-              <div className="weekly-ring"><strong>4</strong><span>/ 5 buổi</span></div>
-              <div><span>Mục tiêu tuần</span><strong>Chỉ còn 1 buổi nữa</strong><small>Tiếp tục duy trì chuỗi học của bạn</small></div>
+              <div className="weekly-ring"><strong>{REAL_API ? api.stats?.weekly_sessions ?? 0 : 4}</strong><span>{REAL_API ? "buổi / 7 ngày" : "/ 5 buổi"}</span></div>
+              <div><span>{REAL_API ? "Tiến độ của bạn" : "Mục tiêu tuần"}</span><strong>{REAL_API ? "Buổi học trong 7 ngày" : "Chỉ còn 1 buổi nữa"}</strong><small>Tiếp tục duy trì việc học của bạn</small></div>
             </div>
           </section>
 
@@ -675,8 +731,8 @@ export default function App() {
               <span className="mode-icon amber"><Icon name="history" size={25} /></span>
               <div className="last-session">
                 <small>Buổi gần nhất</small>
-                <strong>Khám phá Tokyo về đêm</strong>
-                <span>Hôm qua · 38 phút · 12 từ mới</span>
+                <strong>{REAL_API ? sessionHistory[0]?.title || "Chưa có buổi học" : "Khám phá Tokyo về đêm"}</strong>
+                <span>{REAL_API ? sessionHistory[0]?.date || "Bắt đầu buổi học đầu tiên" : "Hôm qua · 38 phút · 12 từ mới"}</span>
               </div>
               <h2>{text.logs}</h2>
               <p>Xem lại video, bản dịch và những từ bạn đã lưu trong các buổi học trước.</p>
@@ -701,18 +757,19 @@ export default function App() {
             <MotionButton magnetic className="primary-action spark-action" onClick={() => goTo("lobby")}><Icon name="plus" size={17} /> Buổi học mới</MotionButton>
           </section>
           <div className="stats-row">
-            <article className="spotlight-card"><span>Thời gian học</span><strong>8.4<small> giờ</small></strong><b>+12% tuần này</b><i className="mini-chart" /></article>
-            <article className="spotlight-card"><span>Từ đã lưu</span><strong>124</strong><b>18 từ mới</b><i className="mini-chart chart-two" /></article>
-            <article className="spotlight-card"><span>Chuỗi hiện tại</span><strong>12<small> ngày</small></strong><b>Kỷ lục: 18 ngày</b><i className="mini-chart chart-three" /></article>
+            <article className="spotlight-card"><span>Thời gian học</span><strong>{REAL_API ? ((api.stats?.study_duration_ms || 0) / 3600000).toFixed(2) : "8.4"}<small> giờ</small></strong><b>{REAL_API ? "Từ các phiên đã kết thúc" : "+12% tuần này"}</b><i className="mini-chart" /></article>
+            <article className="spotlight-card"><span>Từ đã lưu</span><strong>{REAL_API ? savedWords.length : 124}</strong><b>{REAL_API ? "Trong thư viện của bạn" : "18 từ mới"}</b><i className="mini-chart chart-two" /></article>
+            <article className="spotlight-card"><span>Chuỗi hiện tại</span><strong>{REAL_API ? "—" : 12}<small> ngày</small></strong><b>{REAL_API ? "Chưa tính chuỗi ngày học" : "Kỷ lục: 18 ngày"}</b><i className="mini-chart chart-three" /></article>
           </div>
           <section className="session-list">
-            <div className="section-title"><h2>Các buổi gần đây</h2><span>{previousSessions.length} buổi học</span></div>
-            {previousSessions.map((session, index) => (
-              <article className={`session-row session-${index + 1}`} key={session.title}>
+            {REAL_API && !sessionHistory.length && <p className="empty-state">Chưa có lịch sử. Hãy bắt đầu một buổi học cá nhân.</p>}
+            <div className="section-title"><h2>Các buổi gần đây</h2><span>{sessionHistory.length} buổi học</span></div>
+            {sessionHistory.map((session, index) => (
+              <article className={`session-row session-${index + 1}`} key={session.session_id || session.title}>
                 <div className={`session-thumb thumb-${index + 1}`}><Icon name={index === 0 ? "captions" : index === 1 ? "message" : "headphones"} size={24} /></div>
                 <div className="session-name"><small>{session.date}</small><strong>{session.title}</strong><span>{session.language}</span></div>
                 <div className="session-meta"><span><Icon name="clock" size={15} /> {session.duration}</span><span><Icon name="book" size={15} /> {session.words} từ</span></div>
-                <div className="session-preview"><span>{index === 0 ? "東京 · 喫茶店" : index === 1 ? "bonjour · merci" : "coffee · subway"}</span></div>
+                <div className="session-preview"><span>{REAL_API ? session.ended_at ? "Đã kết thúc" : "Đang học" : index === 0 ? "東京 · 喫茶店" : index === 1 ? "bonjour · merci" : "coffee · subway"}</span></div>
                 <button onClick={() => setHistoryDetail(session)}>Xem lại <Icon name="chevron" size={15} /></button>
               </article>
             ))}
@@ -726,34 +783,37 @@ export default function App() {
           </section>
           <div className="library-grid">
             {[
-              { title: "Tiếng Nhật giao tiếp", count: 48, level: "N4", tone: "green" },
-              { title: "Tiếng Pháp du lịch", count: 31, level: "A2", tone: "coral" },
-              { title: "Tiếng Anh hằng ngày", count: 45, level: "B1", tone: "violet" },
+              { title: "Tiếng Nhật giao tiếp", count: REAL_API ? savedWords.length : 48, level: "N4", tone: "green" },
+              { title: REAL_API ? "Tiếng Pháp du lịch · Mẫu" : "Tiếng Pháp du lịch", count: 31, level: "A2", tone: "coral" },
+              { title: REAL_API ? "Tiếng Anh hằng ngày · Mẫu" : "Tiếng Anh hằng ngày", count: 45, level: "B1", tone: "violet" },
             ].map((collection) => (
               <article className={`collection-card ${collection.tone}`} data-cursor="LẬT" key={collection.title}>
                 <span className="collection-icon"><Icon name="book" size={23} /></span>
                 <small>{collection.level} · BỘ TỪ</small>
                 <h2>{collection.title}</h2>
-                <p>{collection.count} từ vựng đã lưu</p>
-                <span className="deck-progress" style={{ "--deck-progress": `${Math.min(82, collection.count + 25)}%` } as React.CSSProperties}><b>{Math.min(82, collection.count + 25)}%</b></span>
+                <p>{collection.count} {REAL_API && collection.tone !== "green" ? "từ minh họa" : "từ vựng đã lưu"}</p>
+                <span className="deck-progress" style={{ "--deck-progress": `${REAL_API ? (collection.tone === "green" && savedWords.length ? Math.round(100 * api.words.filter(item => item.review_state === "known").length / savedWords.length) : 0) : Math.min(82, collection.count + 25)}%` } as React.CSSProperties}><b>{REAL_API ? (collection.tone === "green" && savedWords.length ? Math.round(100 * api.words.filter(item => item.review_state === "known").length / savedWords.length) : 0) : Math.min(82, collection.count + 25)}%</b></span>
                 <button onClick={() => setReview(collection.tone === "coral" ? "fr" : collection.tone === "violet" ? "en" : "ja")}>Ôn tập ngay <Icon name="chevron" size={15} /></button>
               </article>
             ))}
           </div>
+          {REAL_API && <SavedVocabulary words={api.words} pending={api.busy} onReview={() => setReview("ja")} onDelete={removeWord} onSpeak={pronounce} />}
         </main>
       ) : (
       <main className="workspace room-workspace">
-        <section className="learner-room-heading"><div><span className="learner-room-role">{roomMode === "solo" ? "HỌC CÁ NHÂN" : roomRole === "host" ? "CHỦ PHÒNG" : "THÀNH VIÊN"}</span><h1>{roomTitle}</h1><p>{roomMode === "solo" ? "Không gian riêng để tập trung vào nội dung bạn chọn." : "Giao diện phòng học mẫu · Chưa kết nối gọi nhóm hoặc xác thực mã phòng."}</p></div><div className="learner-room-tools">{(roomMode === "solo" || roomRole === "host") && <button className="app-btn" onClick={() => setRoomTool("source")}><Icon name="play" size={16} />{media.source ? "Đổi nguồn học" : "Chọn nguồn học"}</button>}{roomMode === "group" && <button className="app-btn" onClick={() => setRoomTool("participants")}><Icon name="people" size={16} /> Thành viên mẫu</button>}</div></section>
-        <div className="learner-demo-strip"><span />Phiên âm, OCR và thành viên đang dùng dữ liệu mẫu. {media.source ? "Nguồn video của bạn chỉ được xem trước trên thiết bị, chưa gửi để nhận dạng." : "Bạn có thể chọn nguồn thật để xem trước hoặc tiếp tục khám phá bản mẫu."}</div>
+        <section className="learner-room-heading"><div><span className="learner-room-role">{roomMode === "solo" ? "HỌC CÁ NHÂN" : roomRole === "host" ? "CHỦ PHÒNG" : "THÀNH VIÊN"}</span><h1>{roomTitle}</h1><p>{roomMode === "solo" ? "Không gian riêng để tập trung vào nội dung bạn chọn." : "Giao diện phòng học mẫu · Chưa kết nối gọi nhóm hoặc xác thực mã phòng."}</p></div><div className="learner-room-tools">{REAL_API && <button className="app-btn" disabled={api.busy} onClick={() => goTo("history")}>Kết thúc buổi học</button>}{(roomMode === "solo" || roomRole === "host") && <button className="app-btn" onClick={() => setRoomTool("source")}><Icon name="play" size={16} />{media.source ? "Đổi nguồn học" : "Chọn nguồn học"}</button>}{roomMode === "group" && <button className="app-btn" onClick={() => setRoomTool("participants")}><Icon name="people" size={16} /> Thành viên mẫu</button>}</div></section>
+        <div className="learner-demo-strip"><span />{REAL_API && media.source ? "Nhận dạng chữ từ video của bạn. Frame được xử lý trên máy; cách đọc và bản dịch cần từ điển riêng." : "Phiên âm và OCR bên dưới đang dùng dữ liệu mẫu. Chọn nguồn thật để bắt đầu nhận dạng."}</div>
         <input ref={media.fileRef} type="file" hidden accept="video/*" aria-label="Chọn tệp video" onChange={event => { media.openFile(event.target.files?.[0]); event.target.value = ""; setRoomTool(null); }} />
         {media.error && <p className="app-notice app-inline-error" role="alert">{media.error}</p>}
+        {REAL_API && ocr.error && <p className="app-notice app-inline-error" role="alert">{ocr.error}</p>}
         <div className="learning-grid">
           <section className="video-column">
             <div className="video-frame">
               <video ref={media.videoRef} className="room-live-video" hidden={!media.source} controls={media.source === "file"} muted={media.source === "screen"} playsInline onError={media.onVideoError} />
+              {REAL_API && media.source && <OcrOverlay result={ocr.result?.source_id === ocr.sourceId ? ocr.result : null} videoRef={media.videoRef} />}
               {!media.source && <><img className="room-demo-image" src="https://images.unsplash.com/photo-1564284369929-026ba231f89b?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&q=86&w=1600&h=1000" alt="Một cửa hàng Nhật Bản với đèn lồng vào buổi tối" /><div className="video-shade" /></>}
               <div className="video-top">
-                <span className="ocr-status"><Icon name="sparkles" size={15} /> {media.source ? "Xem trước · OCR chưa kết nối" : "OCR · Kết quả mẫu"}</span>
+                <span className="ocr-status"><Icon name="sparkles" size={15} /> {REAL_API && media.source ? ocr.status : media.source ? "Xem trước" : "OCR · Kết quả mẫu"}</span>
                 <span className="quality-pill">HD</span>
               </div>
 
@@ -770,7 +830,7 @@ export default function App() {
               {inspectedWord && <div className="word-inspector" role="region" aria-label="Từ đang chọn">
                 <button className="inspector-close" aria-label="Đóng từ đang chọn" onClick={() => setSelectedWord(null)}><Icon name="x" size={16} /></button>
                 <span className="inspector-label">TỪ ĐANG CHỌN</span><strong>{inspectedWord.word}</strong><small>{inspectedWord.reading}</small><p>{inspectedWord.meaning}</p>
-                <div><button disabled={!("speechSynthesis" in window)} onClick={() => pronounce(inspectedWord.word)}><Icon name="volume" size={16} /> Nghe</button><button onClick={() => setSavedWords(current => current.some(item => item.word === inspectedWord.word) ? current : [...current, inspectedWord])} disabled={savedWords.some(item => item.word === inspectedWord.word)}><Icon name="plus" size={16} />{savedWords.some(item => item.word === inspectedWord.word) ? "Đã lưu" : "Lưu từ"}</button></div>
+                <div><button disabled={!("speechSynthesis" in window)} onClick={() => pronounce(inspectedWord.word)}><Icon name="volume" size={16} /> Nghe</button><button onClick={() => saveWord(inspectedWord)} disabled={(REAL_API && api.busy) || savedWords.some(item => item.word === inspectedWord.word)}><Icon name="plus" size={16} />{savedWords.some(item => item.word === inspectedWord.word) ? "Đã lưu" : "Lưu từ"}</button></div>
               </div>}
 
               <div className="subtitle">
@@ -790,7 +850,7 @@ export default function App() {
               </div>
               </>}
             </div>
-            {media.source && <div className="learner-source-info"><span title={media.name}>{media.name}</span><button onClick={media.stop}>Dừng nguồn học</button></div>}
+            {media.source && <div className="learner-source-info"><span title={media.name}>{media.name}</span><div className="live-ocr-actions">{REAL_API && <button onClick={ocr.running ? ocr.stop : ocr.start}>{ocr.running ? "Dừng nhận dạng" : "Nhận dạng chữ"}</button>}<button onClick={() => { ocr.stop(); media.stop(); }}>Dừng nguồn học</button></div></div>}
 
             <div className="call-bar">
               {roomMode === "group" ? <div className="room-code"><span>Mã phòng mẫu</span><strong>{roomCode}</strong><button onClick={copyRoom} aria-label="Sao chép mã phòng"><Icon name="copy" size={16} />{copied ? "Đã chép" : ""}</button></div> : <div className="learner-solo-label"><Icon name="headphones" size={18} /> Học theo nhịp của bạn</div>}
@@ -821,14 +881,14 @@ export default function App() {
 
             {panel === "transcript" ? (
               <div className="transcript-panel">
-                <div className="panel-label"><span>Nội dung mẫu</span><button><Icon name="sparkles" size={15} /> Dịch tự động</button></div>
-                <TranscriptVocabulary lines={transcript} savedWords={savedWords.map(item => item.word)} onSpeak={pronounce} onSave={entry => {
+                <div className="panel-label"><span>{REAL_API && media.source ? "Văn bản nhận dạng" : "Nội dung mẫu"}</span><button disabled={REAL_API && !!media.source}><Icon name="sparkles" size={15} /> Dịch tự động</button></div>
+                {REAL_API && media.source ? <OcrTranscript results={ocr.results} pending={ocr.running} /> : <TranscriptVocabulary lines={transcript} savedWords={savedWords.map(item => item.word)} onSpeak={pronounce} onSave={entry => {
                   const word = entry.lemma || entry.word;
-                  setSavedWords(current => current.some(item => item.word === word) ? current : [...current, { word, reading: entry.lemmaReading || entry.kana, meaning: entry.lemmaMeaning || entry.meaning, color: "coral" }]);
-                }} />
+                  saveWord({ word, reading: entry.lemmaReading || entry.kana, meaning: entry.lemmaMeaning || entry.meaning, color: "coral" });
+                }} />}
                 <div className="listening-card">
                   <span className="sound-wave"><i /><i /><i /><i /><i /></span>
-                  <div><strong>Chế độ minh họa</strong><small>Nhận dạng thật đang chờ kết nối dịch vụ</small></div>
+                  <div><strong>{REAL_API && media.source ? "Nhận dạng văn bản" : "Chế độ minh họa"}</strong><small>{REAL_API && media.source ? ocr.status : "Chọn nguồn học để nhận dạng chữ thật"}</small></div>
                 </div>
               </div>
             ) : (
@@ -862,7 +922,7 @@ export default function App() {
                     <button className="word-main" onClick={() => setSelectedWord(item.word)} aria-label={`Xem từ ${item.word}`}><strong>{item.word}</strong><small>{item.reading}</small></button>
                     <span className="word-meaning">{item.meaning}</span>
                     <button className="word-audio" disabled={!("speechSynthesis" in window)} onClick={() => pronounce(item.word)} aria-label={`Nghe ${item.word}`}><Icon name="volume" size={15} /></button>
-                    <button onClick={() => setSavedWords(savedWords.filter((word) => word.word !== item.word))} aria-label={`Xóa ${item.word}`}>
+                    <button disabled={REAL_API && api.busy} onClick={() => removeWord(item.word)} aria-label={`Xóa ${item.word}`}>
                       <Icon name="x" size={15} />
                     </button>
                   </article>
@@ -876,10 +936,10 @@ export default function App() {
       </main>
       )}
 
-      {accountView && <AccountPanels key={accountView} view={accountView} profile={profile} onSave={saveProfile} onClose={() => setAccountView(null)} />}
-      {review && <ReviewCards title={review === "ja" ? "Ôn tập từ đã lưu" : review === "fr" ? "Tiếng Pháp du lịch · Mẫu" : "Tiếng Anh hằng ngày · Mẫu"} words={review === "ja" ? savedWords : review === "fr" ? [{ word: "bonjour", reading: "bon-jour", meaning: "xin chào" }, { word: "merci", reading: "mer-ci", meaning: "cảm ơn" }, { word: "voyage", reading: "vo-yage", meaning: "chuyến đi" }] : [{ word: "coffee", reading: "/ˈkɒfi/", meaning: "cà phê" }, { word: "subway", reading: "/ˈsʌbweɪ/", meaning: "tàu điện ngầm" }, { word: "quiet", reading: "/ˈkwaɪət/", meaning: "yên tĩnh" }]} onClose={() => setReview(null)} />}
-      {historyDetail && <AppDialog title={historyDetail.title} description="Chi tiết nhật ký mẫu; chưa có bản ghi video hoặc dữ liệu phiên học trên máy chủ." onClose={() => setHistoryDetail(null)}><dl className="app-detail-list"><div><dt>Thời gian</dt><dd>{historyDetail.date}</dd></div><div><dt>Ngôn ngữ</dt><dd>{historyDetail.language}</dd></div><div><dt>Thời lượng mẫu</dt><dd>{historyDetail.duration}</dd></div><div><dt>Từ mới mẫu</dt><dd>{historyDetail.words}</dd></div><div><dt>Video xem lại</dt><dd>Chưa có bản ghi</dd></div></dl><div className="app-dialog-actions"><button className="app-btn" onClick={() => setHistoryDetail(null)}>Đóng</button><button className="app-btn app-btn-primary" onClick={() => { enterRoom("solo", historyDetail.title); setHistoryDetail(null); }}>Mở giao diện phiên mẫu</button></div></AppDialog>}
-      {roomTool === "source" && <AppDialog title="Bạn muốn học từ đâu?" description="Chọn nguồn để xem trước trên thiết bị. Video chưa được tải lên hoặc gửi nhận dạng OCR." onClose={() => setRoomTool(null)}><div className="learner-source-options"><button aria-label="Chia sẻ màn hình" onClick={async () => { if (await media.share()) setRoomTool(null); }} disabled={media.pending}><Icon name="camera" size={25} /><span><strong>{media.pending ? "Đang chọn cửa sổ…" : "Chia sẻ màn hình"}</strong><small>Chọn tab, cửa sổ hoặc màn hình bạn muốn học.</small></span><Icon name="chevron" size={17} /></button><button aria-label="Mở video trên máy" onClick={() => media.fileRef.current?.click()} disabled={media.pending}><Icon name="play" size={25} /><span><strong>Mở video trên máy</strong><small>Video chỉ mở trên trình duyệt, không tải lên server.</small></span><Icon name="chevron" size={17} /></button></div>{media.error && <p className="app-inline-error" role="alert">{media.error}</p>}<p className="app-muted">Bạn có thể dừng chia sẻ hoặc đổi nguồn bất cứ lúc nào. Nếu trình duyệt không hỗ trợ chia sẻ màn hình, hãy mở video.</p></AppDialog>}
+      {accountView && <AccountPanels key={accountView} view={accountView} profile={profile} onSave={saveProfile} connected={REAL_API} emailVerified={api.profile?.email_verified} isAdmin={api.profile?.roles.includes("admin")} onRegister={api.register} onAuthAction={api.authAction} onNavigate={setAccountView} onClose={() => setAccountView(null)} />}
+      {review && <ReviewCards onReview={REAL_API && review === "ja" ? api.reviewWord : undefined} title={review === "ja" ? "Ôn tập từ đã lưu" : review === "fr" ? "Tiếng Pháp du lịch · Mẫu" : "Tiếng Anh hằng ngày · Mẫu"} words={review === "ja" ? savedWords : review === "fr" ? [{ word: "bonjour", reading: "bon-jour", meaning: "xin chào" }, { word: "merci", reading: "mer-ci", meaning: "cảm ơn" }, { word: "voyage", reading: "vo-yage", meaning: "chuyến đi" }] : [{ word: "coffee", reading: "/ˈkɒfi/", meaning: "cà phê" }, { word: "subway", reading: "/ˈsʌbweɪ/", meaning: "tàu điện ngầm" }, { word: "quiet", reading: "/ˈkwaɪət/", meaning: "yên tĩnh" }]} onClose={() => setReview(null)} />}
+      {historyDetail && <AppDialog title={historyDetail.title} description={REAL_API ? "Thông tin và văn bản đã nhận dạng trong buổi học. Video chưa được lưu để phát lại." : "Thông tin phiên mẫu; chưa có video đã ghi."} onClose={() => setHistoryDetail(null)}><p className="app-notice">{historyDetail.date} · {historyDetail.duration} · {historyDetail.language}</p>{REAL_API && historyDetail.session_id && <OcrHistory key={historyDetail.session_id} sessionId={historyDetail.session_id} />}<div className="app-dialog-actions"><button className="app-btn" onClick={() => setHistoryDetail(null)}>Đóng</button><button className="app-btn app-btn-primary" disabled={REAL_API && api.busy} onClick={() => { void enterRoom("solo", historyDetail.title, "host", REAL_API && !historyDetail.ended_at ? historyDetail.session_id : undefined); setHistoryDetail(null); }}>{REAL_API && !historyDetail.ended_at ? "Tiếp tục phiên học" : "Bắt đầu phiên mới"}</button></div></AppDialog>}
+      {roomTool === "source" && <AppDialog title="Bạn muốn học từ đâu?" description={REAL_API ? "Chọn nguồn để xem trên thiết bị. Khi bấm Nhận dạng chữ, các frame ảnh được gửi đến bộ OCR trên máy." : "Chọn nguồn để xem trước trên thiết bị."} onClose={() => setRoomTool(null)}><div className="learner-source-options"><button aria-label="Chia sẻ màn hình" onClick={async () => { if (await media.share()) setRoomTool(null); }} disabled={media.pending}><Icon name="camera" size={25} /><span><strong>{media.pending ? "Đang chọn cửa sổ…" : "Chia sẻ màn hình"}</strong><small>Chọn tab, cửa sổ hoặc màn hình bạn muốn học.</small></span><Icon name="chevron" size={17} /></button><button aria-label="Mở video trên máy" onClick={() => media.fileRef.current?.click()} disabled={media.pending}><Icon name="play" size={25} /><span><strong>Mở video trên máy</strong><small>Video chỉ mở trên trình duyệt; OCR nhận từng frame khi bạn bắt đầu.</small></span><Icon name="chevron" size={17} /></button></div>{media.error && <p className="app-inline-error" role="alert">{media.error}</p>}<p className="app-muted">Bạn có thể dừng chia sẻ hoặc đổi nguồn bất cứ lúc nào. Nếu trình duyệt không hỗ trợ chia sẻ màn hình, hãy mở video.</p></AppDialog>}
       {roomTool === "participants" && <AppDialog title="Thành viên trong phòng" description="Danh sách minh họa cho giao diện phòng học; chưa kết nối thành viên thật." onClose={() => setRoomTool(null)}><div className="learner-participant-list">{[{ name: roomRole === "host" ? `${profile.name} (Bạn)` : "Anh Nguyễn", role: "Chủ phòng" }, { name: roomRole === "member" ? `${profile.name} (Bạn)` : "Anh Nguyễn", role: "Thành viên" }, { name: "Julia", role: "Thành viên" }, { name: "Minh Khang", role: "Thành viên" }, { name: "Thu Hà", role: "Thành viên" }].map(person => <div key={person.name}><span>{person.name.split(" ").filter(Boolean).map(part => part[0]).slice(0, 2).join("")}</span><strong>{person.name}</strong><small>{person.role}</small></div>)}</div><p className="app-notice">{roomRole === "host" ? "Chủ phòng có thể chọn nguồn chia sẻ. Thành viên chỉ xem, trao đổi và lưu từ." : "Bạn đang xem với vai trò thành viên. Quyền chia sẻ nguồn thuộc chủ phòng."}</p></AppDialog>}
 
       {dialog && (

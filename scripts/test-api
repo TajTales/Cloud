@@ -1,0 +1,5 @@
+#!/bin/sh
+set -eu
+api_repo_dir=$(CDPATH= cd "$(dirname "$0")/.." && pwd)
+export PYTHONPATH="$api_repo_dir/application-backend/src${PYTHONPATH:+:$PYTHONPATH}"
+exec "${LINGUALIVE_PYTHON:-$api_repo_dir/application-backend/.venv/bin/python}" -B -W error -m unittest discover -s "$api_repo_dir/application-backend/tests" -v "$@"

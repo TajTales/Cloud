@@ -1,5 +1,9 @@
 # CT-04 — Chạy validation, fixtures và mock
 
+**Cập nhật 12/11/2026:** ownership hiện là một người. Gate đọc [approval-policy.json](../contracts/approval-policy.json): Nguyễn Tài Đức xác nhận kèm evidence; thiếu policy thì checkout cũ dùng legacy ba thành viên, policy sai thì fail closed. Report mới có policy ID/hash. Bundle `0.1.0-draft.1` vẫn DRAFT và chưa pin policy mới; lint có thể chạy nhưng default gate/mock còn pending. [Nhóm 1](GROUP-01-BACKEND-FOUNDATION.md) có kết quả hiện tại; report CT-04 ngày 11/11 được giữ làm lịch sử.
+
+Nhóm 1 bổ sung `rfc3339-validator==0.1.4` và `rfc3986-validator==0.1.1` vào requirements QA để kiểm đủ `date-time`/`uri`. Thiếu các format checker bắt buộc sẽ trả SETUP_REQUIRED thay vì silently bỏ qua. Các ghi nhận “không cài thêm” phía dưới mô tả riêng lượt CT-04 ngày 11/11.
+
 **DRAFT — ready_for_review, 11/11/2026.** Package đầu vào `0.1.0-draft.1` chưa có xác nhận của ba thành viên, `contract_commit_sha: null`. CT-04 cung cấp công cụ và kiểm tra cấu trúc để review. Chưa có kết quả tương thích contract chính thức hoặc tích hợp producer/consumer thật. Xem [ACCEPTANCE](ACCEPTANCE.md) và [kết quả thực chạy](ct04-results.json).
 
 ## 1. Phạm vi và lựa chọn công cụ
@@ -98,7 +102,7 @@ Có 24 mục trong `coverage`; tất cả vẫn DRAFT. `partial`/`not_found` là
 
 **Hiện lệnh này trả exit 2 trước khi tạo socket**, vì package và cả hai fixture manifests đều DRAFT. Không có flag `--allow-draft`, không đổi trạng thái phê duyệt chỉ để demo. Không mở cổng mock trong CT-04. Port đề xuất 8091 tách khỏi preview 8443, app API đề xuất 8081 và raw OCR 8080; không kill hoặc restart dịch vụ khác.
 
-Sau khi cả nhóm chốt và phát hành package phù hợp, công cụ yêu cầu approval metadata/SHA và fixture set đã duyệt nằm trong bundle được pin. **Quy tắc đọc metadata của tool là đề xuất CT-04 cần review**: `status: APPROVED`; `approved_by` gồm bản ghi `{name, evidence}` cho đủ ba tên tại decisions; `contract_commit_sha` 40 hex; mọi HTTP operation/tài liệu có `x-contract-status` và fixture manifests phải approved. Manifest CT-04 + các JSON của nó cần được đưa vào `files`/hash của **release mới**, không sửa hash của release cũ để che thay đổi. Tool không xác thực danh tính người duyệt hoặc tính thật của review link; nhóm vẫn chịu trách nhiệm ký nhận. Nếu chỉ duyệt một phần Solo, cần một package/mock scope đã pin riêng và review tooling theo scope đó; hiện chưa hỗ trợ partial approval.
+Sau khi owner chốt và phát hành package phù hợp, công cụ yêu cầu approval metadata/SHA và fixture set đã duyệt nằm trong bundle được pin. `status: APPROVED`; `approved_by` gồm bản ghi `{name, evidence}` cho các approver trong policy hiện hành (hiện là Nguyễn Tài Đức); `contract_commit_sha` 40 hex; mọi HTTP operation/tài liệu có `x-contract-status` và fixture manifests phải approved. Policy hiện hành, manifest CT-04 và các JSON bổ sung cần được đưa vào `files`/hash của **release mới**. Không sửa hash của release cũ để che thay đổi. Tool không xác thực danh tính người duyệt hoặc tính thật của evidence; owner chịu trách nhiệm xác nhận. Nếu chỉ duyệt một phần Solo, cần package/mock scope đã pin riêng và review tooling theo scope đó; hiện chưa hỗ trợ partial approval.
 
 Handler/fixture planner hiện được kiểm bằng unit test trong bộ nhớ, không bind mạng. Thiết kế sau gate:
 

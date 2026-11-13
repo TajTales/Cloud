@@ -131,6 +131,8 @@ Mỗi đầu việc dùng một trong các trạng thái: `todo` → `in_progres
 
 ### G1 — Tài khoản, phiên đăng nhập và phân quyền
 
+**Cập nhật local 13/11/2026:** [nhóm backend 3](GROUP-03-AUTH-AND-AUTHORIZATION.md) đã triển khai local account/mailbox/refresh/revocation/Admin authority và nối form; owner hiện tại Nguyễn Tài Đức. Bảng AU dưới đây vẫn là điều kiện nghiệm thu đầy đủ, gồm Cognito/WS/cloud chưa thực hiện. Không đổi các quyết định DRAFT thành APPROVED từ test local.
+
 **Chính:** Hoàng Bảo. **Frontend:** Tài Đức. **Bảo Anh:** dùng service identity khi gọi OCR nội bộ, không tự dựng đăng nhập thứ hai. Đối chiếu PDF: hạng 7, 8, một phần 1 và 3.
 
 | Mã | Công việc | Ai giao AI làm | Điều kiện đạt |
@@ -143,6 +145,8 @@ Mỗi đầu việc dùng một trong các trạng thái: `todo` → `in_progres
 **Phụ thuộc:** CT-01…04. Có thể phát triển song song G2 sau khi hợp đồng đã chốt. Phải xong trước khi public dữ liệu hoặc nghiệm thu phân quyền học nhóm.
 
 ### G2 — Nguồn video, lấy frame và nhận dạng OCR
+
+**Cập nhật local 13/11/2026:** [API nhóm backend 4](GROUP-04-APPLICATION-API.md) và [OCR nhóm backend 5](GROUP-05-OCR-PIPELINE.md) đã nối source/frame/upload/job/worker/result → FE Solo/history, có model CPU Nhật/Trung và 5 ca model thực. [Report](group04-05-results.json). Browser/manual, corpus lớn, tải dài hạn và AWS vẫn pending; không coi model smoke nhỏ là nghiệm thu mọi điều kiện OC hoặc Chime/lexicon/ASR.
 
 **Chủ tích hợp:** Tài Đức. **OCR:** Bảo Anh. **Gateway/job và quyền:** Hoàng Bảo. Đối chiếu: hạng 5, 12, 13, 14 và một phần 8, 10.
 
