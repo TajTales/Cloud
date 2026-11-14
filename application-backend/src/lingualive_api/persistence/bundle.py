@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 import tempfile
+import hashlib
 
 from .cursor import CursorCodec
 from .dynamo import DynamoStore
