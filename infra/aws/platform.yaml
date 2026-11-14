@@ -1,0 +1,176 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: LinguaLive platform - ECR, ECS cluster, ALB, IAM, secret
+
+Parameters:
+  Env: { Type: String, Default: dev }
+  VpcId: { Type: "AWS::EC2::VPC::Id" }
+  SubnetIds: { Type: "List<AWS::EC2::Subnet::Id>" }
+  TableName: { Type: String }
+  BucketName: { Type: String }
+
+Resources:
+  ApiRepo:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: !Sub lingualive-${Env}-api
+      EmptyOnDelete: true
+      ImageScanningConfiguration: { ScanOnPush: true }
+      LifecyclePolicy:
+        LifecyclePolicyText: '{"rules":[{"rulePriority":1,"description":"keep 5","selection":{"tagStatus":"any","countType":"imageCountMoreThan","countNumber":5},"action":{"type":"expire"}}]}'
+
+  OcrRepo:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: !Sub lingualive-${Env}-ocr
+      EmptyOnDelete: true
+      ImageScanningConfiguration: { ScanOnPush: true }
+      LifecyclePolicy:
+        LifecyclePolicyText: '{"rules":[{"rulePriority":1,"description":"keep 5","selection":{"tagStatus":"any","countType":"imageCountMoreThan","countNumber":5},"action":{"type":"expire"}}]}'
+
+  Cluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: !Sub lingualive-${Env}
+
+  ApiLogs:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/lingualive/${Env}/api"
+      RetentionInDays: 14
+
+  OcrLogs:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/lingualive/${Env}/ocr"
+      RetentionInDays: 14
+
+  Namespace:
+    Type: AWS::ServiceDiscovery::PrivateDnsNamespace
+    Properties:
+      Name: lingualive.local
+      Vpc: !Ref VpcId
+
+  AlbSg:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Public ALB (HTTP)
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        - { IpProtocol: tcp, FromPort: 80, ToPort: 80, CidrIp: 0.0.0.0/0 }
+
+  ApiSg:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: API tasks (only from ALB)
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        - { IpProtocol: tcp, FromPort: 8081, ToPort: 8081, SourceSecurityGroupId: !Ref AlbSg }
+
+  OcrSg:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: OCR tasks (only from API)
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        - { IpProtocol: tcp, FromPort: 8080, ToPort: 8080, SourceSecurityGroupId: !Ref ApiSg }
+
+  Alb:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Type: application
+      Scheme: internet-facing
+      Subnets: !Ref SubnetIds
+      SecurityGroups: [!Ref AlbSg]
+
+  ApiTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      VpcId: !Ref VpcId
+      Port: 8081
+      Protocol: HTTP
+      TargetType: ip
+      HealthCheckPath: /health/live
+      HealthCheckIntervalSeconds: 30
+      HealthyThresholdCount: 2
+      TargetGroupAttributes:
+        - { Key: deregistration_delay.timeout_seconds, Value: "30" }
+
+  Listener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref Alb
+      Port: 80
+      Protocol: HTTP
+      DefaultActions:
+        - { Type: forward, TargetGroupArn: !Ref ApiTargetGroup }
+
+  CursorSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Description: Shared pagination/upload signing secret
+      GenerateSecretString: { PasswordLength: 64, ExcludePunctuation: true }
+
+  ExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - { Effect: Allow, Principal: { Service: ecs-tasks.amazonaws.com }, Action: "sts:AssumeRole" }
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+      Policies:
+        - PolicyName: read-cursor-secret
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - { Effect: Allow, Action: "secretsmanager:GetSecretValue", Resource: !Ref CursorSecret }
+
+  ApiTaskRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - { Effect: Allow, Principal: { Service: ecs-tasks.amazonaws.com }, Action: "sts:AssumeRole" }
+      Policies:
+        - PolicyName: app-data
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:GetItem
+                  - dynamodb:PutItem
+                  - dynamodb:UpdateItem
+                  - dynamodb:DeleteItem
+                  - dynamodb:ConditionCheckItem
+                  - dynamodb:Query
+                  - dynamodb:DescribeTable
+                Resource:
+                  - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${TableName}
+                  - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${TableName}/index/*
+              - Effect: Allow
+                Action: [s3:GetObject, s3:PutObject, s3:DeleteObject]
+                Resource:
+                  - !Sub arn:aws:s3:::${BucketName}/frames/*
+                  - !Sub arn:aws:s3:::${BucketName}/ocr/*
+                  - !Sub arn:aws:s3:::${BucketName}/recordings/*
+              - Effect: Allow
+                Action: s3:ListBucket
+                Resource: !Sub arn:aws:s3:::${BucketName}
+
+Outputs:
+  ApiRepoUri: { Value: !GetAtt ApiRepo.RepositoryUri }
+  OcrRepoUri: { Value: !GetAtt OcrRepo.RepositoryUri }
+  AlbDns: { Value: !GetAtt Alb.DNSName }
+  Cluster: { Value: !Ref Cluster, Export: { Name: !Sub "lingualive-${Env}-Cluster" } }
+  Namespace: { Value: !GetAtt Namespace.Id, Export: { Name: !Sub "lingualive-${Env}-Namespace" } }
+  ApiSg: { Value: !Ref ApiSg, Export: { Name: !Sub "lingualive-${Env}-ApiSg" } }
+  OcrSg: { Value: !Ref OcrSg, Export: { Name: !Sub "lingualive-${Env}-OcrSg" } }
+  TargetGroup: { Value: !Ref ApiTargetGroup, Export: { Name: !Sub "lingualive-${Env}-TargetGroup" } }
+  ExecutionRole: { Value: !GetAtt ExecutionRole.Arn, Export: { Name: !Sub "lingualive-${Env}-ExecutionRole" } }
+  ApiTaskRole: { Value: !GetAtt ApiTaskRole.Arn, Export: { Name: !Sub "lingualive-${Env}-ApiTaskRole" } }
+  CursorSecretArn: { Value: !Ref CursorSecret, Export: { Name: !Sub "lingualive-${Env}-CursorSecret" } }
+  ApiLogs: { Value: !Ref ApiLogs, Export: { Name: !Sub "lingualive-${Env}-ApiLogs" } }
+  OcrLogs: { Value: !Ref OcrLogs, Export: { Name: !Sub "lingualive-${Env}-OcrLogs" } }

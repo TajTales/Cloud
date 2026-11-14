@@ -1,0 +1,114 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: LinguaLive services - OCR and API on ECS Fargate
+
+Parameters:
+  Env: { Type: String, Default: dev }
+  SubnetIds: { Type: "List<AWS::EC2::Subnet::Id>" }
+  ApiImage: { Type: String }
+  OcrImage: { Type: String }
+  FrontendOrigin: { Type: String, Default: "http://localhost:8443" }
+  TableName: { Type: String }
+  BucketName: { Type: String }
+  UserPoolId: { Type: String }
+  UserPoolClientId: { Type: String }
+  ApiDesiredCount: { Type: Number, Default: 1 }
+  OcrDesiredCount: { Type: Number, Default: 1 }
+
+Resources:
+  OcrDiscovery:
+    Type: AWS::ServiceDiscovery::Service
+    Properties:
+      Name: ocr
+      NamespaceId: { "Fn::ImportValue": !Sub "lingualive-${Env}-Namespace" }
+      DnsConfig:
+        RoutingPolicy: MULTIVALUE
+        DnsRecords: [{ Type: A, TTL: 10 }]
+      HealthCheckCustomConfig: { FailureThreshold: 1 }
+
+  OcrTask:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: !Sub lingualive-${Env}-ocr
+      Cpu: "2048"
+      Memory: "4096"
+      NetworkMode: awsvpc
+      RequiresCompatibilities: [FARGATE]
+      ExecutionRoleArn: { "Fn::ImportValue": !Sub "lingualive-${Env}-ExecutionRole" }
+      ContainerDefinitions:
+        - Name: ocr
+          Image: !Ref OcrImage
+          Essential: true
+          PortMappings: [{ ContainerPort: 8080 }]
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: { "Fn::ImportValue": !Sub "lingualive-${Env}-OcrLogs" }
+              awslogs-region: !Ref AWS::Region
+              awslogs-stream-prefix: ocr
+
+  OcrService:
+    Type: AWS::ECS::Service
+    Properties:
+      Cluster: { "Fn::ImportValue": !Sub "lingualive-${Env}-Cluster" }
+      ServiceName: ocr
+      LaunchType: FARGATE
+      DesiredCount: !Ref OcrDesiredCount
+      TaskDefinition: !Ref OcrTask
+      ServiceRegistries: [{ RegistryArn: !GetAtt OcrDiscovery.Arn }]
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: ENABLED
+          Subnets: !Ref SubnetIds
+          SecurityGroups: [{ "Fn::ImportValue": !Sub "lingualive-${Env}-OcrSg" }]
+
+  ApiTask:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: !Sub lingualive-${Env}-api
+      Cpu: "512"
+      Memory: "1024"
+      NetworkMode: awsvpc
+      RequiresCompatibilities: [FARGATE]
+      ExecutionRoleArn: { "Fn::ImportValue": !Sub "lingualive-${Env}-ExecutionRole" }
+      TaskRoleArn: { "Fn::ImportValue": !Sub "lingualive-${Env}-ApiTaskRole" }
+      ContainerDefinitions:
+        - Name: api
+          Image: !Ref ApiImage
+          Essential: true
+          PortMappings: [{ ContainerPort: 8081 }]
+          Environment:
+            - { Name: AWS_REGION, Value: !Ref AWS::Region }
+            - { Name: DYNAMODB_TABLE, Value: !Ref TableName }
+            - { Name: S3_BUCKET, Value: !Ref BucketName }
+            - { Name: COGNITO_USER_POOL_ID, Value: !Ref UserPoolId }
+            - { Name: COGNITO_CLIENT_ID, Value: !Ref UserPoolClientId }
+            - { Name: ALLOWED_ORIGINS, Value: !Ref FrontendOrigin }
+            - { Name: OCR_ENABLED, Value: "1" }
+            - { Name: OCR_SERVICE_URL, Value: "http://ocr.lingualive.local:8080" }
+          Secrets:
+            - { Name: CURSOR_SECRET, ValueFrom: { "Fn::ImportValue": !Sub "lingualive-${Env}-CursorSecret" } }
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: { "Fn::ImportValue": !Sub "lingualive-${Env}-ApiLogs" }
+              awslogs-region: !Ref AWS::Region
+              awslogs-stream-prefix: api
+
+  ApiService:
+    Type: AWS::ECS::Service
+    Properties:
+      Cluster: { "Fn::ImportValue": !Sub "lingualive-${Env}-Cluster" }
+      ServiceName: api
+      LaunchType: FARGATE
+      DesiredCount: !Ref ApiDesiredCount
+      TaskDefinition: !Ref ApiTask
+      HealthCheckGracePeriodSeconds: 90
+      LoadBalancers:
+        - ContainerName: api
+          ContainerPort: 8081
+          TargetGroupArn: { "Fn::ImportValue": !Sub "lingualive-${Env}-TargetGroup" }
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: ENABLED
+          Subnets: !Ref SubnetIds
+          SecurityGroups: [{ "Fn::ImportValue": !Sub "lingualive-${Env}-ApiSg" }]
