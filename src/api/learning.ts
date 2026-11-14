@@ -124,7 +124,33 @@ class LearningClient {
   getJob = (id: string, signal?: AbortSignal) => this.request<OcrJob>(`/ocr-jobs/${id}`, "GET", undefined, undefined, false, true, signal);
   getResult = (id: string, signal?: AbortSignal) => this.request<OcrResult>(`/results/${id}`, "GET", undefined, undefined, false, true, signal);
   resultPage = (sessionId: string, throughSeq: number, cursor?: string) => this.request<{ items: Pick<OcrResult, "result_id" | "source_id" | "seq">[]; next_cursor: string | null; through_seq: number }>(`/sessions/${sessionId}/results?through_seq=${throughSeq}&limit=20${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ""}`);
+    //new
   async putFrame(upload: FrameUpload, content: Blob, signal?: AbortSignal) {
+    const url = new URL(upload.upload.url);
+    const bucket = import.meta.env.VITE_S3_BUCKET as string | undefined;
+    const local = url.protocol === "http:" && ["127.0.0.1", "localhost", "[::1]"].includes(url.hostname)
+        && url.pathname.startsWith("/local-uploads/") && !url.search && !url.hash;
+    const s3 = !!bucket && url.protocol === "https:"
+        && /^[a-z0-9.-]+\.s3[.-][a-z0-9-]*\.?amazonaws\.com$/.test(url.hostname)
+        && url.hostname.startsWith(bucket + ".s3")
+        && url.pathname.startsWith("/frames/tmp/") && !url.hash;
+    if ((!local && !s3) || url.username || url.password || upload.upload.method !== "PUT")
+        throw new ApiFailure("Địa chỉ tải frame không được hỗ trợ.", 502, "INVALID_RESPONSE");
+    const controller = new AbortController(), abort = () => controller.abort();
+    if (signal?.aborted) controller.abort();
+    signal?.addEventListener("abort", abort, { once: true });
+    const timeout = window.setTimeout(abort, 15000);
+    try {
+        const response = await fetch(url, { method: "PUT", headers: upload.upload.headers, body: content, signal: controller.signal, credentials: "omit" });
+        if (!response.ok) {
+            if (s3) throw new ApiFailure("Chưa tải được frame lên kho lưu trữ.", response.status, "REQUEST_FAILED");
+            const data = await response.json(); throw new ApiFailure(data.error?.message || "Chưa tải được frame.", response.status, data.error?.code || "REQUEST_FAILED");
+        }
+        if (local ? response.status !== 204 : response.status !== 200 && response.status !== 204) throw new ApiFailure("Phản hồi upload không hợp lệ.", 502, "INVALID_RESPONSE");
+    } catch (error) { if (error instanceof ApiFailure) throw error; throw new ApiFailure("Mất kết nối khi tải frame. Hãy thử lại.", 0, "CONNECTION_ERROR"); }
+    finally { window.clearTimeout(timeout); signal?.removeEventListener("abort", abort); }
+  }
+  /*async putFrame(upload: FrameUpload, content: Blob, signal?: AbortSignal) {
     const url = new URL(upload.upload.url);
     if (url.protocol !== "http:" || !["127.0.0.1", "localhost", "[::1]"].includes(url.hostname) || !url.pathname.startsWith("/local-uploads/") || url.username || url.password || url.search || url.hash || upload.upload.method !== "PUT") throw new ApiFailure("Địa chỉ tải frame không được hỗ trợ.", 502, "INVALID_RESPONSE");
     const controller = new AbortController(), abort = () => controller.abort();
@@ -138,5 +164,6 @@ class LearningClient {
     } catch (error) { if (error instanceof ApiFailure) throw error; throw new ApiFailure("Mất kết nối khi tải frame. Hãy thử lại.", 0, "CONNECTION_ERROR"); }
     finally { window.clearTimeout(timeout); signal?.removeEventListener("abort", abort); }
   }
+  */
 }
 export const learningClient = new LearningClient();
