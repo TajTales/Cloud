@@ -4,9 +4,10 @@
 !application-backend/schema
 !contracts
 !shared
-!docs/CT-02-INTEGRATION-GUIDE.md
 !meikipop-ocr-server/requirements-local.lock
 !meikipop-ocr-server/models.lock.json
 !meikipop-ocr-server/src
-!tools/integration
+!tools/integration/prepare_ocr_models.py
 **/__pycache__
+**/.venv
+**/.local-models

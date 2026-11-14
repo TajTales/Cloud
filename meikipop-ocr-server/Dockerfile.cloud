@@ -1,0 +1,21 @@
+FROM python:3.12-slim
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app/meikipop-ocr-server/src
+RUN apt-get update && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/*
+WORKDIR /app
+COPY meikipop-ocr-server/requirements-local.lock meikipop-ocr-server/requirements-local.lock
+RUN pip install --no-cache-dir -r meikipop-ocr-server/requirements-local.lock
+COPY meikipop-ocr-server/models.lock.json meikipop-ocr-server/models.lock.json
+COPY meikipop-ocr-server/src meikipop-ocr-server/src
+COPY tools/integration/prepare_ocr_models.py tools/integration/prepare_ocr_models.py
+# Download and verify pinned models at BUILD time.
+ENV HF_HOME=/app/meikipop-ocr-server/.local-models
+RUN HF_HUB_OFFLINE=0 python -B tools/integration/prepare_ocr_models.py
+RUN useradd --system --uid 10001 ocr && chown -R ocr /app/meikipop-ocr-server
+USER ocr
+ENV HF_HUB_OFFLINE=1
+EXPOSE 8080
+HEALTHCHECK --interval=30s --timeout=5s --start-period=40s --retries=3 \
+    CMD curl -f http://localhost:8080/health || exit 1
+CMD ["sh", "-c", "python -B tools/integration/prepare_ocr_models.py --offline && exec python -B -m meikipop_ocr_server.server --provider meikiocr --host 0.0.0.0 --port 8080 --workers 1"]

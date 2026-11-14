@@ -90,6 +90,13 @@ Resources:
         - ALLOW_REFRESH_TOKEN_AUTH
         - ALLOW_ADMIN_USER_PASSWORD_AUTH
 
+  AdminGroup:
+    Type: AWS::Cognito::UserPoolGroup
+    Properties:
+      UserPoolId: !Ref UserPool
+      GroupName: admin
+      Description: Administrators
+
 Outputs:
   TableName: { Value: !Ref AppTable }
   BucketName: { Value: !Ref AssetsBucket }
