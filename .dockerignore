@@ -1,0 +1,8 @@
+*
+!application-backend/requirements.lock
+!application-backend/src
+!application-backend/schema
+!contracts
+!shared
+!docs/CT-02-INTEGRATION-GUIDE.md
+**/__pycache__
