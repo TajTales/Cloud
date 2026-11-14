@@ -13,6 +13,7 @@ from .persistence.errors import Conflict, Forbidden, InvalidRecord, NotFound, St
 from .media import MediaService, OPERATIONS as MEDIA_OPERATIONS
 from .rooms import RoomService, OPERATIONS as ROOM_OPERATIONS
 from .collections import CollectionService, OPERATIONS as COLLECTION_OPERATIONS
+from .cognito import CognitoVerifier, CombinedAuthenticator, ProfileProvisioner
 
 
 async def database_call(function, *args):
@@ -146,7 +147,14 @@ def configure_local_integration(app):
     app.router.add_put("/local-uploads/{upload_id:[0-9a-fA-F-]{36}}", upload_frame)
 
     async def integration_context(application):
-        state["authenticator"] = LocalAuth(state["persistence"])
+        #state["authenticator"] = LocalAuth(state["persistence"])
+        #new
+        local = LocalAuth(state["persistence"])
+        cognito_cfg = state["settings"].cognito
+        state["authenticator"] = (
+            CombinedAuthenticator(local, CognitoVerifier(*cognito_cfg),
+                          ProfileProvisioner(state["persistence"])) if cognito_cfg else local)
+        #
         state["local_admin"] = LocalAdmin(state["authenticator"])
         state["learning"] = LearningService(state["persistence"])
         settings = state["settings"]

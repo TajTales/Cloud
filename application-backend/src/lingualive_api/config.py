@@ -25,6 +25,8 @@ class Settings:
     ocr_enabled: bool = False
     ocr_service_url: str = "http://127.0.0.1:8080"
     ocr_chinese_service_url: str | None = None
+    #new
+    cognito: tuple[str, str, str] | None = None
 
     @classmethod
     def from_environment(cls, environment=None):
@@ -90,6 +92,16 @@ class Settings:
         if not ocr_url:
             raise ConfigurationError("OCR_SERVICE_URL must not be empty")
         chinese_url = provider_url("OCR_CHINESE_SERVICE_URL", None)
+        #new
+        pool = values.get("COGNITO_USER_POOL_ID", "")
+        client = values.get("COGNITO_CLIENT_ID", "")
+        region = values.get("COGNITO_REGION", values.get("AWS_REGION", ""))
+        if bool(pool) != bool(client):
+            raise ConfigurationError("COGNITO_USER_POOL_ID and COGNITO_CLIENT_ID must be set together")
+        if pool and not region:
+            raise ConfigurationError("COGNITO_REGION or AWS_REGION is required with Cognito")
+        cognito = (region, pool, client) if pool else None
+        #
         return cls(stage, host, integer("APP_PORT", 8081, 1, 65535), origins, contracts,
                    integer("APP_MAX_BODY_BYTES", 1048576, 1, 1048576), level, persistence_enabled=enabled == "1", local_auth_enabled=local_auth == "1",
-                   ocr_enabled=ocr_enabled == "1", ocr_service_url=ocr_url, ocr_chinese_service_url=chinese_url)
+                   ocr_enabled=ocr_enabled == "1", ocr_service_url=ocr_url, ocr_chinese_service_url=chinese_url, cognito=cognito)
