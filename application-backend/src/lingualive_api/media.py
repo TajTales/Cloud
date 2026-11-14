@@ -62,13 +62,28 @@ class MediaService:
     def finish(self, reservation, kind, identifier, status, actions):
         self.storage.idempotency.complete(reservation, resource_type=kind, resource_id=identifier, http_status=status, mutations=actions)
 
-    def upload_view(self, record, origin):
+    """def upload_view(self, record, origin):
         data = record.data
         signature = self.upload_signature(data)
         return {key: data[key] for key in ["upload_id", "session_id", "source_id", "frame_id"]} | {
             "upload": {"method": "PUT", "url": origin + "/local-uploads/" + data["upload_id"],
                        "headers": {"Content-Type": data["content_type"], "X-Upload-Token": signature},
-                       "expires_at": epoch_iso(data["expires_at_s"])}}
+                       "expires_at": epoch_iso(data["expires_at_s"])}}"""
+
+    def upload_view(self, record, origin):
+        data = record.data
+        objects = self.storage.objects
+        if hasattr(objects, "presign_put"):
+            remaining = max(1, int(data["expires_at_s"] - self.clock()))
+            upload = {"method": "PUT",
+                      "url": objects.presign_put(data["object_key"], data["content_type"], remaining),
+                      "headers": {"Content-Type": data["content_type"]},
+                      "expires_at": epoch_iso(data["expires_at_s"])}
+        else:
+            upload = {"method": "PUT", "url": origin + "/local-uploads/" + data["upload_id"],
+                      "headers": {"Content-Type": data["content_type"], "X-Upload-Token": self.upload_signature(data)},
+                      "expires_at": epoch_iso(data["expires_at_s"])}
+        return {key: data[key] for key in ["upload_id", "session_id", "source_id", "frame_id"]} | {"upload": upload}
 
     def upload_signature(self, data):
         message = "local-frame-upload:v1:" + digest({key: data[key] for key in ["upload_id", "session_id", "source_id", "frame_id", "expires_at_s"]})
@@ -105,6 +120,27 @@ class MediaService:
         actions.append(self.guard(session))
         self.store.transact(actions)
         return 204
+
+    #new
+    def adopt_s3_upload(self, upload, session):
+        data = upload.data
+        objects = self.storage.objects
+        try:
+            content, content_type = objects.read_unverified(data["object_key"], max_bytes=1048576)
+        except NotFound:
+            raise ApiError(409, "UPLOAD_NOT_READY", "Frame chưa được tải lên thành công.")
+        try:
+            if len(content) != data["size_bytes"] or content_type != data["content_type"]:
+                raise ApiError(422, "INVALID_IMAGE", "Ảnh khác metadata đã đăng ký.")
+            validate_image(content, content_type, expected_size=(data["width_px"], data["height_px"]))
+        except ApiError:
+            objects.delete(data["object_key"])
+            raise
+        reference = objects.put(data["object_key"], [content], content_type, max_bytes=1048576)
+        actions = self.rows(upload.scope, "object_ref", reference.dictionary())
+        actions += self.rows(upload.scope, "upload", {**data, "state": "ready"}, upload.revision + 1, upload.revision)
+        actions.append(self.guard(session))
+        self.store.transact(actions)
 
     def handle(self, operation, actor, body, params, query, headers, path, method, origin):
         if operation == "getOcrJob":
@@ -198,6 +234,10 @@ class MediaService:
                 raise ApiError(409, "IDEMPOTENCY_CONFLICT", "Frame này đã được gắn với upload khác.")
             self.finish(reservation, "job", old.identifier, 200, [])
             return self.job_view(old), 200
+        #new
+        if upload.data["state"] == "awaiting" and hasattr(self.storage.objects, "read_unverified"):
+            self.adopt_s3_upload(upload, session)
+            upload = self.repo.get(actor, scope, "upload", upload.identifier)
         if upload.data["state"] != "ready":
             raise ApiError(409, "UPLOAD_NOT_READY", "Frame chưa được tải lên thành công.")
         slot_key = {"pk": "LOCAL_OCR#SLOT", "sk": session.identifier}

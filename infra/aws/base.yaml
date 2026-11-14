@@ -1,0 +1,96 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: LinguaLive base (dev)
+
+Parameters:
+  Env:
+    Type: String
+    Default: dev
+  FrontendOrigin:
+    Type: String
+    Default: http://localhost:8443
+
+Resources:
+  #AppTable:
+  #  Type: AWS::DynamoDB::Table
+  #  Properties:
+  #    TableName: !Sub lingualive-${Env}-app
+  #    BillingMode: PAY_PER_REQUEST
+  #    AttributeDefinitions:
+  #      - { AttributeName: pk, AttributeType: S }
+  #      - { AttributeName: sk, AttributeType: S }
+  #    KeySchema:
+  #      - { AttributeName: pk, KeyType: HASH }
+  #      - { AttributeName: sk, KeyType: RANGE } 
+
+  AppTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub lingualive-${Env}-app
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - { AttributeName: pk, AttributeType: S }
+        - { AttributeName: sk, AttributeType: S }
+        - { AttributeName: gsi_pk, AttributeType: S }
+        - { AttributeName: gsi_sk, AttributeType: S }
+      KeySchema:
+        - { AttributeName: pk, KeyType: HASH }
+        - { AttributeName: sk, KeyType: RANGE }
+      GlobalSecondaryIndexes:
+        - IndexName: gsi1
+          KeySchema:
+            - { AttributeName: gsi_pk, KeyType: HASH }
+            - { AttributeName: gsi_sk, KeyType: RANGE }
+          Projection: { ProjectionType: ALL }
+
+  AssetsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub lingualive-${Env}-sg-assets-${AWS::AccountId}
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault: { SSEAlgorithm: AES256 }
+      #LifecycleConfiguration:
+      #  Rules:
+      #    - Id: expire-frames
+      #      Status: Enabled
+      #      Prefix: sessions/
+      #      ExpirationInDays: 30
+      LifecycleConfiguration:
+        Rules:
+          - Id: expire-frames
+            Status: Enabled
+            Prefix: frames/
+            ExpirationInDays: 1
+      CorsConfiguration:
+        CorsRules:
+          - AllowedOrigins: [!Ref FrontendOrigin]
+            AllowedMethods: [PUT, GET]
+            AllowedHeaders: ["*"]
+            MaxAge: 300
+
+  UserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: !Sub lingualive-${Env}
+      UsernameAttributes: [email]
+      AutoVerifiedAttributes: [email]
+
+  UserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      UserPoolId: !Ref UserPool
+      GenerateSecret: false
+      ExplicitAuthFlows:
+        - ALLOW_USER_SRP_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+
+Outputs:
+  TableName: { Value: !Ref AppTable }
+  BucketName: { Value: !Ref AssetsBucket }
+  UserPoolId: { Value: !Ref UserPool }
+  UserPoolClientId: { Value: !Ref UserPoolClient }
