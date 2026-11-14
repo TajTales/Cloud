@@ -11,6 +11,13 @@ from .repository import Repository
 
 
 def cursor_secret(directory):
+    #new
+    shared = os.environ.get("CURSOR_SECRET")
+    if shared:
+        if len(shared) < 32:
+            raise IntegrityFailure("CURSOR_SECRET is too short")
+        return hashlib.sha256(shared.encode()).digest()
+    #
     directory = Path(directory)
     directory.mkdir(parents=True, exist_ok=True, mode=0o700)
     target = directory / "cursor.key"

@@ -42,11 +42,21 @@ class Settings:
             return result
 
         stage = values.get("APP_ENV", "local")
-        if stage not in {"local", "test"}:
+        """if stage not in {"local", "test"}:
             raise ConfigurationError("This foundation supports APP_ENV=local|test; production setup is pending")
         host = values.get("APP_HOST", "127.0.0.1")
         if host not in {"127.0.0.1", "localhost", "::1"}:
-            raise ConfigurationError("Local foundation must bind to a loopback host")
+            raise ConfigurationError("Local foundation must bind to a loopback host")"""
+            #new
+        if stage not in {"local", "test", "cloud"}:
+            raise ConfigurationError("APP_ENV must be local, test or cloud")
+        cloud = stage == "cloud"
+        if cloud != (values.get("DEPLOYMENT_MODE", "local") == "cloud"):
+            raise ConfigurationError("APP_ENV=cloud requires DEPLOYMENT_MODE=cloud, and vice versa")
+        host = values.get("APP_HOST", "0.0.0.0" if cloud else "127.0.0.1")
+        if host not in ({"0.0.0.0"} if cloud else {"127.0.0.1", "localhost", "::1"}):
+            raise ConfigurationError("APP_HOST is not allowed for this environment")
+        #
         if values.get("DATA_MODE", "real") != "real":
             raise ConfigurationError("DATA_MODE must be real; use the separate CT-04 server for mock mode")
         origins = tuple(filter(None, (item.strip() for item in values.get(
@@ -83,8 +93,13 @@ class Settings:
                 return None
             parsed = urlsplit(value)
             try:
-                if parsed.scheme != "http" or parsed.hostname not in {"127.0.0.1", "::1"} or not parsed.port or parsed.path or parsed.query or parsed.fragment or parsed.username or parsed.password:
+                #if parsed.scheme != "http" or parsed.hostname not in {"127.0.0.1", "::1"} or not parsed.port or parsed.path or parsed.query or parsed.fragment or parsed.username or parsed.password:
+                    #raise ValueError()
+                allowed_host = parsed.hostname in {"127.0.0.1", "::1"} or (
+                    cloud and parsed.hostname and parsed.hostname.endswith(".lingualive.local"))
+                if parsed.scheme != "http" or not allowed_host or not parsed.port or parsed.path or parsed.query or parsed.fragment or parsed.username or parsed.password:
                     raise ValueError()
+                #
             except ValueError:
                 raise ConfigurationError(name + " must be an explicit HTTP loopback origin without credentials/path") from None
             return value
