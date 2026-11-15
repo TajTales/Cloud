@@ -1,3 +1,5 @@
+import { cognitoAccessToken, cognitoLogout, tokenExpiry } from "./auth";
+
 export const REAL_API = import.meta.env.VITE_API_MODE !== "preview";
 export type ApiProfile = { user_id: string; display_name: string; email: string; email_verified: boolean; roles: string[]; permissions: string[]; status: string; locale: "vi" | "en"; timezone: string; learning_language: string; version: number };
 export type SavedWord = { word_id: string; lemma: string; entry_id: string; sense_id: string; language: string; reading: { kana: string | null; romaji: string | null; pinyin: string | null } | null; meanings: { text: string; language: string; origin: string }[]; review_state: "new" | "learning" | "known"; version: number; created_at: string };
@@ -27,10 +29,24 @@ class LearningClient {
     if (typeof navigator !== "undefined" && navigator.locks) return await navigator.locks.request("lingualive-local-auth-cookie", work);
     return await work();
   }
+  //new
+  private cognito = false;
+  async authenticateCognito(accessToken: string, expiresAtS: number) {
+    this.token = accessToken; this.expiresAt = expiresAtS; this.cognito = true; this.authGeneration++;
+    const profile = await this.me(); this.subject = profile.user_id; return profile;
+  }
+  //
+  async currentCognitoToken() { return this.cognito; }
   private base = (import.meta.env.VITE_API_BASE_URL || "/api/v1").replace(/\/$/, "");
   private async request<T>(path: string, method = "GET", body?: unknown, key?: string, localAuth = false, retry = true, signal?: AbortSignal): Promise<T> {
     const requiresAccess = !localAuth || /^(verification|email|password\/change|logout-all|admin)/.test(path);
-    if (requiresAccess && this.token && Date.now() / 1000 >= this.expiresAt - 30 && retry) await this.renew();
+    if (requiresAccess && this.token && !this.cognito && Date.now() / 1000 >= this.expiresAt - 30 && retry) await this.renew();
+    //new
+    if (this.cognito && requiresAccess) {
+      const fresh = await cognitoAccessToken();
+      if (fresh) { this.token = fresh; this.expiresAt = tokenExpiry(fresh); }
+    }
+    //
     const sentToken = this.token;
     const headers: Record<string, string> = {};
     if (body !== undefined) headers["Content-Type"] = "application/json";
@@ -87,8 +103,8 @@ class LearningClient {
     }).catch(error => { if (generation === this.authGeneration && error instanceof ApiFailure && [401, 403].includes(error.status)) this.clearToken(); throw error; }).finally(() => { this.refreshing = null; });
     return this.refreshing;
   }
-  async logout() { if (this.refreshing) { try { await this.refreshing; } catch { /* Still revoke the cookie. */ } } await this.withCookieLock(() => this.request("logout", "POST", undefined, undefined, true)); this.clearToken(); }
-  clearToken() { this.token = null; this.subject = null; this.expiresAt = 0; this.authGeneration++; }
+  async logout() { if (this.cognito) { cognitoLogout(); this.clearToken(); return; } if (this.refreshing) { try { await this.refreshing; } catch { /* Still revoke the cookie. */ } } await this.withCookieLock(() => this.request("logout", "POST", undefined, undefined, true)); this.clearToken(); }
+  clearToken() { this.token = null; this.subject = null; this.expiresAt = 0; this.authGeneration++; this.cognito = false;}
   authAction = <T = { accepted: boolean; delivery_mode: string }>(action: string, body: unknown = {}) => this.request<T>(action, "POST", body, undefined, true);
   adminUsers = () => this.localPages<ApiProfile>("admin/users");
   adminAudit = (cursor?: string) => this.request<Page<{ event_id: string; occurred_at: string; action: string; actor: { user_id: string }; target: { label: string }; reason: string | null }>>(`admin/audit${cursor ? `?cursor=${encodeURIComponent(cursor)}` : ""}`, "GET", undefined, undefined, true);
