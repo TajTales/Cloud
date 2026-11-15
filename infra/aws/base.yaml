@@ -68,7 +68,7 @@ Resources:
             ExpirationInDays: 1
       CorsConfiguration:
         CorsRules:
-          - AllowedOrigins: [!Ref FrontendOrigin]
+          - AllowedOrigins: [!Ref FrontendOrigin, "http://localhost:8443"]
             AllowedMethods: [PUT, GET]
             AllowedHeaders: ["*"]
             MaxAge: 300

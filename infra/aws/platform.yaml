@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: LinguaLive platform - ECR, ECS cluster, ALB, IAM, secret
+Description: LinguaLive platform - ECR, ECS cluster, ALB (locked to CloudFront), IAM, secret
 
 Parameters:
   Env: { Type: String, Default: dev }
@@ -7,6 +7,17 @@ Parameters:
   SubnetIds: { Type: "List<AWS::EC2::Subnet::Id>" }
   TableName: { Type: String }
   BucketName: { Type: String }
+  OriginSecret:
+    Type: String
+    NoEcho: true
+    MinLength: 16
+  CloudFrontPrefixListId:
+    Type: String
+    Default: ""
+    Description: Managed prefix list com.amazonaws.global.cloudfront.origin-facing (empty = open to Internet)
+
+Conditions:
+  UsePrefixList: !Not [!Equals [!Ref CloudFrontPrefixListId, ""]]
 
 Resources:
   ApiRepo:
@@ -53,10 +64,13 @@ Resources:
   AlbSg:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Public ALB (HTTP)
+      GroupDescription: Public ALB (HTTP, CloudFront only when prefix list is set)
       VpcId: !Ref VpcId
       SecurityGroupIngress:
-        - { IpProtocol: tcp, FromPort: 80, ToPort: 80, CidrIp: 0.0.0.0/0 }
+        - !If
+          - UsePrefixList
+          - { IpProtocol: tcp, FromPort: 80, ToPort: 80, SourcePrefixListId: !Ref CloudFrontPrefixListId }
+          - { IpProtocol: tcp, FromPort: 80, ToPort: 80, CidrIp: 0.0.0.0/0 }
 
   ApiSg:
     Type: AWS::EC2::SecurityGroup
@@ -102,7 +116,26 @@ Resources:
       Port: 80
       Protocol: HTTP
       DefaultActions:
-        - { Type: forward, TargetGroupArn: !Ref ApiTargetGroup }
+        - Type: fixed-response
+          FixedResponseConfig:
+            StatusCode: "403"
+            ContentType: text/plain
+            MessageBody: Forbidden
+
+  ApiListenerRule:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    Properties:
+      ListenerArn: !Ref Listener
+      Priority: 10
+      Conditions:
+        - Field: http-header
+          HttpHeaderConfig:
+            HttpHeaderName: X-Origin-Verify
+            Values:
+              - !Ref OriginSecret
+      Actions:
+        - Type: forward
+          TargetGroupArn: !Ref ApiTargetGroup
 
   CursorSecret:
     Type: AWS::SecretsManager::Secret
@@ -147,6 +180,8 @@ Resources:
                   - dynamodb:ConditionCheckItem
                   - dynamodb:Query
                   - dynamodb:DescribeTable
+                  - dynamodb:TransactWriteItems
+                  - dynamodb:TransactGetItems
                 Resource:
                   - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${TableName}
                   - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${TableName}/index/*
