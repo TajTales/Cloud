@@ -23,3 +23,5 @@ logs/
 # beside it.
 /.plugins/
 /.opencode-skills/
+
+.vs/

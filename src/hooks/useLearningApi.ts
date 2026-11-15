@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ApiFailure, learningClient as client, type ApiProfile, type SavedWord, type StudySession, type HistoryItem, type Stats } from "../api/learning";
+import { cognitoAccessToken, cognitoLogin, cognitoSignUp, tokenExpiry } from "../api/auth";
+const COGNITO = import.meta.env.VITE_AUTH_MODE === "cognito";
 
 export default function useLearningApi(enabled: boolean) {
   const [profile, setProfile] = useState<ApiProfile | null>(null);
@@ -33,7 +35,13 @@ export default function useLearningApi(enabled: boolean) {
     if (!enabled) return;
     let cancelled = false;
     void (async () => {
-      try { const restored = await client.authenticate("session"); if (cancelled) return; setProfile(restored); await refresh(); }
+      try { 
+        const restored = COGNITO
+          ? await (async () => { const t = await cognitoAccessToken(); if (!t) throw new ApiFailure("Chưa đăng nhập.", 401, "AUTH_REQUIRED"); return client.authenticateCognito(t, tokenExpiry(t)); })()
+          : await client.authenticate("session");
+          if (cancelled) return; setProfile(restored); await refresh();
+        //const restored = await client.authenticate("session"); if (cancelled) return; setProfile(restored); await refresh(); 
+        }
       catch (reason) { if (!cancelled && (!(reason instanceof ApiFailure) || reason.status !== 401)) setError(reason instanceof Error ? reason.message : "Chưa kết nối API local."); }
       finally { if (!cancelled) setRestoring(false); }
     })();
@@ -42,8 +50,15 @@ export default function useLearningApi(enabled: boolean) {
   return {
     profile, words, history, stats, active, updatedAt, busy: busy > 0 || restoring, restoring, error, setError,
     refresh: () => run(refresh),
-    login: (email: string, password: string) => run(async () => { setProfile(await client.authenticate("login", { email, password })); await refresh(); }),
-    register: (display_name: string, email: string, password: string) => run(async () => { setProfile(await client.authenticate("register", { display_name, email, password })); await refresh(); }),
+    //login: (email: string, password: string) => run(async () => { setProfile(await client.authenticate("login", { email, password })); await refresh(); }),
+    login: (email: string, password: string) => run(async () => {
+      if (COGNITO) { const t = await cognitoLogin(email, password); setProfile(await client.authenticateCognito(t, tokenExpiry(t))); }
+      else setProfile(await client.authenticate("login", { email, password }));
+      await refresh(); }),
+    //register: (display_name: string, email: string, password: string) => run(async () => { setProfile(await client.authenticate("register", { display_name, email, password })); await refresh(); }),
+    register: (display_name: string, email: string, password: string) => run(async () => {
+      if (COGNITO) { await cognitoSignUp(email, password); throw new Error("Đã gửi mã xác nhận tới email. Hãy xác nhận rồi đăng nhập."); }
+      setProfile(await client.authenticate("register", { display_name, email, password })); await refresh(); }),
     authAction: (action: string, body: unknown = {}) => run(async () => {
       const result = await client.authAction<{ signed_out?: boolean; accepted?: boolean; delivery_mode?: string }>(action, body);
       if (result.signed_out) { client.clearToken(); setProfile(null); setWords([]); setHistory([]); setStats(null); setActive(null); generation.current++; }

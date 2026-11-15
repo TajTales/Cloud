@@ -25,6 +25,8 @@ class Settings:
     ocr_enabled: bool = False
     ocr_service_url: str = "http://127.0.0.1:8080"
     ocr_chinese_service_url: str | None = None
+    #new
+    cognito: tuple[str, str, str] | None = None
 
     @classmethod
     def from_environment(cls, environment=None):
@@ -40,11 +42,21 @@ class Settings:
             return result
 
         stage = values.get("APP_ENV", "local")
-        if stage not in {"local", "test"}:
+        """if stage not in {"local", "test"}:
             raise ConfigurationError("This foundation supports APP_ENV=local|test; production setup is pending")
         host = values.get("APP_HOST", "127.0.0.1")
         if host not in {"127.0.0.1", "localhost", "::1"}:
-            raise ConfigurationError("Local foundation must bind to a loopback host")
+            raise ConfigurationError("Local foundation must bind to a loopback host")"""
+            #new
+        if stage not in {"local", "test", "cloud"}:
+            raise ConfigurationError("APP_ENV must be local, test or cloud")
+        cloud = stage == "cloud"
+        if cloud != (values.get("DEPLOYMENT_MODE", "local") == "cloud"):
+            raise ConfigurationError("APP_ENV=cloud requires DEPLOYMENT_MODE=cloud, and vice versa")
+        host = values.get("APP_HOST", "0.0.0.0" if cloud else "127.0.0.1")
+        if host not in ({"0.0.0.0"} if cloud else {"127.0.0.1", "localhost", "::1"}):
+            raise ConfigurationError("APP_HOST is not allowed for this environment")
+        #
         if values.get("DATA_MODE", "real") != "real":
             raise ConfigurationError("DATA_MODE must be real; use the separate CT-04 server for mock mode")
         origins = tuple(filter(None, (item.strip() for item in values.get(
@@ -81,8 +93,13 @@ class Settings:
                 return None
             parsed = urlsplit(value)
             try:
-                if parsed.scheme != "http" or parsed.hostname not in {"127.0.0.1", "::1"} or not parsed.port or parsed.path or parsed.query or parsed.fragment or parsed.username or parsed.password:
+                #if parsed.scheme != "http" or parsed.hostname not in {"127.0.0.1", "::1"} or not parsed.port or parsed.path or parsed.query or parsed.fragment or parsed.username or parsed.password:
+                    #raise ValueError()
+                allowed_host = parsed.hostname in {"127.0.0.1", "::1"} or (
+                    cloud and parsed.hostname and parsed.hostname.endswith(".lingualive.local"))
+                if parsed.scheme != "http" or not allowed_host or not parsed.port or parsed.path or parsed.query or parsed.fragment or parsed.username or parsed.password:
                     raise ValueError()
+                #
             except ValueError:
                 raise ConfigurationError(name + " must be an explicit HTTP loopback origin without credentials/path") from None
             return value
@@ -90,6 +107,16 @@ class Settings:
         if not ocr_url:
             raise ConfigurationError("OCR_SERVICE_URL must not be empty")
         chinese_url = provider_url("OCR_CHINESE_SERVICE_URL", None)
+        #new
+        pool = values.get("COGNITO_USER_POOL_ID", "")
+        client = values.get("COGNITO_CLIENT_ID", "")
+        region = values.get("COGNITO_REGION", values.get("AWS_REGION", ""))
+        if bool(pool) != bool(client):
+            raise ConfigurationError("COGNITO_USER_POOL_ID and COGNITO_CLIENT_ID must be set together")
+        if pool and not region:
+            raise ConfigurationError("COGNITO_REGION or AWS_REGION is required with Cognito")
+        cognito = (region, pool, client) if pool else None
+        #
         return cls(stage, host, integer("APP_PORT", 8081, 1, 65535), origins, contracts,
                    integer("APP_MAX_BODY_BYTES", 1048576, 1, 1048576), level, persistence_enabled=enabled == "1", local_auth_enabled=local_auth == "1",
-                   ocr_enabled=ocr_enabled == "1", ocr_service_url=ocr_url, ocr_chinese_service_url=chinese_url)
+                   ocr_enabled=ocr_enabled == "1", ocr_service_url=ocr_url, ocr_chinese_service_url=chinese_url, cognito=cognito)

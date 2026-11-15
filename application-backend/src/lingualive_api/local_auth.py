@@ -27,7 +27,9 @@ class LocalAuth:
     def __init__(self, storage, *, clock=time, mailbox=None):
         self.storage, self.clock = storage, clock
         self.store, self.repo = storage.store, storage.repository
-        directory = storage.objects.root.parent
+        #directory = storage.objects.root.parent
+        #new
+        directory = getattr(storage, "data_dir", None) or storage.objects.root.parent
         self.mailbox = mailbox or LocalMailbox(directory / "mailbox")
         self.code_key = cursor_secret(directory / "auth")
 

@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 import tempfile
+import hashlib
 
 from .cursor import CursorCodec
 from .dynamo import DynamoStore
@@ -11,6 +12,13 @@ from .repository import Repository
 
 
 def cursor_secret(directory):
+    #new
+    shared = os.environ.get("CURSOR_SECRET")
+    if shared:
+        if len(shared) < 32:
+            raise IntegrityFailure("CURSOR_SECRET is too short")
+        return hashlib.sha256(shared.encode()).digest()
+    #
     directory = Path(directory)
     directory.mkdir(parents=True, exist_ok=True, mode=0o700)
     target = directory / "cursor.key"
@@ -35,13 +43,26 @@ def cursor_secret(directory):
     finally:
         if temporary and temporary.exists():
             temporary.unlink()
-
+#new
+def make_store(settings):
+    if getattr(settings, "mode", "local") == "cloud":
+        from .dynamo_aws import AwsDynamoStore
+        return AwsDynamoStore(settings)
+    return DynamoStore(settings)
 
 class PersistenceBundle:
     def __init__(self, settings, contracts):
-        self.store = DynamoStore(settings)
+        #self.store = DynamoStore(settings) old 
+        self.store = make_store(settings)
+        self.data_dir = settings.data_dir
         try:
-            self.objects = LocalObjectStore(settings.data_dir / "objects")
+            #self.objects = LocalObjectStore(settings.data_dir / "objects")
+            #new
+            if getattr(settings, "mode", "local") == "cloud":
+                from .s3 import S3ObjectStore
+                self.objects = S3ObjectStore(settings.bucket, settings.region)
+            else:
+                self.objects = LocalObjectStore(settings.data_dir / "objects")
             self.cursors = CursorCodec(cursor_secret(settings.data_dir))
             self.repository = Repository(self.store, contracts, self.cursors)
             self.idempotency = IdempotencyStore(self.store)
@@ -49,8 +70,21 @@ class PersistenceBundle:
             self.store.close()
             raise
 
+    #new
+    def _objects_ready(self):
+        root = getattr(self.objects, "root", None)
+        if root is not None:
+            return root.is_dir()
+        try:
+            self.objects.client.head_bucket(Bucket=self.objects.bucket)
+            return True
+        except Exception:
+            return False
+
     def health(self):
-        return {"database": "ready" if self.store.health() else "unavailable", "object_storage": "ready" if self.objects.root.is_dir() else "unavailable"}
+        #return {"database": "ready" if self.store.health() else "unavailable", "object_storage": "ready" if self.objects.root.is_dir() else "unavailable"}
+        return {"database": "ready" if self.store.health() else "unavailable",
+                "object_storage": "ready" if self._objects_ready() else "unavailable"}
 
     def close(self):
         self.store.close()
