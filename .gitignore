@@ -25,3 +25,7 @@ logs/
 /.opencode-skills/
 
 .vs/
+
+aws.env
+.lingualive-origin-secret
+*.secret
